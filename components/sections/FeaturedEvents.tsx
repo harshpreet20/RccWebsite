@@ -65,12 +65,13 @@ export default function FeaturedEvents() {
           {events.map((event, i) => (
             <motion.div
               key={event.id}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7, delay: i * 0.15 }}
-              whileHover={{ y: -8, scale: 1.02 }}
-              className="glass rounded-3xl overflow-hidden group cursor-pointer"
+              initial={{ opacity: 0, y: 60, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.7, delay: i * 0.18, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ y: -10, scale: 1.02 }}
+              style={{ transformPerspective: 1000 }}
+              className="glass rounded-3xl overflow-hidden group cursor-none glow-border"
             >
               {/* Card header */}
               <div className={`bg-gradient-to-br ${event.color} p-8 relative overflow-hidden`}>

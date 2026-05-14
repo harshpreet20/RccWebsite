@@ -73,12 +73,13 @@ export default function CommunityValues() {
           {values.map((value, i) => (
             <motion.div
               key={value.title}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-              whileHover={{ y: -6 }}
-              className="glass rounded-3xl p-8 group hover:glow-gold transition-all duration-500"
+              initial={{ opacity: 0, y: 50, scale: 0.97 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.65, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ y: -8, scale: 1.02, rotateX: 2 }}
+              style={{ transformPerspective: 800 }}
+              className="glass rounded-3xl p-8 group glow-border transition-all duration-400 cursor-none"
             >
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300"

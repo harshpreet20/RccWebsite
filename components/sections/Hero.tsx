@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { ChevronDown, Zap, Users, ArrowRight, Trophy, Calendar, Handshake } from 'lucide-react';
 import { SOCIAL_LINKS } from '@/lib/utils';
 
@@ -15,14 +15,53 @@ const particles = Array.from({ length: 18 }, (_, i) => ({
 }));
 
 const stats = [
-  { val: '150+', label: 'Active Players', Icon: Users },
-  { val: '50+', label: 'Events Hosted', Icon: Trophy },
-  { val: '200+', label: 'Weekend Sessions', Icon: Calendar },
-  { val: '10+', label: 'Community Partners', Icon: Handshake },
+  { num: 150, suffix: '+', label: 'Active Players', Icon: Users },
+  { num: 50, suffix: '+', label: 'Events Hosted', Icon: Trophy },
+  { num: 200, suffix: '+', label: 'Weekend Sessions', Icon: Calendar },
+  { num: 10, suffix: '+', label: 'Community Partners', Icon: Handshake },
 ];
+
+const heroWords = ['DELHI\'S', 'INVITE-ONLY', 'BADMINTON'];
+const wordColors = ['text-[#e4e2e5]', 'text-transparent', 'text-[#e4e2e5]'];
+
+function CountUp({ target, suffix, started }: { target: number; suffix: string; started: boolean }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!started) return;
+    const duration = 1400;
+    const startTime = performance.now();
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(eased * target));
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [started, target]);
+
+  return <>{count}{suffix}</>;
+}
+
+const containerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.18, delayChildren: 0.35 } },
+};
+
+const wordVariants = {
+  hidden: { opacity: 0, y: 60, skewY: 4 },
+  visible: {
+    opacity: 1, y: 0, skewY: 0,
+    transition: { duration: 0.85, ease: 'easeOut' as const },
+  },
+};
 
 export default function Hero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
+  const statsInView = useInView(statsRef, { once: true, margin: '-80px' });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -116,9 +155,21 @@ export default function Hero() {
 
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-br from-[#131315] via-[#0B1F3A]/50 to-[#131315]" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[700px] bg-[#C21818]/8 rounded-full blur-3xl" />
-        <div className="absolute top-1/4 left-0 w-72 h-72 bg-[#D4AF37]/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-0 w-72 h-72 bg-[#C21818]/5 rounded-full blur-3xl" />
+        <motion.div
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[700px] bg-[#C21818]/8 rounded-full blur-3xl"
+          animate={{ scale: [1, 1.08, 1], opacity: [0.8, 1, 0.8] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute top-1/4 left-0 w-72 h-72 bg-[#D4AF37]/5 rounded-full blur-3xl"
+          animate={{ x: [0, 20, 0], y: [0, -15, 0] }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-0 w-72 h-72 bg-[#C21818]/5 rounded-full blur-3xl"
+          animate={{ x: [0, -20, 0], y: [0, 15, 0] }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+        />
       </div>
 
       {particles.map((p) => (
@@ -132,100 +183,135 @@ export default function Hero() {
       ))}
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
+        {/* Eyebrow label */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="flex items-center justify-center gap-4 mb-8"
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="flex items-center justify-center gap-4 mb-10"
         >
-          <div className="h-px w-10 bg-gradient-to-r from-transparent to-[#C21818]/50" />
-          <span className="text-[#D4AF37] text-xs tracking-[0.4em] font-medium uppercase">
+          <motion.div
+            className="h-px bg-gradient-to-r from-transparent to-[#C21818]/50"
+            initial={{ width: 0 }}
+            animate={{ width: 40 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          />
+          <span className="text-[#D4AF37] text-xs tracking-[0.45em] font-bold uppercase font-[family-name:var(--font-inter)]">
             Delhi, India · Invite Only
           </span>
-          <div className="h-px w-10 bg-gradient-to-l from-transparent to-[#C21818]/50" />
+          <motion.div
+            className="h-px bg-gradient-to-l from-transparent to-[#C21818]/50"
+            initial={{ width: 0 }}
+            animate={{ width: 40 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          />
         </motion.div>
 
+        {/* Hero headline — word-by-word stagger */}
         <motion.h1
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="text-6xl sm:text-7xl md:text-8xl lg:text-[7rem] font-black leading-[0.9] tracking-[-0.04em] mb-8 uppercase font-[family-name:var(--font-montserrat)]"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="text-6xl sm:text-7xl md:text-8xl lg:text-[7rem] font-black leading-[0.9] tracking-[-0.04em] mb-8 uppercase font-[family-name:var(--font-montserrat)] overflow-hidden"
         >
-          <span className="block text-[#e4e2e5]">DELHI&apos;S</span>
-          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#C21818] via-[#D4AF37] to-[#C21818] animate-gradient">
-            INVITE-ONLY
-          </span>
-          <span className="block text-[#e4e2e5]">BADMINTON</span>
+          {heroWords.map((word, i) => (
+            <motion.span
+              key={word}
+              variants={wordVariants}
+              className={`block ${wordColors[i]} ${
+                i === 1
+                  ? 'bg-clip-text bg-gradient-to-r from-[#C21818] via-[#D4AF37] to-[#C21818] animate-gradient'
+                  : ''
+              }`}
+              style={i === 1 ? { WebkitBackgroundClip: 'text' } : {}}
+            >
+              {word}
+            </motion.span>
+          ))}
         </motion.h1>
 
+        {/* Tagline */}
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.6 }}
-          className="text-white/50 text-base md:text-lg max-w-md mx-auto mb-12 leading-relaxed"
+          transition={{ duration: 0.7, delay: 1.0 }}
+          className="text-[#c4c6ce] text-base md:text-lg max-w-md mx-auto mb-12 leading-relaxed font-[family-name:var(--font-inter)]"
         >
           Serious players. Skill-based matches. Real community.
         </motion.p>
 
+        {/* CTA Buttons */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.75 }}
+          transition={{ duration: 0.6, delay: 1.15 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-24"
         >
-          <a
+          <motion.a
             href={SOCIAL_LINKS.whatsapp}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2.5 px-9 py-4 bg-gradient-to-r from-[#C21818] to-[#8B0000] text-white font-bold text-sm tracking-widest rounded-full hover:shadow-[0_0_28px_rgba(194,24,24,0.5)] hover:scale-105 transition-all duration-300"
+            whileHover={{ scale: 1.04, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            className="flex items-center gap-2.5 px-9 py-4 bg-gradient-to-r from-[#C21818] to-[#8B0000] text-white font-bold text-sm tracking-widest rounded-full hover:shadow-[0_0_32px_rgba(194,24,24,0.55)] transition-shadow duration-300 cursor-none"
           >
             <Zap size={14} className="fill-current" />
             JOIN WHATSAPP COMMUNITY
-          </a>
-          <a
+          </motion.a>
+          <motion.a
             href="/about"
-            className="flex items-center gap-2.5 px-9 py-4 glass text-white/70 hover:text-white font-semibold text-sm tracking-widest rounded-full hover:border-white/20 transition-all duration-300"
+            whileHover={{ scale: 1.04, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            className="flex items-center gap-2.5 px-9 py-4 glass text-[#c4c6ce] hover:text-white font-semibold text-sm tracking-widest rounded-full transition-all duration-300 cursor-none"
           >
             LEARN MORE
             <ArrowRight size={14} />
-          </a>
+          </motion.a>
         </motion.div>
 
+        {/* Stats — animated counters */}
         <motion.div
+          ref={statsRef}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.9 }}
+          transition={{ duration: 0.7, delay: 1.3 }}
           className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto"
         >
-          {stats.map(({ val, label, Icon }, i) => (
+          {stats.map(({ num, suffix, label, Icon }, i) => (
             <motion.div
               key={label}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 + i * 0.08 }}
-              whileHover={{ y: -4, scale: 1.02 }}
-              className="glass rounded-2xl p-5 text-center cursor-default"
+              transition={{ delay: 1.4 + i * 0.1, duration: 0.5 }}
+              whileHover={{ y: -5, scale: 1.03 }}
+              className="glass rounded-2xl p-5 text-center cursor-none group transition-all duration-300"
             >
               <div className="flex justify-center mb-2.5">
-                <Icon size={17} className="text-[#D4AF37] opacity-75" />
+                <Icon size={17} className="text-[#D4AF37] opacity-75 group-hover:opacity-100 transition-opacity" />
               </div>
-              <div className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#C21818] to-[#D4AF37]">
-                {val}
+              <div className="text-2xl md:text-3xl font-black font-[family-name:var(--font-montserrat)] text-transparent bg-clip-text bg-gradient-to-r from-[#C21818] to-[#D4AF37]">
+                <CountUp target={num} suffix={suffix} started={statsInView} />
               </div>
-              <div className="text-white/40 text-[10px] tracking-widest uppercase mt-1 leading-tight">{label}</div>
+              <div className="text-[#8e9098] text-[10px] tracking-widest uppercase mt-1 leading-tight font-[family-name:var(--font-inter)]">
+                {label}
+              </div>
             </motion.div>
           ))}
         </motion.div>
       </div>
 
+      {/* Scroll indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.6 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/25"
+        transition={{ delay: 2.0 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[#8e9098]"
       >
-        <span className="text-[10px] tracking-[0.3em] uppercase">Scroll</span>
-        <motion.div animate={{ y: [0, 5, 0] }} transition={{ duration: 1.8, repeat: Infinity }}>
+        <span className="text-[10px] tracking-[0.35em] uppercase font-[family-name:var(--font-inter)]">Scroll</span>
+        <motion.div
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+        >
           <ChevronDown size={15} />
         </motion.div>
       </motion.div>
