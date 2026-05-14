@@ -14,6 +14,7 @@ const navLinks = [
   { href: '/gallery', label: 'Gallery' },
   { href: '/sponsors', label: 'Sponsors' },
   { href: '/guidelines', label: 'Guidelines' },
+  { href: '/birthday', label: '🎂 Birthdays' },
   { href: '/contact', label: 'Contact' },
 ];
 
@@ -79,7 +80,13 @@ export default function Navbar() {
           </div>
 
           {/* CTA */}
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-3">
+            <Link
+              href="/join"
+              className="text-sm text-[#D4AF37]/80 hover:text-[#D4AF37] font-bold tracking-widest transition-colors"
+            >
+              ONBOARD
+            </Link>
             <a
               href={SOCIAL_LINKS.whatsapp}
               target="_blank"

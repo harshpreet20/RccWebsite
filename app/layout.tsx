@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import ConditionalLayout from '@/components/layout/ConditionalLayout';
 import SmoothScroll from '@/components/layout/SmoothScroll';
+import JoinPopup from '@/components/ui/JoinPopup';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -38,6 +39,7 @@ export default function RootLayout({
           <ConditionalLayout>
             {children}
           </ConditionalLayout>
+          <JoinPopup />
         </SmoothScroll>
       </body>
     </html>

@@ -13,6 +13,8 @@ const footerLinks = [
   { label: 'Gallery', href: '/gallery' },
   { label: 'Sponsors', href: '/sponsors' },
   { label: 'Guidelines', href: '/guidelines' },
+  { label: 'Join RCC', href: '/join' },
+  { label: '🎂 Birthdays', href: '/birthday' },
   { label: 'Contact', href: '/contact' },
 ];
 

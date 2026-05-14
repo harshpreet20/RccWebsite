@@ -4,14 +4,19 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Calendar, Image, Users, Settings, Bell, BarChart3,
-  Plus, Edit2, Trash2, Save, Upload, LogOut, Zap, Link as LinkIcon
+  Plus, Edit2, Trash2, Save, Upload, Zap, Link as LinkIcon,
+  Gift, UserCheck, ClipboardList
 } from 'lucide-react';
+import { useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 
 const sections = [
   { id: 'overview', label: 'Overview', icon: BarChart3 },
   { id: 'events', label: 'Events', icon: Calendar },
   { id: 'gallery', label: 'Gallery', icon: Image },
   { id: 'sponsors', label: 'Sponsors', icon: Users },
+  { id: 'members', label: 'Join Requests', icon: UserCheck },
+  { id: 'birthdays', label: 'Birthdays', icon: Gift },
   { id: 'announcements', label: 'Announcements', icon: Bell },
   { id: 'social', label: 'Social Links', icon: LinkIcon },
   { id: 'settings', label: 'Settings', icon: Settings },
@@ -36,11 +41,36 @@ const mockGallery = [
   { id: 3, title: 'Tournament Highlights Reel', category: 'Highlights', type: 'video' },
 ];
 
+type JoinRow = { id: string; full_name: string; phone: string; skill_level: string; status: string; created_at: string; message?: string };
+type BirthdayRow = { id: string; full_name: string; birthday_month: number; birthday_day: number; phone?: string; created_at: string };
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
-  const [editingEvent, setEditingEvent] = useState<number | null>(null);
   const [announcement, setAnnouncement] = useState('');
   const [saved, setSaved] = useState(false);
+  const [joinRequests, setJoinRequests] = useState<JoinRow[]>([]);
+  const [birthdays, setBirthdays] = useState<BirthdayRow[]>([]);
+  const [dataLoading, setDataLoading] = useState(false);
+
+  useEffect(() => {
+    if (activeSection === 'members') {
+      setDataLoading(true);
+      supabase.from('join_requests').select('*').order('created_at', { ascending: false })
+        .then(({ data }) => { setJoinRequests(data ?? []); setDataLoading(false); });
+    }
+    if (activeSection === 'birthdays') {
+      setDataLoading(true);
+      supabase.from('birthday_submissions').select('*').order('birthday_month').order('birthday_day')
+        .then(({ data }) => { setBirthdays(data ?? []); setDataLoading(false); });
+    }
+  }, [activeSection]);
+
+  const updateJoinStatus = async (id: string, status: string) => {
+    await supabase.from('join_requests').update({ status }).eq('id', id);
+    setJoinRequests(prev => prev.map(r => r.id === id ? { ...r, status } : r));
+  };
 
   const handleSave = () => {
     setSaved(true);
@@ -306,6 +336,106 @@ export default function AdminDashboard() {
                   </div>
                 ))}
               </div>
+            </motion.div>
+          )}
+
+          {/* Join Requests */}
+          {activeSection === 'members' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              <div className="flex items-center justify-between">
+                <p className="text-white/50 text-sm">Review and approve join requests from new members.</p>
+                <span className="text-xs px-3 py-1.5 rounded-full bg-[#D9FF00]/10 text-[#D9FF00] font-bold">
+                  {joinRequests.filter(r => r.status === 'pending').length} pending
+                </span>
+              </div>
+
+              {dataLoading ? (
+                <div className="text-center py-16 text-white/30">Loading...</div>
+              ) : joinRequests.length === 0 ? (
+                <div className="glass rounded-2xl p-12 text-center">
+                  <div className="text-4xl mb-3">📭</div>
+                  <p className="text-white/40">No join requests yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {joinRequests.map(req => (
+                    <div key={req.id} className="glass rounded-2xl p-5 flex flex-col md:flex-row md:items-center gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                          <span className="text-white font-black">{req.full_name}</span>
+                          <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
+                            req.status === 'approved' ? 'bg-[#D9FF00]/10 text-[#D9FF00]' :
+                            req.status === 'rejected' ? 'bg-[#C21818]/20 text-[#C21818]' :
+                            'bg-[#D4AF37]/10 text-[#D4AF37]'
+                          }`}>
+                            {req.status}
+                          </span>
+                          <span className="text-white/30 text-xs">{req.skill_level}</span>
+                        </div>
+                        <div className="text-white/50 text-sm">{req.phone}</div>
+                        {req.message && <div className="text-white/30 text-xs mt-1 italic">"{req.message}"</div>}
+                      </div>
+                      <div className="flex gap-2 flex-shrink-0">
+                        <button
+                          onClick={() => updateJoinStatus(req.id, 'approved')}
+                          className="px-3 py-1.5 bg-[#D9FF00]/10 hover:bg-[#D9FF00]/20 text-[#D9FF00] text-xs font-bold rounded-lg transition-colors"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => updateJoinStatus(req.id, 'rejected')}
+                          className="px-3 py-1.5 bg-[#C21818]/10 hover:bg-[#C21818]/20 text-[#C21818] text-xs font-bold rounded-lg transition-colors"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* Birthdays Manager */}
+          {activeSection === 'birthdays' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              <p className="text-white/50 text-sm">All member birthday submissions.</p>
+
+              {dataLoading ? (
+                <div className="text-center py-16 text-white/30">Loading...</div>
+              ) : birthdays.length === 0 ? (
+                <div className="glass rounded-2xl p-12 text-center">
+                  <div className="text-4xl mb-3">🎂</div>
+                  <p className="text-white/40">No birthdays submitted yet.</p>
+                </div>
+              ) : (
+                <div className="glass rounded-2xl overflow-hidden">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white/5">
+                        <th className="text-left p-4 text-white/40 text-xs tracking-widest uppercase">Name</th>
+                        <th className="text-left p-4 text-white/40 text-xs tracking-widest uppercase">Birthday</th>
+                        <th className="text-left p-4 text-white/40 text-xs tracking-widest uppercase">Phone</th>
+                        <th className="text-left p-4 text-white/40 text-xs tracking-widests uppercase">Added</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {birthdays.map(b => (
+                        <tr key={b.id} className="hover:bg-white/3 transition-colors">
+                          <td className="p-4 text-white font-medium">{b.full_name}</td>
+                          <td className="p-4 text-[#D4AF37] font-bold text-sm">
+                            {MONTHS[b.birthday_month - 1]} {b.birthday_day}
+                          </td>
+                          <td className="p-4 text-white/40 text-sm">{b.phone ?? '—'}</td>
+                          <td className="p-4 text-white/30 text-xs">
+                            {new Date(b.created_at).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </motion.div>
           )}
 
