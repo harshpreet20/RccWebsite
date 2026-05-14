@@ -44,7 +44,7 @@ const timeline = [
   {
     year: '2025',
     title: 'Community Expansion',
-    description: '150+ active players, 50+ events, and a growing movement across Delhi\'s badminton culture.',
+    description: '300+ members strong, 50+ events, and a growing movement across Delhi\'s badminton culture.',
     Icon: Rocket,
   },
 ];

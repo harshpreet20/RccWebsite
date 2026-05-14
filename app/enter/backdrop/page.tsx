@@ -25,7 +25,7 @@ const sections = [
 const stats = [
   { label: 'Total Events', value: '12', change: '+2', color: '#C21818' },
   { label: 'Gallery Items', value: '48', change: '+8', color: '#D4AF37' },
-  { label: 'Active Members', value: '150+', change: '+12', color: '#D9FF00' },
+  { label: 'Active Members', value: '300+', change: '+12', color: '#D9FF00' },
   { label: 'Partners', value: '4', change: '+1', color: '#0B1F3A' },
 ];
 
@@ -541,7 +541,7 @@ export default function AdminDashboard() {
                   {[
                     { label: 'Site Title', default: 'Racquets Club Community (RCC)' },
                     { label: 'Tagline', default: "Delhi's Invite-Only Badminton Community" },
-                    { label: 'Total Active Players', default: '150' },
+                    { label: 'Total Active Players', default: '300' },
                     { label: 'Total Events Hosted', default: '50' },
                     { label: 'Weekend Sessions', default: '200' },
                     { label: 'Community Partners', default: '10' },

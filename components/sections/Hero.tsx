@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { ChevronDown, Zap, Users, ArrowRight, Trophy, Calendar, Handshake } from 'lucide-react';
 import { SOCIAL_LINKS } from '@/lib/utils';
+import { NumberTicker } from '@/components/ui/NumberTicker';
 
 const particles = Array.from({ length: 18 }, (_, i) => ({
   id: i,
@@ -15,7 +16,7 @@ const particles = Array.from({ length: 18 }, (_, i) => ({
 }));
 
 const stats = [
-  { num: 150, suffix: '+', label: 'Active Players', Icon: Users },
+  { num: 300, suffix: '+', label: 'Members Strong', Icon: Users },
   { num: 50, suffix: '+', label: 'Events Hosted', Icon: Trophy },
   { num: 200, suffix: '+', label: 'Weekend Sessions', Icon: Calendar },
   { num: 10, suffix: '+', label: 'Community Partners', Icon: Handshake },
@@ -24,26 +25,6 @@ const stats = [
 const heroWords = ['DELHI\'S', 'INVITE-ONLY', 'BADMINTON'];
 const wordColors = ['text-[#e4e2e5]', 'text-transparent', 'text-[#e4e2e5]'];
 
-function CountUp({ target, suffix, started }: { target: number; suffix: string; started: boolean }) {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    if (!started) return;
-    const duration = 1400;
-    const startTime = performance.now();
-    const tick = (now: number) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      // Ease out cubic
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(eased * target));
-      if (progress < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }, [started, target]);
-
-  return <>{count}{suffix}</>;
-}
 
 const containerVariants = {
   hidden: {},
@@ -60,8 +41,6 @@ const wordVariants = {
 
 export default function Hero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
-  const statsInView = useInView(statsRef, { once: true, margin: '-80px' });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -269,9 +248,8 @@ export default function Hero() {
           </motion.a>
         </motion.div>
 
-        {/* Stats — animated counters */}
+        {/* Stats — NumberTicker counters */}
         <motion.div
-          ref={statsRef}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 1.3 }}
@@ -290,7 +268,8 @@ export default function Hero() {
                 <Icon size={17} className="text-[#D4AF37] opacity-75 group-hover:opacity-100 transition-opacity" />
               </div>
               <div className="text-2xl md:text-3xl font-black font-[family-name:var(--font-montserrat)] text-transparent bg-clip-text bg-gradient-to-r from-[#C21818] to-[#D4AF37]">
-                <CountUp target={num} suffix={suffix} started={statsInView} />
+                <NumberTicker value={num} delay={1.4 + i * 0.1} className="bg-clip-text text-transparent bg-gradient-to-r from-[#C21818] to-[#D4AF37]" />
+                {suffix}
               </div>
               <div className="text-[#8e9098] text-[10px] tracking-widest uppercase mt-1 leading-tight font-[family-name:var(--font-inter)]">
                 {label}

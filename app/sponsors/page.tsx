@@ -37,7 +37,7 @@ const tiers = [
 const benefits = [
   { Icon: Trophy, title: 'Tournament Branding', desc: 'Prominent placement at all RCC tournaments and events.' },
   { Icon: Smartphone, title: 'Social Media Reach', desc: 'Feature across RCC Instagram and WhatsApp community.' },
-  { Icon: Handshake, title: 'Community Access', desc: 'Direct engagement with 150+ passionate badminton players.' },
+  { Icon: Handshake, title: 'Community Access', desc: 'Direct engagement with 300+ passionate badminton players.' },
   { Icon: Globe, title: 'Network Growth', desc: 'Connect with Delhi\'s growing sports culture network.' },
   { Icon: Camera, title: 'Content Creation', desc: 'Co-branded content from events and sessions.' },
   { Icon: Star, title: 'Premium Placement', desc: 'Featured in RCC website, media, and communications.' },
@@ -203,7 +203,7 @@ export default function SponsorsPage() {
               </h2>
               <p className="text-white/60 text-lg mb-10 max-w-xl mx-auto">
                 Align your brand with Delhi's most passionate badminton community.
-                Reach 150+ active players and a growing network.
+                Reach 300+ active players and a growing network.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <GlowButton href="/contact" variant="gold" size="lg">
