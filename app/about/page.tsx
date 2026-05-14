@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Leaf, Zap, Trophy, Handshake, Rocket } from 'lucide-react';
 import SectionHeading from '@/components/ui/SectionHeading';
 import GlowButton from '@/components/ui/GlowButton';
 import { SOCIAL_LINKS } from '@/lib/utils';
@@ -21,31 +21,31 @@ const timeline = [
     year: '2022',
     title: 'RCC Formation',
     description: 'A small group of serious Delhi badminton players came together with one vision — building a respectful, organized community.',
-    icon: '🌱',
+    Icon: Leaf,
   },
   {
     year: '2023',
     title: 'First Weekend Sessions',
     description: 'Regular Saturday sessions launched across Delhi courts. Skill-based pairings made every match meaningful.',
-    icon: '⚡',
+    Icon: Zap,
   },
   {
     year: '2023',
     title: 'Budget Badminton League',
     description: 'RCC hosted its first major tournament. Portronics gifted mobile stands; RCC awarded a premium racket to the hustler of the tournament.',
-    icon: '🏆',
+    Icon: Trophy,
   },
   {
     year: '2024',
     title: 'Brand Partnerships',
     description: 'SUM India and Soul Stretch joined as community and wellness partners, expanding RCC beyond badminton.',
-    icon: '🤝',
+    Icon: Handshake,
   },
   {
     year: '2025',
     title: 'Community Expansion',
     description: '150+ active players, 50+ events, and a growing movement across Delhi\'s badminton culture.',
-    icon: '🚀',
+    Icon: Rocket,
   },
 ];
 
@@ -158,8 +158,8 @@ export default function AboutPage() {
 
                 {/* Timeline node */}
                 <div className="relative flex-shrink-0">
-                  <div className="w-14 h-14 rounded-full glass-gold flex items-center justify-center text-2xl border border-[#D4AF37]/30 glow-gold">
-                    {item.icon}
+                  <div className="w-14 h-14 rounded-full glass-gold flex items-center justify-center border border-[#D4AF37]/30 glow-gold">
+                    <item.Icon size={22} className="text-[#D4AF37]" />
                   </div>
                   <div className="absolute inset-0 rounded-full bg-[#D4AF37]/10 animate-pulse-glow" />
                 </div>

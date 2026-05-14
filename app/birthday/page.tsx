@@ -97,7 +97,7 @@ export default function BirthdayPage() {
             transition={{ delay: 0.4 }}
             className="text-white/60 text-xl"
           >
-            Share your birthday with the community. We love celebrating our players! 🎂
+            Share your birthday with the community. We love celebrating our players.
           </motion.p>
         </div>
       </section>
@@ -129,10 +129,9 @@ export default function BirthdayPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   className="text-center py-12"
                 >
-                  <div className="text-7xl mb-4">🎉</div>
-                  <CheckCircle2 size={48} className="text-[#D4AF37] mx-auto mb-4" />
+                  <CheckCircle2 size={56} className="text-[#D4AF37] mx-auto mb-6" />
                   <h3 className="text-2xl font-black text-white mb-2">Birthday Saved!</h3>
-                  <p className="text-white/60">We'll celebrate you on your special day. 🎂</p>
+                  <p className="text-white/60">We'll celebrate you on your special day.</p>
                   <button
                     onClick={() => setStatus('idle')}
                     className="mt-6 px-6 py-3 glass rounded-full text-white/60 hover:text-white text-sm transition-colors"
@@ -275,13 +274,13 @@ export default function BirthdayPage() {
             <div className="flex items-center gap-3 mb-6">
               <Calendar size={20} className="text-[#D4AF37]" />
               <h3 className="text-white font-black">
-                {months[thisMonth - 1]} Birthdays 🎂
+                {months[thisMonth - 1]} Birthdays
               </h3>
             </div>
 
             {upcomingBirthdays.length === 0 ? (
               <div className="text-center py-8">
-                <div className="text-4xl mb-3">🎈</div>
+                <Calendar size={32} className="text-white/20 mx-auto mb-3" />
                 <p className="text-white/40 text-sm">
                   No birthdays registered for this month yet.<br />Be the first!
                 </p>
@@ -326,7 +325,9 @@ export default function BirthdayPage() {
 
           {/* Info card */}
           <div className="glass-gold rounded-3xl p-6">
-            <div className="text-3xl mb-3">🏸</div>
+            <div className="w-10 h-10 rounded-xl bg-[#D4AF37]/15 flex items-center justify-center mb-4">
+              <Gift size={18} className="text-[#D4AF37]" />
+            </div>
             <h4 className="text-white font-black mb-2">Why share your birthday?</h4>
             <ul className="space-y-2 text-white/60 text-sm">
               {[

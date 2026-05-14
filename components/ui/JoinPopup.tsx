@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Zap, CheckCircle2, AlertCircle, ChevronRight } from 'lucide-react';
+import { X, Zap, CheckCircle2, AlertCircle, ChevronRight, Swords } from 'lucide-react';
 import { submitJoinRequest } from '@/lib/supabase';
 
 const POPUP_KEY = 'rcc_join_popup_dismissed';
@@ -93,7 +93,9 @@ export default function JoinPopup() {
                     <X size={16} className="text-white" />
                   </button>
                   <div className="relative">
-                    <div className="text-3xl mb-2">🏸</div>
+                    <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center mb-3">
+                      <Zap size={20} className="text-white fill-current" />
+                    </div>
                     <h2 className="text-white font-black text-xl leading-tight">
                       Join Delhi's Elite<br />Badminton Community
                     </h2>
@@ -110,8 +112,7 @@ export default function JoinPopup() {
                         animate={{ opacity: 1, scale: 1 }}
                         className="text-center py-6"
                       >
-                        <div className="text-5xl mb-4">🎉</div>
-                        <CheckCircle2 size={40} className="text-[#D4AF37] mx-auto mb-3" />
+                          <CheckCircle2 size={48} className="text-[#D4AF37] mx-auto mb-4" />
                         <h3 className="text-xl font-black text-white mb-2">Request Received!</h3>
                         <p className="text-white/60 text-sm mb-4">
                           Our admins will review your request and reach out via WhatsApp.

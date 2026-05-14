@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, Mail, ExternalLink } from 'lucide-react';
+import { ArrowRight, Mail, Trophy, Globe, Activity, Smartphone, Star, Camera, Handshake, Award } from 'lucide-react';
 import SectionHeading from '@/components/ui/SectionHeading';
 import GlowButton from '@/components/ui/GlowButton';
 import { SOCIAL_LINKS } from '@/lib/utils';
@@ -11,36 +11,36 @@ const tiers = [
     tier: 'Title Partner',
     color: '#D4AF37',
     description: 'The primary face of RCC events and community.',
-    sponsors: [{ name: 'Racquets Club Community', tagline: 'Badminton Culture', icon: '🏸' }],
+    sponsors: [{ name: 'Racquets Club Community', tagline: 'Badminton Culture', Icon: Award }],
   },
   {
     tier: 'Community Partner',
     color: '#C21818',
     description: 'Organizations fostering sports culture in Delhi.',
-    sponsors: [{ name: 'SUM India', tagline: 'Sports & Wellness', icon: '🌐' }],
+    sponsors: [{ name: 'SUM India', tagline: 'Sports & Wellness', Icon: Globe }],
   },
   {
     tier: 'Wellness Partner',
     color: '#D9FF00',
     description: 'Brands supporting player wellness and recovery.',
-    sponsors: [{ name: 'Soul Stretch', tagline: 'Stretch. Recover. Grow.', icon: '🧘' }],
+    sponsors: [{ name: 'Soul Stretch', tagline: 'Stretch. Recover. Grow.', Icon: Activity }],
   },
   {
     tier: 'Equipment Partner',
     color: '#0B1F3A',
     borderColor: '#D4AF37',
     description: 'Suppliers of premium badminton equipment.',
-    sponsors: [{ name: 'Portronics', tagline: 'Smart Accessories', icon: '📱' }],
+    sponsors: [{ name: 'Portronics', tagline: 'Smart Accessories', Icon: Smartphone }],
   },
 ];
 
 const benefits = [
-  { icon: '🏆', title: 'Tournament Branding', desc: 'Prominent placement at all RCC tournaments and events.' },
-  { icon: '📱', title: 'Social Media Reach', desc: 'Feature across RCC Instagram and WhatsApp community.' },
-  { icon: '🤝', title: 'Community Access', desc: 'Direct engagement with 150+ passionate badminton players.' },
-  { icon: '🌐', title: 'Network Growth', desc: 'Connect with Delhi\'s growing sports culture network.' },
-  { icon: '📸', title: 'Content Creation', desc: 'Co-branded content from events and sessions.' },
-  { icon: '⭐', title: 'Premium Placement', desc: 'Featured in RCC website, media, and communications.' },
+  { Icon: Trophy, title: 'Tournament Branding', desc: 'Prominent placement at all RCC tournaments and events.' },
+  { Icon: Smartphone, title: 'Social Media Reach', desc: 'Feature across RCC Instagram and WhatsApp community.' },
+  { Icon: Handshake, title: 'Community Access', desc: 'Direct engagement with 150+ passionate badminton players.' },
+  { Icon: Globe, title: 'Network Growth', desc: 'Connect with Delhi\'s growing sports culture network.' },
+  { Icon: Camera, title: 'Content Creation', desc: 'Co-branded content from events and sessions.' },
+  { Icon: Star, title: 'Premium Placement', desc: 'Featured in RCC website, media, and communications.' },
 ];
 
 export default function SponsorsPage() {
@@ -128,8 +128,11 @@ export default function SponsorsPage() {
                       style={{ background: `radial-gradient(circle at center, ${tier.color}10, transparent)` }}
                     />
                     <div className="relative">
-                      <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                        {sponsor.icon}
+                      <div
+                        className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform duration-300"
+                        style={{ background: `${tier.color}20`, border: `1px solid ${tier.color}30` }}
+                      >
+                        <sponsor.Icon size={28} style={{ color: tier.color === '#0B1F3A' ? '#D4AF37' : tier.color }} />
                       </div>
                       <h3 className="text-xl font-black text-white mb-2">{sponsor.name}</h3>
                       <p className="text-white/40 text-sm tracking-wider">{sponsor.tagline}</p>
@@ -167,7 +170,9 @@ export default function SponsorsPage() {
                 whileHover={{ y: -5 }}
                 className="glass rounded-2xl p-6 group"
               >
-                <div className="text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">{b.icon}</div>
+                <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <b.Icon size={20} className="text-[#D4AF37]/70" />
+                </div>
                 <h3 className="text-white font-black mb-2">{b.title}</h3>
                 <p className="text-white/50 text-sm leading-relaxed">{b.desc}</p>
               </motion.div>
@@ -187,7 +192,9 @@ export default function SponsorsPage() {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/5 to-[#C21818]/5" />
             <div className="relative">
-              <div className="text-5xl mb-6">🤝</div>
+              <div className="w-16 h-16 rounded-2xl bg-[#D4AF37]/15 flex items-center justify-center mx-auto mb-6">
+                <Handshake size={30} className="text-[#D4AF37]" />
+              </div>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
                 Partner With{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#C21818]">

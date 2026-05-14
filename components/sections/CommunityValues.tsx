@@ -1,41 +1,42 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { Shield, Target, Lock, Zap, Trophy, Globe } from 'lucide-react';
 import SectionHeading from '@/components/ui/SectionHeading';
 
 const values = [
   {
-    icon: '🏸',
+    Icon: Shield,
     title: 'Respect First',
     description: 'Every player deserves dignity. We play hard on court, but remain respectful off it.',
     color: '#C21818',
   },
   {
-    icon: '🎯',
+    Icon: Target,
     title: 'Serious Craft',
     description: 'This is not casual. We care about improvement, fair play, and meaningful competition.',
     color: '#D4AF37',
   },
   {
-    icon: '🤝',
+    Icon: Lock,
     title: 'Invite Only',
     description: 'Quality over quantity. Every member is vouched for by the community they join.',
     color: '#D9FF00',
   },
   {
-    icon: '⚡',
+    Icon: Zap,
     title: 'Regular Play',
     description: 'Weekend sessions, skill-based pairings, and court support to keep you in the game.',
     color: '#C21818',
   },
   {
-    icon: '🏆',
+    Icon: Trophy,
     title: 'Compete',
     description: 'From friendly rallies to the Budget Badminton League — there\'s always something to win.',
     color: '#D4AF37',
   },
   {
-    icon: '🌐',
+    Icon: Globe,
     title: 'Community',
     description: 'More than badminton — meaningful connections, networking, and lifelong friendships.',
     color: '#D9FF00',
@@ -80,10 +81,10 @@ export default function CommunityValues() {
               className="glass rounded-3xl p-8 group hover:glow-gold transition-all duration-500"
             >
               <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform duration-300"
+                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300"
                 style={{ background: `${value.color}15`, border: `1px solid ${value.color}30` }}
               >
-                {value.icon}
+                <value.Icon size={22} style={{ color: value.color }} />
               </div>
               <h3 className="text-xl font-black text-white mb-3">{value.title}</h3>
               <p className="text-white/50 text-sm leading-relaxed">{value.description}</p>

@@ -7,9 +7,9 @@ import { submitMemberOnboarding } from '@/lib/supabase';
 import { SOCIAL_LINKS } from '@/lib/utils';
 
 const steps = [
-  { label: 'About You', icon: '👤' },
-  { label: 'Your Game', icon: '🏸' },
-  { label: 'Community', icon: '🤝' },
+  { label: 'About You' },
+  { label: 'Your Game' },
+  { label: 'Community' },
 ];
 
 const skillLevels = ['Beginner', 'Intermediate', 'Advanced', 'Professional'];
@@ -128,8 +128,7 @@ export default function JoinPage() {
               animate={{ opacity: 1, scale: 1 }}
               className="glass rounded-3xl p-12 text-center"
             >
-              <div className="text-7xl mb-4">🎉</div>
-              <CheckCircle2 size={56} className="text-[#D4AF37] mx-auto mb-4" />
+              <CheckCircle2 size={56} className="text-[#D4AF37] mx-auto mb-6" />
               <h2 className="text-3xl font-black text-white mb-3">Welcome to RCC!</h2>
               <p className="text-white/60 mb-2">Your onboarding request has been submitted.</p>
               <p className="text-white/40 text-sm mb-8">Our admins will review your profile and reach out on WhatsApp within 24–48 hours.</p>
@@ -147,7 +146,7 @@ export default function JoinPage() {
                   href="/birthday"
                   className="flex items-center justify-center w-full py-3 glass text-white/60 hover:text-white text-sm rounded-full transition-colors"
                 >
-                  🎂 Also add your birthday →
+                  Add your birthday to the community calendar
                 </a>
               </div>
             </motion.div>
@@ -183,7 +182,6 @@ export default function JoinPage() {
                 </div>
 
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-2xl">{steps[step].icon}</span>
                   <h3 className="text-lg font-black text-white">{steps[step].label}</h3>
                 </div>
               </div>
@@ -237,7 +235,7 @@ export default function JoinPage() {
                       </div>
                       <div>
                         <label className="block text-white/50 text-xs tracking-widest uppercase mb-2">
-                          Birthday 🎂 (optional)
+                          Birthday (optional)
                         </label>
                         <input
                           type="date"

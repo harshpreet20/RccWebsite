@@ -2,24 +2,24 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ZoomIn, Play } from 'lucide-react';
+import { X, ZoomIn, Play, Trophy, Zap, Moon, Target, Users, MapPin, Clapperboard, Star, Sunrise, Medal } from 'lucide-react';
 import SectionHeading from '@/components/ui/SectionHeading';
 
 const categories = ['All', 'Tournaments', 'Sessions', 'Community', 'Court Aesthetics', 'Highlights'];
 
 const galleryItems = [
-  { id: 1, emoji: '🏆', title: 'Budget Badminton League Finals', category: 'Tournaments', type: 'image', span: 'col-span-2 row-span-2' },
-  { id: 2, emoji: '🏸', title: 'Weekend Rally Session', category: 'Sessions', type: 'image', span: '' },
-  { id: 3, emoji: '⚡', title: 'Champion Match Moment', category: 'Tournaments', type: 'image', span: '' },
-  { id: 4, emoji: '🌙', title: 'Mixed Doubles Night', category: 'Sessions', type: 'image', span: 'row-span-2' },
-  { id: 5, emoji: '🎯', title: 'Precision Smash', category: 'Highlights', type: 'image', span: '' },
-  { id: 6, emoji: '🤝', title: 'Community Bonding', category: 'Community', type: 'image', span: '' },
-  { id: 7, emoji: '🏟️', title: 'Court at Siri Fort', category: 'Court Aesthetics', type: 'image', span: 'col-span-2' },
-  { id: 8, emoji: '🎬', title: 'Tournament Highlights Reel', category: 'Highlights', type: 'video', span: '' },
-  { id: 9, emoji: '👥', title: 'Team Photo', category: 'Community', type: 'image', span: '' },
-  { id: 10, emoji: '💫', title: 'Match Day Energy', category: 'Highlights', type: 'image', span: '' },
-  { id: 11, emoji: '🌅', title: 'Morning Court Setup', category: 'Court Aesthetics', type: 'image', span: '' },
-  { id: 12, emoji: '🥇', title: 'Award Ceremony', category: 'Tournaments', type: 'image', span: 'col-span-2' },
+  { id: 1, Icon: Trophy, title: 'Budget Badminton League Finals', category: 'Tournaments', type: 'image', span: 'col-span-2 row-span-2' },
+  { id: 2, Icon: Zap, title: 'Weekend Rally Session', category: 'Sessions', type: 'image', span: '' },
+  { id: 3, Icon: Star, title: 'Champion Match Moment', category: 'Tournaments', type: 'image', span: '' },
+  { id: 4, Icon: Moon, title: 'Mixed Doubles Night', category: 'Sessions', type: 'image', span: 'row-span-2' },
+  { id: 5, Icon: Target, title: 'Precision Smash', category: 'Highlights', type: 'image', span: '' },
+  { id: 6, Icon: Users, title: 'Community Bonding', category: 'Community', type: 'image', span: '' },
+  { id: 7, Icon: MapPin, title: 'Court at Siri Fort', category: 'Court Aesthetics', type: 'image', span: 'col-span-2' },
+  { id: 8, Icon: Clapperboard, title: 'Tournament Highlights Reel', category: 'Highlights', type: 'video', span: '' },
+  { id: 9, Icon: Users, title: 'Team Photo', category: 'Community', type: 'image', span: '' },
+  { id: 10, Icon: Zap, title: 'Match Day Energy', category: 'Highlights', type: 'image', span: '' },
+  { id: 11, Icon: Sunrise, title: 'Morning Court Setup', category: 'Court Aesthetics', type: 'image', span: '' },
+  { id: 12, Icon: Medal, title: 'Award Ceremony', category: 'Tournaments', type: 'image', span: 'col-span-2' },
 ];
 
 const colors = [
@@ -123,7 +123,9 @@ export default function GalleryPage() {
                 >
                   <div className={`absolute inset-0 bg-gradient-to-br ${colors[i % colors.length]}`} />
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                    <span className="text-6xl group-hover:scale-110 transition-transform duration-300">{item.emoji}</span>
+                    <div className="w-14 h-14 rounded-2xl bg-white/8 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <item.Icon size={26} className="text-[#D4AF37]/70" />
+                    </div>
                     <div className="text-center px-4">
                       <div className="text-xs text-[#D4AF37] tracking-widest uppercase font-bold">{item.category}</div>
                     </div>
@@ -175,7 +177,9 @@ export default function GalleryPage() {
               >
                 <X size={20} />
               </button>
-              <div className="text-8xl mb-6">{selectedItem.emoji}</div>
+              <div className="w-20 h-20 rounded-3xl bg-white/8 flex items-center justify-center mx-auto mb-6">
+                <selectedItem.Icon size={36} className="text-[#D4AF37]/80" />
+              </div>
               <span className="text-[#D4AF37] text-xs tracking-widest uppercase font-bold">{selectedItem.category}</span>
               <h3 className="text-2xl font-black text-white mt-2">{selectedItem.title}</h3>
               <p className="text-white/50 mt-4 text-sm">

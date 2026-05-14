@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Calendar, MapPin, Users, ArrowRight, Trophy } from 'lucide-react';
+import { Calendar, MapPin, Users, ArrowRight, Trophy, Zap, Moon } from 'lucide-react';
 import SectionHeading from '@/components/ui/SectionHeading';
 
 const events = [
@@ -16,7 +16,7 @@ const events = [
     level: 'All Levels',
     highlight: 'Portronics stands & RCC racket gifted!',
     color: 'from-[#C21818] to-[#8B0000]',
-    icon: '🏆',
+    TypeIcon: Trophy,
   },
   {
     id: 2,
@@ -28,7 +28,7 @@ const events = [
     level: 'Intermediate',
     highlight: 'Skill-based pairings every weekend',
     color: 'from-[#0B1F3A] to-[#162B50]',
-    icon: '⚡',
+    TypeIcon: Zap,
   },
   {
     id: 3,
@@ -40,7 +40,7 @@ const events = [
     level: 'All Levels',
     highlight: 'Community bonding over doubles',
     color: 'from-[#D4AF37]/20 to-[#B8960C]/10',
-    icon: '🌙',
+    TypeIcon: Moon,
   },
 ];
 
@@ -78,8 +78,10 @@ export default function FeaturedEvents() {
                   style={{ backgroundImage: 'radial-gradient(circle at 30% 30%, white 1px, transparent 1px)', backgroundSize: '20px 20px' }}
                 />
                 <div className="relative">
-                  <span className="text-4xl">{event.icon}</span>
-                  <div className="mt-4">
+                  <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mb-4">
+                    <event.TypeIcon size={22} className="text-white/80" />
+                  </div>
+                  <div className="mt-0">
                     <span className="text-xs tracking-widest text-white/60 uppercase font-medium">{event.type}</span>
                     <h3 className="text-xl font-black text-white mt-1 leading-tight">{event.title}</h3>
                   </div>

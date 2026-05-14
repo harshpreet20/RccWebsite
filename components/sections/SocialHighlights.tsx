@@ -1,18 +1,18 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Zap, Trophy, Star, Users, Target, Heart } from 'lucide-react';
 import { InstagramIcon } from '@/components/ui/SocialIcons';
 import { SOCIAL_LINKS } from '@/lib/utils';
 import SectionHeading from '@/components/ui/SectionHeading';
 
 const posts = [
-  { id: 1, emoji: '🏸', caption: 'Weekend smash session — intense rallies, great vibes!', likes: 124, type: 'session' },
-  { id: 2, emoji: '🏆', caption: 'Budget Badminton League champions crowned! Epic tournament.', likes: 248, type: 'tournament' },
-  { id: 3, emoji: '⚡', caption: 'Shuttlecock trails and court lights — pure badminton joy.', likes: 189, type: 'highlight' },
-  { id: 4, emoji: '🤝', caption: 'New partners joined the RCC family. Welcome aboard!', likes: 156, type: 'community' },
-  { id: 5, emoji: '🎯', caption: 'Skill-based doubles pairings creating perfect matches.', likes: 201, type: 'session' },
-  { id: 6, emoji: '🌟', caption: 'RCC players pushing limits every single weekend.', likes: 173, type: 'highlight' },
+  { id: 1, Icon: Zap, caption: 'Weekend smash session — intense rallies, great vibes!', likes: 124 },
+  { id: 2, Icon: Trophy, caption: 'Budget Badminton League champions crowned! Epic tournament.', likes: 248 },
+  { id: 3, Icon: Star, caption: 'Shuttlecock trails and court lights — pure badminton joy.', likes: 189 },
+  { id: 4, Icon: Users, caption: 'New partners joined the RCC family. Welcome aboard!', likes: 156 },
+  { id: 5, Icon: Target, caption: 'Skill-based doubles pairings creating perfect matches.', likes: 201 },
+  { id: 6, Icon: Star, caption: 'RCC players pushing limits every single weekend.', likes: 173 },
 ];
 
 export default function SocialHighlights() {
@@ -94,10 +94,12 @@ export default function SocialHighlights() {
               className="glass rounded-2xl aspect-square flex flex-col items-center justify-center p-6 group hover:glow-gold transition-all duration-500 relative overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-[#C21818]/5 to-[#D4AF37]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="text-5xl mb-4">{post.emoji}</div>
+              <div className="w-12 h-12 rounded-2xl bg-white/8 flex items-center justify-center mb-4">
+                <post.Icon size={22} className="text-[#D4AF37]/70" />
+              </div>
               <p className="text-white/60 text-xs text-center leading-relaxed line-clamp-2">{post.caption}</p>
-              <div className="mt-3 flex items-center gap-1 text-[#D4AF37]/60 text-xs">
-                <span>❤️</span>
+              <div className="mt-3 flex items-center gap-1 text-white/30 text-xs">
+                <Heart size={11} />
                 <span>{post.likes}</span>
               </div>
             </motion.a>
