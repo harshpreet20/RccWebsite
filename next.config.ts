@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  poweredByHeader: false,
   experimental: {
     optimizeCss: false,
   },
