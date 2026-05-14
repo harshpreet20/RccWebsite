@@ -17,7 +17,7 @@ const duplicated = [...sponsors, ...sponsors, ...sponsors];
 export default function SponsorStrip() {
   return (
     <section className="py-24 px-6 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-[#050810] via-[#0A0E1A] to-[#050810]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#131315] via-[#1b1b1e] to-[#131315]" />
 
       <div className="relative max-w-7xl mx-auto mb-16">
         <SectionHeading
@@ -30,8 +30,8 @@ export default function SponsorStrip() {
 
       {/* Marquee */}
       <div className="relative overflow-hidden mb-16">
-        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#050810] to-transparent z-10" />
-        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#050810] to-transparent z-10" />
+        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#131315] to-transparent z-10" />
+        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#131315] to-transparent z-10" />
         <div className="flex animate-marquee">
           {duplicated.map((sponsor, i) => (
             <div

@@ -115,7 +115,7 @@ export default function Hero() {
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
 
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#050810] via-[#0B1F3A]/65 to-[#050810]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#131315] via-[#0B1F3A]/50 to-[#131315]" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[700px] bg-[#C21818]/8 rounded-full blur-3xl" />
         <div className="absolute top-1/4 left-0 w-72 h-72 bg-[#D4AF37]/5 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-0 w-72 h-72 bg-[#C21818]/5 rounded-full blur-3xl" />
@@ -149,13 +149,13 @@ export default function Hero() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="text-6xl sm:text-7xl md:text-8xl lg:text-[6.5rem] font-black leading-[0.88] tracking-tighter mb-8"
+          className="text-6xl sm:text-7xl md:text-8xl lg:text-[7rem] font-black leading-[0.9] tracking-[-0.04em] mb-8 uppercase font-[family-name:var(--font-montserrat)]"
         >
-          <span className="block text-white">DELHI&apos;S</span>
+          <span className="block text-[#e4e2e5]">DELHI&apos;S</span>
           <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#C21818] via-[#D4AF37] to-[#C21818] animate-gradient">
             INVITE-ONLY
           </span>
-          <span className="block text-white">BADMINTON</span>
+          <span className="block text-[#e4e2e5]">BADMINTON</span>
         </motion.h1>
 
         <motion.p

@@ -134,7 +134,7 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Form */}
-      <section className="py-16 px-6 bg-[#0A0E1A]">
+      <section className="py-16 px-6 bg-[#1b1b1e]">
         <div className="max-w-3xl mx-auto">
           <SectionHeading
             eyebrow="Inquiry"

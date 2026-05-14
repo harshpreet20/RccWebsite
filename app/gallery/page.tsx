@@ -132,7 +132,7 @@ export default function GalleryPage() {
                   </div>
 
                   {/* Hover overlay */}
-                  <div className="absolute inset-0 bg-[#050810]/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-3 p-4">
+                  <div className="absolute inset-0 bg-[#131315]/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-3 p-4">
                     {item.type === 'video' ? (
                       <Play size={32} className="text-white" />
                     ) : (
@@ -160,7 +160,7 @@ export default function GalleryPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-[#050810]/95 backdrop-blur-xl"
+            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-[#131315]/95 backdrop-blur-xl"
             onClick={() => setSelectedItem(null)}
           >
             <motion.div

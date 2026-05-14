@@ -29,25 +29,23 @@ export default function SectionHeading({
   return (
     <div className={cn('flex flex-col gap-4', alignClass[align], className)}>
       {eyebrow && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
+        <motion.span
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="flex items-center gap-3"
+          transition={{ duration: 0.5 }}
+          className="text-[#D4AF37] text-xs tracking-[0.4em] font-bold uppercase font-[family-name:var(--font-inter)]"
         >
-          <div className="h-px w-8 bg-gradient-to-r from-[#C21818] to-[#D4AF37]" />
-          <span className="text-[#D4AF37] text-xs tracking-[0.4em] font-bold uppercase">{eyebrow}</span>
-          <div className="h-px w-8 bg-gradient-to-r from-[#D4AF37] to-[#C21818]" />
-        </motion.div>
+          {eyebrow}
+        </motion.span>
       )}
 
       <motion.h2
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.7, delay: 0.1 }}
-        className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight"
+        transition={{ duration: 0.6, delay: 0.08 }}
+        className="text-4xl md:text-5xl lg:text-6xl font-black text-[#e4e2e5] leading-[1.1] tracking-tight uppercase font-[family-name:var(--font-montserrat)]"
       >
         {title}{' '}
         {highlight && (
@@ -59,11 +57,11 @@ export default function SectionHeading({
 
       {subtitle && (
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-white/50 text-lg max-w-2xl leading-relaxed"
+          transition={{ duration: 0.5, delay: 0.18 }}
+          className="text-[#c4c6ce] text-lg max-w-2xl leading-relaxed font-[family-name:var(--font-inter)]"
         >
           {subtitle}
         </motion.p>

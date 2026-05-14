@@ -14,7 +14,7 @@ const navLinks = [
   { href: '/gallery', label: 'Gallery' },
   { href: '/sponsors', label: 'Sponsors' },
   { href: '/guidelines', label: 'Guidelines' },
-  { href: '/birthday', label: '🎂 Birthdays' },
+  { href: '/birthday', label: 'Birthdays' },
   { href: '/contact', label: 'Contact' },
 ];
 
@@ -38,8 +38,8 @@ export default function Navbar() {
         className={cn(
           'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
           scrolled
-            ? 'bg-[#050810]/90 backdrop-blur-xl border-b border-white/5 py-3'
-            : 'bg-transparent py-5'
+            ? 'bg-[#131315]/85 backdrop-blur-xl border-b border-[#D4AF37]/15 py-3'
+            : 'bg-[#131315]/20 backdrop-blur-md border-b border-[#D4AF37]/8 py-5'
         )}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
@@ -120,7 +120,7 @@ export default function Navbar() {
             className="fixed inset-0 z-40 lg:hidden"
             style={{ paddingTop: '80px' }}
           >
-            <div className="absolute inset-0 bg-[#050810]/98 backdrop-blur-xl" />
+            <div className="absolute inset-0 bg-[#131315]/98 backdrop-blur-xl" />
             <div className="relative flex flex-col items-center justify-center h-full gap-8 pb-20">
               {navLinks.map((link, i) => (
                 <motion.div

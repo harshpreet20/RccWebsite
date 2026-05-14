@@ -64,7 +64,7 @@ export default function JoinPopup() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={dismiss}
-            className="fixed inset-0 z-[60] bg-[#050810]/80 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] bg-[#131315]/80 backdrop-blur-sm"
           />
 
           {/* Popup */}

@@ -150,7 +150,7 @@ export default function SponsorsPage() {
       </section>
 
       {/* Benefits */}
-      <section className="py-24 px-6 bg-[#0A0E1A]">
+      <section className="py-24 px-6 bg-[#1b1b1e]">
         <div className="max-w-7xl mx-auto">
           <SectionHeading
             eyebrow="Why Partner"
