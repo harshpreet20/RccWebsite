@@ -137,12 +137,12 @@ function RuleItem({
       </div>
       <div>
         <div style={{
-          fontFamily: 'var(--font-montserrat)',
-          fontWeight: 800,
-          fontSize: '13px',
+          fontFamily: 'var(--font-dancing)',
+          fontWeight: 700,
+          fontSize: '18px',
           color: '#ffffff',
           marginBottom: '4px',
-          letterSpacing: '0.02em',
+          lineHeight: 1.2,
         }}>
           {title}
         </div>
@@ -338,12 +338,12 @@ export default function AboutPage() {
         <section style={{ padding: 'clamp(48px,8vw,80px) 0' }}>
           <SectionLabel text="Community Guidelines" />
           <h2 style={{
-            fontFamily: 'var(--font-montserrat)',
-            fontWeight: 900,
-            fontSize: 'clamp(1.6rem, 4vw, 2.4rem)',
+            fontFamily: 'var(--font-bebas)',
+            fontSize: 'clamp(2.4rem, 6vw, 4rem)',
             color: '#ffffff',
             marginBottom: '8px',
-            lineHeight: 1.15,
+            lineHeight: 1,
+            letterSpacing: '0.04em',
           }}>
             How we keep the community <span style={{ color: '#D4AF37' }}>strong.</span>
           </h2>
@@ -396,12 +396,12 @@ export default function AboutPage() {
         <section style={{ padding: 'clamp(48px,8vw,80px) 0' }}>
           <SectionLabel text="Transparent Pricing" />
           <h2 style={{
-            fontFamily: 'var(--font-montserrat)',
-            fontWeight: 900,
-            fontSize: 'clamp(1.6rem, 4vw, 2.4rem)',
+            fontFamily: 'var(--font-bebas)',
+            fontSize: 'clamp(2.4rem, 6vw, 4rem)',
             color: '#ffffff',
             marginBottom: '32px',
-            lineHeight: 1.15,
+            lineHeight: 1,
+            letterSpacing: '0.04em',
           }}>
             Simple. Fair. <span style={{ color: '#D4AF37' }}>No surprises.</span>
           </h2>
@@ -492,11 +492,12 @@ export default function AboutPage() {
             </div>
             <div>
               <h3 style={{
-                fontFamily: 'var(--font-montserrat)',
-                fontWeight: 900,
-                fontSize: 'clamp(1.2rem, 3vw, 1.8rem)',
+                fontFamily: 'var(--font-bebas)',
+                fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
                 color: '#ffffff',
                 marginBottom: '8px',
+                letterSpacing: '0.04em',
+                lineHeight: 1,
               }}>
                 Follow us on Instagram
               </h3>
