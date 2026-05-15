@@ -20,16 +20,17 @@ function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div style={{ textAlign: 'center', padding: '0 24px' }}>
       <div style={{
-        fontFamily: 'var(--font-bebas)',
-        fontSize: 'clamp(2.4rem, 5vw, 3.5rem)',
+        fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+        fontWeight: 900,
+        fontSize: 'clamp(2rem, 5vw, 3rem)',
         color: '#D4AF37',
         lineHeight: 1,
-        letterSpacing: '0.04em',
       }}>
         {value}
       </div>
       <div style={{
-        fontFamily: 'var(--font-inter)',
+        fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+        fontWeight: 400,
         fontSize: '11px',
         color: 'rgba(255,255,255,0.45)',
         letterSpacing: '0.18em',
@@ -48,7 +49,7 @@ function SectionLabel({ text }: { text: string }) {
     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
       <div style={{ width: '28px', height: '2px', background: '#C21818', borderRadius: '1px' }} />
       <span style={{
-        fontFamily: 'var(--font-inter)',
+        fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
         fontSize: '11px',
         fontWeight: 700,
         letterSpacing: '0.3em',
@@ -90,16 +91,16 @@ function OfferCard({
         <Icon size={20} color={accent} />
       </div>
       <div style={{
-        fontFamily: 'var(--font-montserrat)',
-        fontWeight: 800,
+        fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+        fontWeight: 700,
         fontSize: '15px',
         color: '#ffffff',
-        letterSpacing: '0.02em',
       }}>
         {title}
       </div>
       <div style={{
-        fontFamily: 'var(--font-inter)',
+        fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+        fontWeight: 400,
         fontSize: '13px',
         color: 'rgba(255,255,255,0.5)',
         lineHeight: 1.65,
@@ -137,17 +138,18 @@ function RuleItem({
       </div>
       <div>
         <div style={{
-          fontFamily: 'var(--font-dancing)',
+          fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
           fontWeight: 700,
-          fontSize: '18px',
+          fontSize: '15px',
           color: '#ffffff',
           marginBottom: '4px',
-          lineHeight: 1.2,
+          lineHeight: 1.3,
         }}>
           {title}
         </div>
         <div style={{
-          fontFamily: 'var(--font-inter)',
+          fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+          fontWeight: 400,
           fontSize: '13px',
           color: 'rgba(255,255,255,0.48)',
           lineHeight: 1.65,
@@ -190,7 +192,7 @@ export default function AboutPage() {
           }}>
             <MapPin size={12} color="#C21818" />
             <span style={{
-              fontFamily: 'var(--font-inter)', fontSize: '11px',
+              fontFamily: "'Arial', 'Helvetica Neue', sans-serif", fontSize: '11px',
               color: '#C21818', fontWeight: 700, letterSpacing: '0.2em',
               textTransform: 'uppercase',
             }}>
@@ -199,20 +201,22 @@ export default function AboutPage() {
           </div>
 
           <h1 style={{
-            fontFamily: 'var(--font-bebas)',
-            fontSize: 'clamp(3rem, 8vw, 6.5rem)',
+            fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+            fontWeight: 900,
+            fontSize: 'clamp(2.4rem, 7vw, 5.5rem)',
             color: '#ffffff',
-            letterSpacing: '0.04em',
-            lineHeight: 0.95,
+            letterSpacing: '-0.02em',
+            lineHeight: 1,
             marginBottom: '8px',
           }}>
             RACQUETS CLUB
           </h1>
           <h1 style={{
-            fontFamily: 'var(--font-bebas)',
-            fontSize: 'clamp(3rem, 8vw, 6.5rem)',
-            letterSpacing: '0.04em',
-            lineHeight: 0.95,
+            fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+            fontWeight: 900,
+            fontSize: 'clamp(2.4rem, 7vw, 5.5rem)',
+            letterSpacing: '-0.02em',
+            lineHeight: 1,
             marginBottom: '28px',
             background: 'linear-gradient(135deg, #C21818, #D4AF37)',
             WebkitBackgroundClip: 'text',
@@ -223,7 +227,7 @@ export default function AboutPage() {
           </h1>
 
           <p style={{
-            fontFamily: 'var(--font-inter)',
+            fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
             fontSize: 'clamp(14px, 2vw, 17px)',
             color: 'rgba(255,255,255,0.55)',
             lineHeight: 1.75,
@@ -235,9 +239,10 @@ export default function AboutPage() {
           </p>
 
           <p style={{
-            fontFamily: 'var(--font-dancing)',
+            fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
             fontStyle: 'italic',
-            fontSize: 'clamp(1.2rem, 2.5vw, 1.6rem)',
+            fontWeight: 400,
+            fontSize: 'clamp(1rem, 2vw, 1.25rem)',
             color: '#D4AF37',
           }}>
             &ldquo;In Delhi, badminton is more than a game — it&apos;s a community.&rdquo;
@@ -277,12 +282,13 @@ export default function AboutPage() {
         <section style={{ padding: 'clamp(48px,8vw,80px) 0' }}>
           <SectionLabel text="What We Offer" />
           <h2 style={{
-            fontFamily: 'var(--font-montserrat)',
-            fontWeight: 900,
-            fontSize: 'clamp(1.6rem, 4vw, 2.4rem)',
+            fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+            fontWeight: 800,
+            fontSize: 'clamp(1.5rem, 3.5vw, 2.2rem)',
             color: '#ffffff',
             marginBottom: '36px',
-            lineHeight: 1.15,
+            lineHeight: 1.2,
+            letterSpacing: '-0.01em',
           }}>
             Everything you need to play,<br />
             <span style={{ color: '#D4AF37' }}>nothing you don&apos;t.</span>
@@ -338,17 +344,18 @@ export default function AboutPage() {
         <section style={{ padding: 'clamp(48px,8vw,80px) 0' }}>
           <SectionLabel text="Community Guidelines" />
           <h2 style={{
-            fontFamily: 'var(--font-bebas)',
-            fontSize: 'clamp(2.4rem, 6vw, 4rem)',
+            fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+            fontWeight: 800,
+            fontSize: 'clamp(1.5rem, 3.5vw, 2.2rem)',
             color: '#ffffff',
             marginBottom: '8px',
-            lineHeight: 1,
-            letterSpacing: '0.04em',
+            lineHeight: 1.2,
+            letterSpacing: '-0.01em',
           }}>
             How we keep the community <span style={{ color: '#D4AF37' }}>strong.</span>
           </h2>
           <p style={{
-            fontFamily: 'var(--font-inter)',
+            fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
             fontSize: '14px',
             color: 'rgba(255,255,255,0.4)',
             marginBottom: '36px',
@@ -396,12 +403,13 @@ export default function AboutPage() {
         <section style={{ padding: 'clamp(48px,8vw,80px) 0' }}>
           <SectionLabel text="Transparent Pricing" />
           <h2 style={{
-            fontFamily: 'var(--font-bebas)',
-            fontSize: 'clamp(2.4rem, 6vw, 4rem)',
+            fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+            fontWeight: 800,
+            fontSize: 'clamp(1.5rem, 3.5vw, 2.2rem)',
             color: '#ffffff',
             marginBottom: '32px',
-            lineHeight: 1,
-            letterSpacing: '0.04em',
+            lineHeight: 1.2,
+            letterSpacing: '-0.01em',
           }}>
             Simple. Fair. <span style={{ color: '#D4AF37' }}>No surprises.</span>
           </h2>
@@ -418,7 +426,7 @@ export default function AboutPage() {
             {/* Formula */}
             <div style={{ textAlign: 'center' }}>
               <div style={{
-                fontFamily: 'var(--font-inter)',
+                fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
                 fontSize: '12px',
                 color: 'rgba(255,255,255,0.4)',
                 letterSpacing: '0.2em',
@@ -428,10 +436,11 @@ export default function AboutPage() {
                 Cost per session
               </div>
               <div style={{
-                fontFamily: 'var(--font-bebas)',
-                fontSize: 'clamp(1.8rem, 5vw, 3rem)',
+                fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+                fontWeight: 900,
+                fontSize: 'clamp(1.4rem, 3.5vw, 2.2rem)',
                 color: '#D4AF37',
-                letterSpacing: '0.05em',
+                letterSpacing: '-0.01em',
               }}>
                 (Court Fee ÷ Players) + ₹20
               </div>
@@ -454,7 +463,7 @@ export default function AboutPage() {
                 <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                   <Icon size={15} color="#D4AF37" style={{ marginTop: '2px', flexShrink: 0 }} />
                   <span style={{
-                    fontFamily: 'var(--font-inter)',
+                    fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
                     fontSize: '13px',
                     color: 'rgba(255,255,255,0.5)',
                     lineHeight: 1.55,
@@ -492,17 +501,18 @@ export default function AboutPage() {
             </div>
             <div>
               <h3 style={{
-                fontFamily: 'var(--font-bebas)',
-                fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+                fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+                fontWeight: 800,
+                fontSize: 'clamp(1.3rem, 3vw, 2rem)',
                 color: '#ffffff',
                 marginBottom: '8px',
-                letterSpacing: '0.04em',
-                lineHeight: 1,
+                letterSpacing: '-0.01em',
+                lineHeight: 1.2,
               }}>
                 Follow us on Instagram
               </h3>
               <p style={{
-                fontFamily: 'var(--font-inter)',
+                fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
                 fontSize: '14px',
                 color: 'rgba(255,255,255,0.45)',
                 lineHeight: 1.6,
@@ -546,7 +556,7 @@ export default function AboutPage() {
         textAlign: 'center',
       }}>
         <p style={{
-          fontFamily: 'var(--font-inter)',
+          fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
           fontSize: '12px',
           color: 'rgba(255,255,255,0.25)',
           letterSpacing: '0.1em',
