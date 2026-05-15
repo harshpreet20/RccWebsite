@@ -1,21 +1,17 @@
-import Hero from '@/components/sections/Hero';
-import FeaturedEvents from '@/components/sections/FeaturedEvents';
-import CommunityValues from '@/components/sections/CommunityValues';
-import SocialHighlights from '@/components/sections/SocialHighlights';
-import SponsorStrip from '@/components/sections/SponsorStrip';
-import ParticleDivider from '@/components/ui/ParticleDivider';
-
-export default function HomePage() {
+export default function Home() {
   return (
-    <>
-      <Hero />
-      <ParticleDivider />
-      <FeaturedEvents />
-      <ParticleDivider />
-      <CommunityValues />
-      <ParticleDivider />
-      <SocialHighlights />
-      <SponsorStrip />
-    </>
+    <main className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <h1
+          className="text-6xl text-[#D4AF37] mb-4"
+          style={{ fontFamily: 'var(--font-bebas)', letterSpacing: '0.05em' }}
+        >
+          RCC
+        </h1>
+        <p className="text-white/40 text-sm tracking-widest font-[family-name:var(--font-inter)]">
+          REBUILDING FROM SCRATCH
+        </p>
+      </div>
+    </main>
   );
 }
