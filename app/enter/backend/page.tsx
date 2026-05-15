@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -1013,14 +1014,46 @@ type TabKey = 'members' | 'events' | 'leaderboard' | 'announcements' | 'instagra
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
 export default function BackendPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabKey>('members');
   const [pendingCount, setPendingCount] = useState(0);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) {
+        router.replace('/enter/backend/login');
+      } else {
+        setUserEmail(data.session.user.email ?? null);
+        setAuthChecked(true);
+      }
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) router.replace('/enter/backend/login');
+    });
+    return () => subscription.unsubscribe();
+  }, [router]);
+
+  useEffect(() => {
+    if (!authChecked) return;
     supabase.from('members').select('id', { count: 'exact', head: true }).eq('status', 'pending').then(({ count }) => {
       if (count != null) setPendingCount(count);
     });
-  }, []);
+  }, [authChecked]);
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    router.replace('/enter/backend/login');
+  }
+
+  if (!authChecked) {
+    return (
+      <div style={{ background: '#0a0a0f', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ fontFamily: 'var(--font-montserrat)', color: '#888899', fontSize: 13, letterSpacing: '0.1em' }}>LOADING...</div>
+      </div>
+    );
+  }
 
   const tabs: { key: TabKey; label: string; badge?: number }[] = [
     { key: 'members', label: 'Members', badge: pendingCount > 0 ? pendingCount : undefined },
@@ -1046,8 +1079,28 @@ export default function BackendPage() {
           <div style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.4rem', color: '#D4AF37', letterSpacing: '0.06em', lineHeight: 1 }}>RCC ADMIN PANEL</div>
           <div style={{ fontFamily: 'var(--font-inter)', fontSize: '11px', color: '#888899', letterSpacing: '0.1em' }}>RACQUETS CLUB COMMUNITY</div>
         </div>
-        <div style={{ marginLeft: 'auto', fontFamily: 'var(--font-inter)', fontSize: '12px', color: '#888899' }}>
-          ⚠️ Authorised access only
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+          {userEmail && (
+            <span style={{ fontFamily: 'var(--font-inter)', fontSize: '12px', color: '#555566' }}>{userEmail}</span>
+          )}
+          <button
+            onClick={handleSignOut}
+            style={{
+              background: 'transparent',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 6,
+              color: '#888899',
+              fontFamily: 'var(--font-montserrat)',
+              fontWeight: 700,
+              fontSize: 11,
+              letterSpacing: '0.06em',
+              padding: '6px 14px',
+              cursor: 'pointer',
+              textTransform: 'uppercase',
+            }}
+          >
+            Sign Out
+          </button>
         </div>
       </div>
 

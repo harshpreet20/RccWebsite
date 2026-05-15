@@ -1,41 +1,54 @@
 'use client';
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   PartnersSection — add / remove partners by editing the PARTNERS array below.
-   Each entry: { name, logo?, href? }
-   - logo: URL to an image (any size — will be normalized to 48px height)
-   - href: optional external link
+   PartnersSection — fetches from public.sponsors Supabase table.
+   Manage logos, links and display order from /enter/backend → Partners tab.
 ───────────────────────────────────────────────────────────────────────────── */
 
-interface Partner {
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
+
+interface Sponsor {
+  id: string;
   name: string;
-  logo?: string;
-  href?: string;
+  logo_url: string | null;
+  website_url: string | null;
+  tier: string | null;
+  display_order: number;
 }
 
-export const PARTNERS: Partner[] = [
-  { name: 'Siri Fort Sports Complex', href: '#' },
-  { name: 'DDA Vasant Kunj',          href: '#' },
-  { name: 'Yonex',                    href: 'https://www.yonex.com' },
-  { name: 'Li-Ning',                  href: '#' },
-  { name: 'Victor',                   href: '#' },
-  { name: 'HotBot Studios',           href: 'https://www.hotbotstudios.com' },
+const FALLBACK: Sponsor[] = [
+  { id: '1', name: 'Siri Fort Sports Complex', logo_url: null, website_url: '#', tier: 'Venue Partner', display_order: 1 },
+  { id: '2', name: 'DDA Vasant Kunj',           logo_url: null, website_url: '#', tier: 'Venue Partner', display_order: 2 },
+  { id: '3', name: 'Yonex',                     logo_url: null, website_url: 'https://www.yonex.com', tier: 'Gold Partner', display_order: 3 },
+  { id: '4', name: 'Li-Ning',                   logo_url: null, website_url: '#', tier: 'Silver Partner', display_order: 4 },
+  { id: '5', name: 'Victor',                    logo_url: null, website_url: '#', tier: 'Silver Partner', display_order: 5 },
+  { id: '6', name: 'HotBot Studios',            logo_url: null, website_url: 'https://www.hotbotstudios.com', tier: 'Technology Partner', display_order: 6 },
 ];
 
 export default function PartnersSection() {
-  const doubled = [...PARTNERS, ...PARTNERS];
+  const [sponsors, setSponsors] = useState<Sponsor[]>(FALLBACK);
+
+  useEffect(() => {
+    supabase
+      .from('sponsors')
+      .select('id, name, logo_url, website_url, tier, display_order')
+      .eq('active', true)
+      .order('display_order', { ascending: true })
+      .then(({ data }) => { if (data && data.length > 0) setSponsors(data); });
+  }, []);
+
+  const doubled = [...sponsors, ...sponsors];
 
   return (
-    <section
-      style={{
-        background: '#080810',
-        borderTop: '1px solid rgba(255,255,255,0.05)',
-        borderBottom: '1px solid rgba(255,255,255,0.05)',
-        padding: '32px 0',
-        overflow: 'hidden',
-        position: 'relative',
-      }}
-    >
+    <section style={{
+      background: '#080810',
+      borderTop: '1px solid rgba(255,255,255,0.05)',
+      borderBottom: '1px solid rgba(255,255,255,0.05)',
+      padding: '32px 0',
+      overflow: 'hidden',
+      position: 'relative',
+    }}>
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0, height: '1px',
         background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.2), transparent)',
@@ -48,73 +61,52 @@ export default function PartnersSection() {
         <div style={{ width: '28px', height: '1px', background: '#C21818', flexShrink: 0 }} />
         <span style={{
           fontFamily: 'var(--font-montserrat)', fontSize: '10px', fontWeight: 700,
-          letterSpacing: '0.3em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', whiteSpace: 'nowrap',
+          letterSpacing: '0.3em', color: 'rgba(255,255,255,0.3)',
+          textTransform: 'uppercase', whiteSpace: 'nowrap',
         }}>
           OUR PARTNERS
         </span>
         <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.05)' }} />
       </div>
 
-      {/* Scrolling marquee */}
       <div style={{ overflow: 'hidden', width: '100%' }}>
-        <div
-          className="animate-marquee"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '48px',
-            width: 'max-content',
-          }}
-        >
+        <div className="animate-marquee" style={{ display: 'flex', alignItems: 'center', gap: '48px', width: 'max-content' }}>
           {doubled.map((p, i) => {
-            const inner = p.logo ? (
+            const inner = p.logo_url ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
-                src={p.logo}
+                src={p.logo_url}
                 alt={p.name}
-                style={{
-                  height: '48px',
-                  maxWidth: '140px',
-                  objectFit: 'contain',
-                  filter: 'grayscale(1) brightness(0.6)',
-                  transition: 'filter 0.3s',
-                }}
+                style={{ height: '48px', maxWidth: '140px', objectFit: 'contain', filter: 'grayscale(1) brightness(0.6)', transition: 'filter 0.3s' }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLImageElement).style.filter = 'grayscale(0) brightness(1)'; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLImageElement).style.filter = 'grayscale(1) brightness(0.6)'; }}
               />
             ) : (
-              <span style={{
-                fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: '11px',
-                letterSpacing: '0.18em', color: 'rgba(255,255,255,0.22)',
-                textTransform: 'uppercase', whiteSpace: 'nowrap',
-                padding: '8px 18px',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: '4px',
-                transition: 'color 0.3s, border-color 0.3s',
-              }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLSpanElement;
-                el.style.color = '#D4AF37';
-                el.style.borderColor = 'rgba(212,175,55,0.3)';
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLSpanElement;
-                el.style.color = 'rgba(255,255,255,0.22)';
-                el.style.borderColor = 'rgba(255,255,255,0.08)';
-              }}
+              <span
+                style={{
+                  fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: '11px',
+                  letterSpacing: '0.18em', color: 'rgba(255,255,255,0.22)',
+                  textTransform: 'uppercase', whiteSpace: 'nowrap',
+                  padding: '8px 18px',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: '4px',
+                  transition: 'color 0.3s, border-color 0.3s',
+                  display: 'inline-block',
+                }}
+                onMouseEnter={(e) => { const el = e.currentTarget as HTMLSpanElement; el.style.color = '#D4AF37'; el.style.borderColor = 'rgba(212,175,55,0.3)'; }}
+                onMouseLeave={(e) => { const el = e.currentTarget as HTMLSpanElement; el.style.color = 'rgba(255,255,255,0.22)'; el.style.borderColor = 'rgba(255,255,255,0.08)'; }}
               >
                 {p.name}
               </span>
             );
 
-            return p.href && p.href !== '#' ? (
-              <a key={i} href={p.href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+            const href = p.website_url && p.website_url !== '#' ? p.website_url : null;
+            return href ? (
+              <a key={`${p.id}-${i}`} href={href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
                 {inner}
               </a>
             ) : (
-              <div key={i} style={{ display: 'flex', alignItems: 'center' }}>
-                {inner}
-              </div>
+              <div key={`${p.id}-${i}`} style={{ display: 'flex', alignItems: 'center' }}>{inner}</div>
             );
           })}
         </div>
