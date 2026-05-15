@@ -80,24 +80,6 @@ export default function InstagramFeed() {
       }} />
 
       <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-          <InstagramIcon size={20} />
-          <a
-            href="https://www.instagram.com/racquetsclubcommunity/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              fontFamily: 'var(--font-montserrat)',
-              fontSize: '12px',
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: '#888899',
-              textDecoration: 'none',
-            }}
-          >
-            @racquetsclubcommunity on Instagram
-          </a>
-        </div>
         <h2 style={{
           fontFamily: 'var(--font-bebas)',
           fontSize: 'clamp(3rem, 6vw, 5rem)',
@@ -116,6 +98,28 @@ export default function InstagramFeed() {
           margin: '16px auto 0',
           borderRadius: '2px',
         }} />
+        <div style={{ textAlign: 'center' }}>
+          <a
+            href="https://www.instagram.com/racquetsclubcommunity/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginTop: '20px',
+              fontFamily: 'var(--font-montserrat)',
+              fontWeight: 700,
+              fontSize: '15px',
+              letterSpacing: '0.08em',
+              color: '#FF6B35',
+              textDecoration: 'none',
+            }}
+          >
+            <InstagramIcon size={18} />
+            @racquetsclubcommunity
+          </a>
+        </div>
       </div>
 
       <motion.div

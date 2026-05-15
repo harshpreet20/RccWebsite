@@ -1,5 +1,6 @@
 import Navbar from '@/components/layout/Navbar';
 import Hero from '@/components/sections/Hero';
+import PartnersSection from '@/components/sections/PartnersSection';
 import InstagramFeed from '@/components/sections/InstagramFeed';
 import EventsSection from '@/components/sections/EventsSection';
 import MembershipSection from '@/components/sections/MembershipSection';
@@ -15,6 +16,7 @@ export default function Home() {
     <main>
       <Navbar />
       <Hero />
+      <PartnersSection />
       <InstagramFeed />
       <EventsSection />
       <MembershipSection />

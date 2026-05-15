@@ -168,7 +168,7 @@ export default function TestimonialsSection() {
             marginTop: '16px',
           }}
         >
-          Stories from the court — the moments, the battles, the community.
+          Stories from the court: the moments, the battles, the community.
         </motion.p>
       </div>
 

@@ -30,7 +30,7 @@ const dancingScript = Dancing_Script({
 });
 
 export const metadata: Metadata = {
-  title: "Racquets Club Community — Delhi's Invite-Only Badminton Community",
+  title: "Racquets Club Community | Delhi's Invite-Only Badminton Community",
   description:
     "RCC is Delhi's invite-only badminton community for serious players. Regular games, skill-based matches, tournaments, and real connections.",
   keywords: 'badminton, Delhi, invite-only, community, RCC, Racquets Club, tournaments, sports',

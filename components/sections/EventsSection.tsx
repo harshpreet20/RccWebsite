@@ -694,7 +694,7 @@ export default function EventsSection() {
             maxWidth: '500px',
           }}
         >
-          Compete. Grow. Dominate. From weekend smashes to grand tournaments — there's always a stage for you.
+          Compete. Grow. Dominate. From weekend smashes to grand tournaments, there's always a stage for you.
         </p>
       </motion.div>
 

@@ -187,6 +187,19 @@ export default function Hero() {
         }}
       />
 
+      {/* Smash 3D animation */}
+      <style>{`
+        @keyframes smash-3d {
+          0%   { transform: perspective(700px) translateY(0px) rotateY(-8deg) rotateZ(-3deg) scale(1); }
+          18%  { transform: perspective(700px) translateY(-28px) rotateY(-18deg) rotateZ(-7deg) scale(1.04); }
+          36%  { transform: perspective(700px) translateY(-44px) rotateY(-25deg) rotateZ(-10deg) scale(1.06); }
+          52%  { transform: perspective(700px) translateY(-8px) rotateY(8deg) rotateZ(4deg) scale(0.97); }
+          62%  { transform: perspective(700px) translateY(0px) rotateY(-4deg) rotateZ(-2deg) scale(1.02); }
+          80%  { transform: perspective(700px) translateY(-8px) rotateY(-6deg) rotateZ(-2deg) scale(1.01); }
+          100% { transform: perspective(700px) translateY(0px) rotateY(-8deg) rotateZ(-3deg) scale(1); }
+        }
+      `}</style>
+
       {/* 4. Gold floor glow */}
       <div
         style={{
@@ -256,6 +269,8 @@ export default function Hero() {
             /* Black bg in the photo becomes transparent — only the player shows */
             mixBlendMode: 'screen',
             filter: 'drop-shadow(-30px 0 80px rgba(194,24,24,0.7)) drop-shadow(0 0 40px rgba(212,175,55,0.25))',
+            animation: 'smash-3d 3.2s ease-in-out infinite',
+            transformStyle: 'preserve-3d',
           }}
         />
       </div>

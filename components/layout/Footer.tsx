@@ -205,7 +205,7 @@ export default function Footer() {
             Delhi's elite invite-only badminton community. Where passion meets competition.
           </p>
           <div style={{ display: 'flex', gap: '12px' }}>
-            <a href="https://instagram.com/rcc.delhi" target="_blank" rel="noopener noreferrer" className="footer-social-icon" aria-label="Instagram">
+            <a href="https://www.instagram.com/racquetsclubcommunity/" target="_blank" rel="noopener noreferrer" className="footer-social-icon" aria-label="Instagram">
               <InstagramIcon />
             </a>
             <a href="https://youtube.com/@rccdelhi" target="_blank" rel="noopener noreferrer" className="footer-social-icon" aria-label="YouTube">

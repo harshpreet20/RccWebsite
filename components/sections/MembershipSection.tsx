@@ -5,16 +5,8 @@ import { motion, useInView } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 import { Check, ArrowRight } from 'lucide-react';
 
-type PlanId = 'monthly' | 'quarterly' | 'annual';
-
-const PLANS: { id: PlanId; label: string; price: string; period: string }[] = [
-  { id: 'monthly', label: 'Monthly', price: '₹999', period: '/mo' },
-  { id: 'quarterly', label: 'Quarterly', price: '₹2,499', period: '/qtr' },
-  { id: 'annual', label: 'Annual', price: '₹7,999', period: '/yr' },
-];
-
 export default function MembershipSection() {
-  const [selected, setSelected] = useState<PlanId>('quarterly');
+  const selected = 'monthly';
   const [form, setForm] = useState({ name: '', email: '', phone: '', skill_level: 'intermediate' });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -115,52 +107,6 @@ export default function MembershipSection() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {/* Plan selector */}
-              <div>
-                <label style={{
-                  display: 'block', fontFamily: 'var(--font-montserrat)', fontSize: '11px',
-                  letterSpacing: '0.12em', color: '#888899', marginBottom: '12px', textTransform: 'uppercase',
-                }}>
-                  Membership Plan
-                </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-                  {PLANS.map((plan) => (
-                    <button
-                      key={plan.id}
-                      type="button"
-                      onClick={() => setSelected(plan.id)}
-                      style={{
-                        padding: '14px 10px',
-                        borderRadius: '10px',
-                        border: selected === plan.id ? '1px solid #D4AF37' : '1px solid rgba(255,255,255,0.1)',
-                        background: selected === plan.id ? 'rgba(212,175,55,0.1)' : 'rgba(255,255,255,0.03)',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        textAlign: 'center',
-                      }}
-                    >
-                      <div style={{
-                        fontFamily: 'var(--font-bebas)', fontSize: '1.4rem',
-                        color: selected === plan.id ? '#D4AF37' : '#e8e8ec',
-                        lineHeight: 1,
-                      }}>
-                        {plan.price}
-                      </div>
-                      <div style={{
-                        fontFamily: 'var(--font-montserrat)', fontSize: '9px',
-                        letterSpacing: '0.1em', fontWeight: 700,
-                        color: selected === plan.id ? '#D4AF37' : '#888899',
-                        textTransform: 'uppercase', marginTop: '4px',
-                      }}>
-                        {plan.label} {plan.period}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)' }} />
-
               <FormField label="Full Name" type="text" value={form.name} onChange={(v) => setForm({ ...form, name: v })} placeholder="Your full name" />
               <FormField label="Email Address" type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} placeholder="your@email.com" />
               <FormField label="Phone Number" type="tel" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} placeholder="+91 98765 43210" />

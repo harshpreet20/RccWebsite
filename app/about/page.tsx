@@ -234,7 +234,7 @@ export default function AboutPage() {
             maxWidth: '640px',
             margin: '0 auto 20px',
           }}>
-            Delhi&apos;s closed, invite-only badminton community for sincere players —
+            Delhi&apos;s closed, invite-only badminton community for sincere players,
             from beginners to advanced. We don&apos;t just play the game; we live it.
           </p>
 
@@ -245,7 +245,7 @@ export default function AboutPage() {
             fontSize: 'clamp(1rem, 2vw, 1.25rem)',
             color: '#D4AF37',
           }}>
-            &ldquo;In Delhi, badminton is more than a game — it&apos;s a community.&rdquo;
+            &ldquo;In Delhi, badminton is more than a game. It&apos;s a community.&rdquo;
           </p>
         </div>
       </div>
@@ -301,7 +301,7 @@ export default function AboutPage() {
             <OfferCard
               Icon={CalendarCheck}
               title="Regular & Weekend Games"
-              description="Structured weekly sessions with consistent scheduling so you never miss a game. Weekend slots fill fast — first come, first served."
+              description="Structured weekly sessions with consistent scheduling so you never miss a game. Weekend slots fill fast, first come, first served."
               accent="#D4AF37"
             />
             <OfferCard
@@ -313,7 +313,7 @@ export default function AboutPage() {
             <OfferCard
               Icon={MapPin}
               title="Court Booking Handled"
-              description="We take care of booking the courts — you just show up and play. No logistics headaches, no last-minute scrambles."
+              description="We take care of booking the courts — you just show up and play. No logistics headaches, no scrambles."
               accent="#D4AF37"
             />
             <OfferCard
@@ -325,7 +325,7 @@ export default function AboutPage() {
             <OfferCard
               Icon={Trophy}
               title="Friendly Tournaments"
-              description="From internal rivalries to the Budget Badminton League — there's always something to compete for and something to win."
+              description="From internal rivalries to the Budget Badminton League, there's always something to compete for and something to win."
               accent="#D4AF37"
             />
             <OfferCard
@@ -385,7 +385,7 @@ export default function AboutPage() {
           <RuleItem
             Icon={AlertCircle}
             title="No Back-Outs"
-            body="Backouts are fully payable. If you can't make it, arrange a timely substitute — advance payments are non-refundable unless a replacement is organized."
+            body="Backouts are fully payable. If you can't make it, arrange a timely substitute. Advance payments are non-refundable unless a replacement is organized."
             accent="#C21818"
           />
           <RuleItem
@@ -458,7 +458,7 @@ export default function AboutPage() {
                 { icon: CreditCard, text: 'Court fee split equally among all players on the day' },
                 { icon: Star, text: '₹20 per person covers quality shuttles for the session' },
                 { icon: Users, text: 'More players = lower cost per head. Bring your friends.' },
-                { icon: BadgeCheck, text: 'All charges are advance only — confirmed on payment' },
+                { icon: BadgeCheck, text: 'All charges are advance only, confirmed on payment' },
               ].map(({ icon: Icon, text }, i) => (
                 <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                   <Icon size={15} color="#D4AF37" style={{ marginTop: '2px', flexShrink: 0 }} />

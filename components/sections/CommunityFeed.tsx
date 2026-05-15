@@ -257,7 +257,7 @@ function FeedCard({ item }: { item: Announcement }) {
           fontFamily: 'var(--font-montserrat)', fontSize: '11px',
           color: 'rgba(255,255,255,0.3)', fontWeight: 600, letterSpacing: '0.06em',
         }}>
-          — {item.author}
+          {item.author}
         </div>
       </div>
     </motion.div>
