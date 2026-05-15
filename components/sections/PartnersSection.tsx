@@ -70,31 +70,31 @@ export default function PartnersSection() {
       </div>
 
       <div style={{ overflow: 'hidden', width: '100%' }}>
-        <div className="animate-marquee" style={{ display: 'flex', alignItems: 'center', gap: '48px', width: 'max-content' }}>
+        <div className="animate-marquee" style={{ display: 'flex', alignItems: 'center', gap: '72px', width: 'max-content' }}>
           {doubled.map((p, i) => {
             const inner = p.logo_url ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={p.logo_url}
                 alt={p.name}
-                style={{ height: '48px', maxWidth: '140px', objectFit: 'contain', filter: 'grayscale(1) brightness(0.6)', transition: 'filter 0.3s' }}
+                style={{ height: '72px', maxWidth: '180px', objectFit: 'contain', filter: 'grayscale(1) brightness(0.65)', transition: 'filter 0.3s' }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLImageElement).style.filter = 'grayscale(0) brightness(1)'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLImageElement).style.filter = 'grayscale(1) brightness(0.6)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLImageElement).style.filter = 'grayscale(1) brightness(0.65)'; }}
               />
             ) : (
               <span
                 style={{
-                  fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: '11px',
-                  letterSpacing: '0.18em', color: 'rgba(255,255,255,0.22)',
+                  fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: '13px',
+                  letterSpacing: '0.18em', color: 'rgba(255,255,255,0.28)',
                   textTransform: 'uppercase', whiteSpace: 'nowrap',
-                  padding: '8px 18px',
+                  padding: '12px 24px',
                   border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: '4px',
+                  borderRadius: '6px',
                   transition: 'color 0.3s, border-color 0.3s',
                   display: 'inline-block',
                 }}
                 onMouseEnter={(e) => { const el = e.currentTarget as HTMLSpanElement; el.style.color = '#D4AF37'; el.style.borderColor = 'rgba(212,175,55,0.3)'; }}
-                onMouseLeave={(e) => { const el = e.currentTarget as HTMLSpanElement; el.style.color = 'rgba(255,255,255,0.22)'; el.style.borderColor = 'rgba(255,255,255,0.08)'; }}
+                onMouseLeave={(e) => { const el = e.currentTarget as HTMLSpanElement; el.style.color = 'rgba(255,255,255,0.28)'; el.style.borderColor = 'rgba(255,255,255,0.08)'; }}
               >
                 {p.name}
               </span>

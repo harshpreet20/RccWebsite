@@ -19,6 +19,7 @@ interface Event {
   prize_pool: number;
   status: string;
   banner_url: string;
+  format: string | null;
 }
 
 type FilterTab = 'ALL' | 'TOURNAMENT' | 'LADDER' | 'SMASH NIGHT' | 'CORPORATE';
@@ -114,33 +115,201 @@ function CountdownTimer({ targetDate }: { targetDate: string }) {
   );
 }
 
+function formatLabel(f: string | null) {
+  const MAP: Record<string, string> = {
+    singles: 'Singles',
+    doubles: 'Doubles',
+    mixed_doubles: 'Mixed Doubles',
+    open: 'Open',
+  };
+  return f ? (MAP[f] ?? f) : 'Open';
+}
+
+function generateTicketId() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = '';
+  for (let i = 0; i < 8; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return `RCC-${s.slice(0, 4)}-${s.slice(4)}`;
+}
+
+interface Ticket {
+  ticketId: string;
+  name: string;
+  email: string;
+  eventTitle: string;
+  eventDate: string;
+  venue: string;
+  format: string | null;
+}
+
+function TicketCard({ ticket, onClose }: { ticket: Ticket; onClose: () => void }) {
+  const dateObj = new Date(ticket.eventDate);
+  const dateStr = dateObj.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const timeStr = dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 20,
+      }}>
+        <div style={{
+          width: 48, height: 48, borderRadius: '50%',
+          background: 'rgba(34,197,94,0.15)', border: '2px solid #22c55e',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Check size={24} color="#22c55e" />
+        </div>
+        <h3 style={{ fontFamily: 'var(--font-bebas)', fontSize: '2rem', color: '#22c55e', margin: 0, letterSpacing: '0.04em' }}>
+          YOU'RE IN!
+        </h3>
+      </div>
+
+      {/* Ticket card */}
+      <div style={{
+        background: '#0a0a0f',
+        border: '1px solid rgba(212,175,55,0.4)',
+        borderRadius: 12,
+        overflow: 'hidden',
+        marginBottom: 20,
+        position: 'relative',
+      }}>
+        {/* Gold top strip */}
+        <div style={{ height: 5, background: 'linear-gradient(to right, #C21818, #D4AF37)' }} />
+
+        <div style={{ padding: '20px 24px' }}>
+          {/* Logo + title row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <div>
+              <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 9, color: '#888899', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                RACQUETS CLUB COMMUNITY
+              </div>
+              <div style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.1rem', color: '#D4AF37', letterSpacing: '0.08em', lineHeight: 1 }}>
+                EVENT TICKET
+              </div>
+            </div>
+            <div style={{
+              background: 'rgba(194,24,24,0.1)', border: '1px solid rgba(194,24,24,0.3)',
+              borderRadius: 6, padding: '4px 10px',
+              fontFamily: 'var(--font-montserrat)', fontSize: 10, fontWeight: 700,
+              color: '#C21818', letterSpacing: '0.08em',
+            }}>
+              {formatLabel(ticket.format)}
+            </div>
+          </div>
+
+          <div style={{ textAlign: 'left', marginBottom: 16 }}>
+            <div style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.4rem', color: '#e8e8ec', letterSpacing: '0.03em', lineHeight: 1.1 }}>
+              {ticket.eventTitle}
+            </div>
+          </div>
+
+          {/* Details grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: 16 }}>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 9, color: '#555566', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 3 }}>Date</div>
+              <div style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#e8e8ec', fontWeight: 600 }}>{dateStr}</div>
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 9, color: '#555566', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 3 }}>Time</div>
+              <div style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#e8e8ec', fontWeight: 600 }}>{timeStr}</div>
+            </div>
+            <div style={{ textAlign: 'left', gridColumn: '1 / -1' }}>
+              <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 9, color: '#555566', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 3 }}>Venue</div>
+              <div style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#e8e8ec', fontWeight: 600 }}>{ticket.venue}</div>
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 9, color: '#555566', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 3 }}>Name</div>
+              <div style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#e8e8ec', fontWeight: 600 }}>{ticket.name}</div>
+            </div>
+          </div>
+
+          {/* Dashed separator */}
+          <div style={{ borderTop: '1px dashed rgba(255,255,255,0.1)', margin: '12px 0' }} />
+
+          {/* Ticket ID */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 9, color: '#555566', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 3 }}>Ticket ID</div>
+              <div style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.3rem', color: '#D4AF37', letterSpacing: '0.12em' }}>{ticket.ticketId}</div>
+            </div>
+            <div style={{ fontFamily: 'var(--font-inter)', fontSize: 10, color: '#333344', textAlign: 'right' }}>
+              Show this at the venue
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#555566', marginBottom: 20 }}>
+        Save a screenshot of your ticket. See you on the court!
+      </p>
+
+      <button
+        onClick={onClose}
+        style={{
+          padding: '12px 32px', background: '#C21818', border: 'none',
+          borderRadius: 8, color: '#fff', fontFamily: 'var(--font-montserrat)',
+          fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', cursor: 'pointer',
+        }}
+      >
+        DONE
+      </button>
+    </div>
+  );
+}
+
 interface RegistrationModalProps {
   event: Event;
   onClose: () => void;
 }
 
 function RegistrationModal({ event, onClose }: RegistrationModalProps) {
-  const [form, setForm] = useState({ name: '', email: '', skill_level: 'intermediate' });
+  const [form, setForm] = useState({ name: '', email: '', phone: '', skill_level: 'intermediate' });
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [ticket, setTicket] = useState<Ticket | null>(null);
   const [error, setError] = useState('');
+
+  const fieldStyle = {
+    width: '100%', padding: '12px 16px',
+    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '8px', color: '#e8e8ec',
+    fontFamily: 'var(--font-inter)', fontSize: '14px', outline: 'none', boxSizing: 'border-box' as const,
+  };
+  const labelStyle2 = {
+    display: 'block', fontFamily: 'var(--font-montserrat)', fontSize: '11px',
+    letterSpacing: '0.1em', color: '#888899', marginBottom: '8px', textTransform: 'uppercase' as const,
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError('');
 
+    const ticketId = generateTicketId();
     const { error: err } = await supabase.from('event_registrations').insert({
       event_id: event.id,
       member_name: form.name,
       member_email: form.email,
+      phone: form.phone || null,
       skill_level: form.skill_level,
+      ticket_id: ticketId,
     });
 
     if (err) {
-      setError('Registration failed. Please try again.');
+      if (err.code === '23505') {
+        setError('This email is already registered for this event.');
+      } else {
+        setError('Registration failed. Please try again.');
+      }
     } else {
-      setSuccess(true);
+      setTicket({
+        ticketId,
+        name: form.name,
+        email: form.email,
+        eventTitle: event.title,
+        eventDate: event.event_date,
+        venue: event.venue,
+        format: event.format,
+      });
     }
     setLoading(false);
   }
@@ -151,219 +320,67 @@ function RegistrationModal({ event, onClose }: RegistrationModalProps) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.8)',
-        backdropFilter: 'blur(8px)',
-        zIndex: 1000,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '20px',
+        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)',
+        backdropFilter: 'blur(10px)', zIndex: 1000,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px',
+        overflowY: 'auto',
       }}
       onClick={onClose}
     >
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        initial={{ opacity: 0, scale: 0.92, y: 24 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        exit={{ opacity: 0, scale: 0.92, y: 24 }}
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: '#111118',
-          border: '1px solid rgba(212,175,55,0.2)',
-          borderRadius: '16px',
-          padding: '32px',
-          width: '100%',
-          maxWidth: '480px',
-          position: 'relative',
+          background: '#111118', border: '1px solid rgba(212,175,55,0.2)',
+          borderRadius: '16px', padding: '32px', width: '100%',
+          maxWidth: '480px', position: 'relative', margin: 'auto',
         }}
       >
         <button
           onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '16px',
-            right: '16px',
-            background: 'transparent',
-            border: 'none',
-            color: '#888899',
-            cursor: 'pointer',
-            padding: '4px',
-          }}
+          style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: '#888899', cursor: 'pointer', padding: '4px' }}
         >
           <X size={20} />
         </button>
 
-        {success ? (
-          <div style={{ textAlign: 'center', padding: '20px 0' }}>
-            <div
-              style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                background: 'rgba(212,175,55,0.15)',
-                border: '2px solid #D4AF37',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 20px',
-              }}
-            >
-              <Check size={28} color="#D4AF37" />
-            </div>
-            <h3
-              style={{
-                fontFamily: 'var(--font-bebas)',
-                fontSize: '2rem',
-                color: '#D4AF37',
-                marginBottom: '8px',
-              }}
-            >
-              REGISTERED!
-            </h3>
-            <p style={{ fontFamily: 'var(--font-inter)', fontSize: '14px', color: '#888899' }}>
-              You're registered for {event.title}. See you on the court!
-            </p>
-            <button
-              onClick={onClose}
-              style={{
-                marginTop: '24px',
-                padding: '12px 32px',
-                background: '#C21818',
-                border: 'none',
-                borderRadius: '6px',
-                color: '#fff',
-                fontFamily: 'var(--font-montserrat)',
-                fontSize: '12px',
-                fontWeight: 700,
-                letterSpacing: '0.1em',
-                cursor: 'pointer',
-              }}
-            >
-              CLOSE
-            </button>
-          </div>
+        {ticket ? (
+          <TicketCard ticket={ticket} onClose={onClose} />
         ) : (
           <>
-            <h3
-              style={{
-                fontFamily: 'var(--font-bebas)',
-                fontSize: '1.8rem',
-                color: '#e8e8ec',
-                marginBottom: '4px',
-              }}
-            >
+            <h3 style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.8rem', color: '#e8e8ec', marginBottom: '4px' }}>
               REGISTER FOR
             </h3>
-            <p
-              style={{
-                fontFamily: 'var(--font-montserrat)',
-                fontSize: '14px',
-                color: '#D4AF37',
-                fontWeight: 600,
-                marginBottom: '24px',
-              }}
-            >
+            <p style={{ fontFamily: 'var(--font-montserrat)', fontSize: '14px', color: '#D4AF37', fontWeight: 600, marginBottom: '6px' }}>
               {event.title}
             </p>
+            {event.format && (
+              <span style={{
+                display: 'inline-block', background: 'rgba(194,24,24,0.1)', border: '1px solid rgba(194,24,24,0.3)',
+                borderRadius: 5, padding: '2px 10px', fontFamily: 'var(--font-montserrat)',
+                fontSize: 11, fontWeight: 700, color: '#C21818', letterSpacing: '0.06em', marginBottom: 20,
+              }}>
+                {formatLabel(event.format)}
+              </span>
+            )}
 
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: event.format ? 0 : 20 }}>
               <div>
-                <label
-                  style={{
-                    display: 'block',
-                    fontFamily: 'var(--font-montserrat)',
-                    fontSize: '11px',
-                    letterSpacing: '0.1em',
-                    color: '#888899',
-                    marginBottom: '8px',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '8px',
-                    color: '#e8e8ec',
-                    fontFamily: 'var(--font-inter)',
-                    fontSize: '14px',
-                    outline: 'none',
-                  }}
-                  placeholder="Your name"
-                />
+                <label style={labelStyle2}>Full Name</label>
+                <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} style={fieldStyle} placeholder="Your name" />
               </div>
               <div>
-                <label
-                  style={{
-                    display: 'block',
-                    fontFamily: 'var(--font-montserrat)',
-                    fontSize: '11px',
-                    letterSpacing: '0.1em',
-                    color: '#888899',
-                    marginBottom: '8px',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Email
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '8px',
-                    color: '#e8e8ec',
-                    fontFamily: 'var(--font-inter)',
-                    fontSize: '14px',
-                    outline: 'none',
-                  }}
-                  placeholder="your@email.com"
-                />
+                <label style={labelStyle2}>Email</label>
+                <input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} style={fieldStyle} placeholder="your@email.com" />
               </div>
               <div>
-                <label
-                  style={{
-                    display: 'block',
-                    fontFamily: 'var(--font-montserrat)',
-                    fontSize: '11px',
-                    letterSpacing: '0.1em',
-                    color: '#888899',
-                    marginBottom: '8px',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Skill Level
-                </label>
-                <select
-                  value={form.skill_level}
-                  onChange={(e) => setForm({ ...form, skill_level: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: '#111118',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '8px',
-                    color: '#e8e8ec',
-                    fontFamily: 'var(--font-inter)',
-                    fontSize: '14px',
-                    outline: 'none',
-                    cursor: 'pointer',
-                  }}
-                >
+                <label style={labelStyle2}>Phone <span style={{ color: '#444455', fontWeight: 400 }}>(optional)</span></label>
+                <input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} style={fieldStyle} placeholder="+91 98765 43210" />
+              </div>
+              <div>
+                <label style={labelStyle2}>Skill Level</label>
+                <select value={form.skill_level} onChange={(e) => setForm({ ...form, skill_level: e.target.value })} style={{ ...fieldStyle, background: '#111118', cursor: 'pointer' }}>
                   <option value="beginner">Beginner</option>
                   <option value="intermediate">Intermediate</option>
                   <option value="advanced">Advanced</option>
@@ -372,34 +389,22 @@ function RegistrationModal({ event, onClose }: RegistrationModalProps) {
               </div>
 
               {error && (
-                <p style={{ fontFamily: 'var(--font-inter)', fontSize: '13px', color: '#C21818' }}>
-                  {error}
-                </p>
+                <p style={{ fontFamily: 'var(--font-inter)', fontSize: '13px', color: '#C21818', margin: 0 }}>{error}</p>
               )}
 
               <button
                 type="submit"
                 disabled={loading}
                 style={{
-                  padding: '14px',
-                  background: loading ? 'rgba(194,24,24,0.5)' : '#C21818',
-                  border: 'none',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontFamily: 'var(--font-montserrat)',
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  transition: 'background 0.2s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
+                  padding: '14px', background: loading ? 'rgba(194,24,24,0.5)' : '#C21818',
+                  border: 'none', borderRadius: '8px', color: '#fff',
+                  fontFamily: 'var(--font-montserrat)', fontSize: '13px', fontWeight: 700,
+                  letterSpacing: '0.12em', textTransform: 'uppercase',
+                  cursor: loading ? 'not-allowed' : 'pointer', transition: 'background 0.2s',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                 }}
               >
-                {loading ? 'REGISTERING...' : 'CONFIRM REGISTRATION'}
+                {loading ? 'REGISTERING...' : 'GET MY TICKET'}
                 {!loading && <ChevronRight size={16} />}
               </button>
             </form>
@@ -531,11 +536,9 @@ function EventCard({ event, onRegister }: { event: Event; onRegister: (e: Event)
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Calendar size={14} color="#888899" />
             <span style={{ fontFamily: 'var(--font-inter)', fontSize: '13px', color: '#888899' }}>
-              {new Date(event.event_date).toLocaleDateString('en-IN', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })}
+              {new Date(event.event_date).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })}
+              {' · '}
+              {new Date(event.event_date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -550,6 +553,14 @@ function EventCard({ event, onRegister }: { event: Event; onRegister: (e: Event)
               {event.current_participants}/{event.max_participants} participants
             </span>
           </div>
+          {event.format && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: 13 }}>🏸</span>
+              <span style={{ fontFamily: 'var(--font-inter)', fontSize: '13px', color: '#888899' }}>
+                {formatLabel(event.format)}
+              </span>
+            </div>
+          )}
         </div>
 
         <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>

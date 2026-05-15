@@ -257,6 +257,8 @@ export default function Hero() {
         <img
           src="/athlete.png"
           alt="RCC athlete"
+          fetchPriority="high"
+          loading="eager"
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
           style={{
             position: 'absolute',
