@@ -97,6 +97,34 @@ type Sponsor = {
   display_order?: number;
 };
 
+type BlogPost = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  content?: string;
+  cover_image_url?: string;
+  author: string;
+  category: string;
+  tags?: string[];
+  published: boolean;
+  featured: boolean;
+  views: number;
+  created_at: string;
+  updated_at: string;
+};
+
+type AdminUser = {
+  id: string;
+  auth_user_id?: string;
+  email: string;
+  full_name?: string;
+  role: string;
+  active: boolean;
+  last_login?: string;
+  created_at: string;
+};
+
 type OverviewStats = {
   totalMembers: number;
   pendingMembers: number;
@@ -1519,9 +1547,417 @@ function PartnersModule() {
   );
 }
 
+// ─── BLOG MODULE ─────────────────────────────────────────────────────────────
+
+function BlogModule() {
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editPost, setEditPost] = useState<BlogPost | null>(null);
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+  const [form, setForm] = useState({ title: '', slug: '', excerpt: '', content: '', cover_image_url: '', author: 'RCC Admin', category: 'general', tags: '', published: false, featured: false });
+
+  const fetchPosts = useCallback(async () => {
+    setLoading(true);
+    const { data } = await supabase.from('blog_posts').select('*').order('created_at', { ascending: false });
+    if (data) setPosts(data);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchPosts(); }, [fetchPosts]);
+
+  function showToast(msg: string, type: 'success' | 'error') {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  }
+
+  function autoSlug(title: string) {
+    return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+
+  function startEdit(post: BlogPost) {
+    setEditPost(post);
+    setForm({
+      title: post.title, slug: post.slug, excerpt: post.excerpt ?? '',
+      content: post.content ?? '', cover_image_url: post.cover_image_url ?? '',
+      author: post.author, category: post.category,
+      tags: (post.tags ?? []).join(', '),
+      published: post.published, featured: post.featured,
+    });
+    setShowForm(true);
+  }
+
+  function resetForm() {
+    setEditPost(null);
+    setForm({ title: '', slug: '', excerpt: '', content: '', cover_image_url: '', author: 'RCC Admin', category: 'general', tags: '', published: false, featured: false });
+    setShowForm(false);
+  }
+
+  async function handleSave() {
+    if (!form.title || !form.slug) { showToast('Title and slug are required.', 'error'); return; }
+    const payload = {
+      title: form.title, slug: form.slug, excerpt: form.excerpt || null,
+      content: form.content || null, cover_image_url: form.cover_image_url || null,
+      author: form.author, category: form.category,
+      tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+      published: form.published, featured: form.featured,
+      updated_at: new Date().toISOString(),
+    };
+    if (editPost) {
+      const { error } = await supabase.from('blog_posts').update(payload).eq('id', editPost.id);
+      if (error) showToast('Failed to update post.', 'error');
+      else { showToast('Post updated.', 'success'); resetForm(); fetchPosts(); }
+    } else {
+      const { error } = await supabase.from('blog_posts').insert(payload);
+      if (error) showToast(error.code === '23505' ? 'Slug already exists.' : 'Failed to create post.', 'error');
+      else { showToast('Post created.', 'success'); resetForm(); fetchPosts(); }
+    }
+  }
+
+  async function togglePublished(id: string, val: boolean) {
+    await supabase.from('blog_posts').update({ published: !val, updated_at: new Date().toISOString() }).eq('id', id);
+    fetchPosts();
+  }
+
+  async function toggleFeatured(id: string, val: boolean) {
+    await supabase.from('blog_posts').update({ featured: !val, updated_at: new Date().toISOString() }).eq('id', id);
+    fetchPosts();
+  }
+
+  async function deletePost(id: string) {
+    if (!confirm('Delete this post?')) return;
+    await supabase.from('blog_posts').delete().eq('id', id);
+    showToast('Post deleted.', 'success');
+    fetchPosts();
+  }
+
+  const catColor: Record<string, string> = {
+    news: '#3b82f6', match_report: '#C21818', tips: '#22c55e', community: '#a78bfa', general: '#888899',
+  };
+
+  return (
+    <div>
+      {toast && <Toast msg={toast.msg} type={toast.type} />}
+      <SectionHeading title={`BLOG (${posts.length})`} action={
+        <button style={primaryBtn} onClick={() => { resetForm(); setShowForm(true); }}>+ New Post</button>
+      } />
+
+      {showForm && (
+        <div style={{ ...glassCard, marginBottom: 24 }}>
+          <h3 style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 14, color: '#D4AF37', margin: '0 0 16px 0' }}>
+            {editPost ? 'Edit Post' : 'New Blog Post'}
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ gridColumn: '1/-1' }}>
+              <label style={labelStyle}>Title</label>
+              <input style={inputStyle} value={form.title} onChange={e => {
+                const t = e.target.value;
+                setForm(f => ({ ...f, title: t, slug: editPost ? f.slug : autoSlug(t) }));
+              }} placeholder="Post title" />
+            </div>
+            <div>
+              <label style={labelStyle}>Slug</label>
+              <input style={inputStyle} value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} placeholder="url-slug" />
+            </div>
+            <div>
+              <label style={labelStyle}>Author</label>
+              <input style={inputStyle} value={form.author} onChange={e => setForm(f => ({ ...f, author: e.target.value }))} />
+            </div>
+            <div>
+              <label style={labelStyle}>Category</label>
+              <select style={{ ...inputStyle, background: '#0a0a0f' }} value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
+                <option value="general">General</option>
+                <option value="news">News</option>
+                <option value="match_report">Match Report</option>
+                <option value="tips">Tips</option>
+                <option value="community">Community</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>Tags (comma-separated)</label>
+              <input style={inputStyle} value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} placeholder="badminton, delhi, tips" />
+            </div>
+            <div style={{ gridColumn: '1/-1' }}>
+              <label style={labelStyle}>Cover Image URL</label>
+              <input style={inputStyle} value={form.cover_image_url} onChange={e => setForm(f => ({ ...f, cover_image_url: e.target.value }))} placeholder="https://..." />
+            </div>
+            <div style={{ gridColumn: '1/-1' }}>
+              <label style={labelStyle}>Excerpt</label>
+              <textarea style={{ ...inputStyle, height: 72, resize: 'vertical' }} value={form.excerpt} onChange={e => setForm(f => ({ ...f, excerpt: e.target.value }))} placeholder="Short description" />
+            </div>
+            <div style={{ gridColumn: '1/-1' }}>
+              <label style={labelStyle}>Content (Markdown / HTML)</label>
+              <textarea style={{ ...inputStyle, height: 160, resize: 'vertical', fontFamily: 'monospace', fontSize: 12 }} value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} placeholder="Full post content..." />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input type="checkbox" id="pub" checked={form.published} onChange={e => setForm(f => ({ ...f, published: e.target.checked }))} />
+              <label htmlFor="pub" style={{ ...labelStyle, margin: 0, cursor: 'pointer' }}>Published</label>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input type="checkbox" id="feat" checked={form.featured} onChange={e => setForm(f => ({ ...f, featured: e.target.checked }))} />
+              <label htmlFor="feat" style={{ ...labelStyle, margin: 0, cursor: 'pointer' }}>Featured</label>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+            <button style={primaryBtn} onClick={handleSave}>{editPost ? 'Save Changes' : 'Publish Post'}</button>
+            <button style={dangerBtn} onClick={resetForm}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <div style={{ color: '#888899', fontFamily: 'var(--font-inter)', fontSize: 13 }}>Loading...</div>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                {['Title', 'Category', 'Author', 'Views', 'Status', 'Date', 'Actions'].map(h => (
+                  <th key={h} style={thStyle}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {posts.map(p => (
+                <tr key={p.id}>
+                  <td style={tdStyle}>
+                    <div style={{ fontWeight: 600, marginBottom: 2 }}>{p.title}</div>
+                    <div style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#555566' }}>/blog/{p.slug}</div>
+                    {p.featured && <span style={{ background: 'rgba(212,175,55,0.15)', color: '#D4AF37', borderRadius: 3, padding: '1px 6px', fontSize: 10, fontFamily: 'var(--font-montserrat)', fontWeight: 700 }}>★ FEATURED</span>}
+                  </td>
+                  <td style={tdStyle}>
+                    <span style={{ background: `${catColor[p.category] ?? '#888899'}22`, color: catColor[p.category] ?? '#888899', borderRadius: 4, padding: '2px 8px', fontSize: 11, fontFamily: 'var(--font-montserrat)', fontWeight: 700, textTransform: 'uppercase' }}>
+                      {p.category.replace('_', ' ')}
+                    </span>
+                  </td>
+                  <td style={tdStyle}>{p.author}</td>
+                  <td style={tdStyle}>{p.views.toLocaleString()}</td>
+                  <td style={tdStyle}>
+                    <span style={{ background: p.published ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.06)', color: p.published ? '#22c55e' : '#888899', borderRadius: 4, padding: '2px 8px', fontSize: 11, fontFamily: 'var(--font-montserrat)', fontWeight: 700 }}>
+                      {p.published ? 'LIVE' : 'DRAFT'}
+                    </span>
+                  </td>
+                  <td style={tdStyle}>{new Date(p.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                  <td style={{ ...tdStyle, whiteSpace: 'nowrap' }}>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button style={goldBtn} onClick={() => startEdit(p)}>Edit</button>
+                      <button style={p.published ? dangerBtn : successBtn} onClick={() => togglePublished(p.id, p.published)}>
+                        {p.published ? 'Unpublish' : 'Publish'}
+                      </button>
+                      <button style={goldBtn} onClick={() => toggleFeatured(p.id, p.featured)}>{p.featured ? 'Unfeature' : 'Feature'}</button>
+                      <button style={dangerBtn} onClick={() => deletePost(p.id)}>Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {posts.length === 0 && (
+                <tr><td colSpan={7} style={{ ...tdStyle, textAlign: 'center', color: '#888899' }}>No blog posts yet.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── USER MANAGEMENT MODULE ───────────────────────────────────────────────────
+
+function UserManagementModule() {
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+  const [form, setForm] = useState({ email: '', full_name: '', role: 'editor' });
+
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    const { data } = await supabase.from('admin_users').select('*').order('created_at', { ascending: false });
+    if (data) setUsers(data);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchUsers(); }, [fetchUsers]);
+
+  function showToast(msg: string, type: 'success' | 'error') {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3500);
+  }
+
+  async function handleAddUser() {
+    if (!form.email) { showToast('Email is required.', 'error'); return; }
+    const { error } = await supabase.from('admin_users').insert({
+      email: form.email, full_name: form.full_name || null, role: form.role,
+    });
+    if (error) showToast(error.code === '23505' ? 'Email already exists.' : 'Failed to add user.', 'error');
+    else { showToast('Admin user added. They can log in with Supabase Auth.', 'success'); setShowForm(false); setForm({ email: '', full_name: '', role: 'editor' }); fetchUsers(); }
+  }
+
+  async function updateRole(id: string, role: string) {
+    await supabase.from('admin_users').update({ role }).eq('id', id);
+    fetchUsers();
+  }
+
+  async function toggleActive(id: string, active: boolean) {
+    await supabase.from('admin_users').update({ active: !active }).eq('id', id);
+    fetchUsers();
+  }
+
+  async function deleteUser(id: string) {
+    if (!confirm('Remove this admin user?')) return;
+    await supabase.from('admin_users').delete().eq('id', id);
+    showToast('User removed.', 'success');
+    fetchUsers();
+  }
+
+  const ROLE_COLORS: Record<string, string> = {
+    super_admin: '#C21818', admin: '#D4AF37', editor: '#22c55e', viewer: '#888899',
+  };
+  const ROLE_PERMS: Record<string, string> = {
+    super_admin: 'Full access — all tabs, all actions, user management',
+    admin: 'All tabs — create, edit, delete content',
+    editor: 'Create & edit content — cannot delete or manage users',
+    viewer: 'Read-only — can view all data, no modifications',
+  };
+
+  return (
+    <div>
+      {toast && <Toast msg={toast.msg} type={toast.type} />}
+      <SectionHeading title={`ADMIN USERS (${users.length})`} action={
+        <button style={primaryBtn} onClick={() => setShowForm(s => !s)}>+ Add Admin</button>
+      } />
+
+      {/* Default credentials notice */}
+      <div style={{ ...glassCard, marginBottom: 24, border: '1px solid rgba(212,175,55,0.25)' }}>
+        <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 12, color: '#D4AF37', letterSpacing: '0.06em', marginBottom: 10 }}>
+          DEFAULT CREDENTIALS
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+          <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '12px 14px' }}>
+            <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#555566', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>Login URL</div>
+            <div style={{ fontFamily: 'monospace', fontSize: 12, color: '#e8e8ec' }}>/enter/backend/login</div>
+          </div>
+          <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '12px 14px' }}>
+            <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#555566', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>Default Admin Email</div>
+            <div style={{ fontFamily: 'monospace', fontSize: 12, color: '#D4AF37' }}>admin@racquetsclubcommunity.com</div>
+          </div>
+          <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '12px 14px' }}>
+            <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#555566', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>Password</div>
+            <div style={{ fontFamily: 'monospace', fontSize: 12, color: '#888899' }}>Set via Supabase Auth → Users → Invite</div>
+          </div>
+          <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '12px 14px' }}>
+            <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#555566', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>Auth Provider</div>
+            <div style={{ fontFamily: 'monospace', fontSize: 12, color: '#e8e8ec' }}>Supabase Email Auth</div>
+          </div>
+        </div>
+        <div style={{ marginTop: 12, fontFamily: 'var(--font-inter)', fontSize: 12, color: '#555566' }}>
+          To create the first admin account: Supabase Dashboard → Authentication → Users → Invite a user with the email above. The user record here tracks role permissions.
+        </div>
+      </div>
+
+      {/* Role reference */}
+      <div style={{ ...glassCard, marginBottom: 24 }}>
+        <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 12, color: '#888899', letterSpacing: '0.06em', marginBottom: 10 }}>ROLE PERMISSIONS</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
+          {Object.entries(ROLE_PERMS).map(([role, desc]) => (
+            <div key={role} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '12px 14px' }}>
+              <span style={{ background: `${ROLE_COLORS[role]}22`, color: ROLE_COLORS[role], borderRadius: 4, padding: '2px 8px', fontSize: 10, fontFamily: 'var(--font-montserrat)', fontWeight: 700, textTransform: 'uppercase', display: 'inline-block', marginBottom: 6 }}>
+                {role.replace('_', ' ')}
+              </span>
+              <div style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#888899', lineHeight: 1.5 }}>{desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {showForm && (
+        <div style={{ ...glassCard, marginBottom: 24 }}>
+          <h3 style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 14, color: '#D4AF37', margin: '0 0 16px 0' }}>Add Admin User</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+            <div>
+              <label style={labelStyle}>Email</label>
+              <input style={inputStyle} type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="user@example.com" />
+            </div>
+            <div>
+              <label style={labelStyle}>Full Name</label>
+              <input style={inputStyle} value={form.full_name} onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} placeholder="Name" />
+            </div>
+            <div>
+              <label style={labelStyle}>Role</label>
+              <select style={{ ...inputStyle, background: '#0a0a0f' }} value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}>
+                <option value="viewer">Viewer</option>
+                <option value="editor">Editor</option>
+                <option value="admin">Admin</option>
+                <option value="super_admin">Super Admin</option>
+              </select>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+            <button style={primaryBtn} onClick={handleAddUser}>Add User</button>
+            <button style={dangerBtn} onClick={() => setShowForm(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <div style={{ color: '#888899', fontFamily: 'var(--font-inter)', fontSize: 13 }}>Loading...</div>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                {['User', 'Role', 'Status', 'Last Login', 'Actions'].map(h => (
+                  <th key={h} style={thStyle}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {users.map(u => (
+                <tr key={u.id} style={{ opacity: u.active ? 1 : 0.5 }}>
+                  <td style={tdStyle}>
+                    <div style={{ fontWeight: 600 }}>{u.full_name ?? '—'}</div>
+                    <div style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#555566' }}>{u.email}</div>
+                  </td>
+                  <td style={tdStyle}>
+                    <select
+                      value={u.role}
+                      onChange={e => updateRole(u.id, e.target.value)}
+                      style={{ background: 'transparent', border: 'none', color: ROLE_COLORS[u.role] ?? '#888899', fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 12, cursor: 'pointer', textTransform: 'uppercase', outline: 'none' }}
+                    >
+                      <option value="viewer">Viewer</option>
+                      <option value="editor">Editor</option>
+                      <option value="admin">Admin</option>
+                      <option value="super_admin">Super Admin</option>
+                    </select>
+                  </td>
+                  <td style={tdStyle}>
+                    <span style={{ background: u.active ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.06)', color: u.active ? '#22c55e' : '#888899', borderRadius: 4, padding: '2px 8px', fontSize: 11, fontFamily: 'var(--font-montserrat)', fontWeight: 700 }}>
+                      {u.active ? 'ACTIVE' : 'DISABLED'}
+                    </span>
+                  </td>
+                  <td style={tdStyle}>{u.last_login ? new Date(u.last_login).toLocaleString('en-IN') : 'Never'}</td>
+                  <td style={{ ...tdStyle, whiteSpace: 'nowrap' }}>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button style={u.active ? dangerBtn : successBtn} onClick={() => toggleActive(u.id, u.active)}>{u.active ? 'Disable' : 'Enable'}</button>
+                      <button style={dangerBtn} onClick={() => deleteUser(u.id)}>Remove</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {users.length === 0 && (
+                <tr><td colSpan={5} style={{ ...tdStyle, textAlign: 'center', color: '#888899' }}>No admin users configured.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── TABS CONFIG ──────────────────────────────────────────────────────────────
 
-type TabKey = 'overview' | 'members' | 'registrations' | 'events' | 'leaderboard' | 'announcements' | 'instagram' | 'spotlights' | 'partners';
+type TabKey = 'overview' | 'members' | 'registrations' | 'events' | 'leaderboard' | 'announcements' | 'instagram' | 'spotlights' | 'partners' | 'blog' | 'users';
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
@@ -1579,6 +2015,8 @@ export default function BackendPage() {
     { key: 'instagram', label: 'Instagram' },
     { key: 'spotlights', label: 'Spotlights' },
     { key: 'partners', label: 'Partners' },
+    { key: 'blog', label: 'Blog' },
+    { key: 'users', label: 'Users & Access' },
   ];
 
   return (
@@ -1689,6 +2127,8 @@ export default function BackendPage() {
         {activeTab === 'instagram'     && <InstagramModule />}
         {activeTab === 'spotlights'    && <SpotlightsModule />}
         {activeTab === 'partners'      && <PartnersModule />}
+        {activeTab === 'blog'          && <BlogModule />}
+        {activeTab === 'users'         && <UserManagementModule />}
       </div>
     </div>
   );
