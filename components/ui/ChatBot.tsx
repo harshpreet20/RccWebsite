@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -50,12 +51,18 @@ const INITIAL_MESSAGE: Message = {
   content: "Hi! I'm the RCC Assistant. Ask me anything about membership, events, or our community! 🏸",
 };
 
+function genSessionKey() {
+  return 'S-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+}
+
 export default function ChatBot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const sessionKeyRef = useRef<string>(genSessionKey());
+  const sessionIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (open && messagesEndRef.current) {
@@ -63,12 +70,31 @@ export default function ChatBot() {
     }
   }, [messages, open]);
 
+  const saveSession = useCallback(async (allMessages: Message[]) => {
+    const userMessages = allMessages.filter(m => m.role === 'user' || m.role === 'assistant');
+    const payload = {
+      session_key: sessionKeyRef.current,
+      messages: userMessages,
+      total_messages: userMessages.length,
+      page_url: window.location.href,
+      user_agent: navigator.userAgent.slice(0, 200),
+      last_message_at: new Date().toISOString(),
+    };
+    if (sessionIdRef.current) {
+      await supabase.from('chat_sessions').update(payload).eq('id', sessionIdRef.current);
+    } else {
+      const { data } = await supabase.from('chat_sessions').insert({ ...payload, started_at: new Date().toISOString() }).select('id').single();
+      if (data) sessionIdRef.current = data.id;
+    }
+  }, []);
+
   async function handleSend() {
     const text = input.trim();
     if (!text || loading) return;
 
     const userMsg: Message = { role: 'user', content: text };
-    setMessages((prev) => [...prev, userMsg]);
+    const updated = [...messages, userMsg];
+    setMessages(updated);
     setInput('');
     setLoading(true);
 
@@ -76,15 +102,18 @@ export default function ChatBot() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages, userMsg] }),
+        body: JSON.stringify({ messages: updated }),
       });
       const data = await res.json() as { reply: string };
-      setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }]);
+      const botMsg: Message = { role: 'assistant', content: data.reply };
+      const final = [...updated, botMsg];
+      setMessages(final);
+      saveSession(final);
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: "Sorry, I couldn't connect. Please try again!" },
-      ]);
+      const errMsg: Message = { role: 'assistant', content: "Sorry, I couldn't connect. Please try again!" };
+      const final = [...updated, errMsg];
+      setMessages(final);
+      saveSession(final);
     }
     setLoading(false);
   }

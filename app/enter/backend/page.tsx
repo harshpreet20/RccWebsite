@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
@@ -123,6 +123,17 @@ type AdminUser = {
   active: boolean;
   last_login?: string;
   created_at: string;
+};
+
+type ChatSession = {
+  id: string;
+  session_key: string;
+  messages: { role: string; content: string }[];
+  user_agent?: string;
+  page_url?: string;
+  total_messages: number;
+  started_at: string;
+  last_message_at: string;
 };
 
 type OverviewStats = {
@@ -1394,7 +1405,9 @@ function PartnersModule() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: '', logo_url: '', website_url: '', tier: '', category: '', display_order: '0', active: true });
+  const [uploading, setUploading] = useState(false);
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const showToast = (msg: string, type: 'success' | 'error') => {
     setToast({ msg, type });
@@ -1410,6 +1423,18 @@ function PartnersModule() {
   }, []);
 
   useEffect(() => { fetchSponsors(); }, [fetchSponsors]);
+
+  async function handleLogoUpload(file: File) {
+    setUploading(true);
+    const ext = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error: uploadError } = await supabase.storage.from('partner-logos').upload(fileName, file, { upsert: false });
+    if (uploadError) { showToast('Upload failed: ' + uploadError.message, 'error'); setUploading(false); return; }
+    const { data: urlData } = supabase.storage.from('partner-logos').getPublicUrl(fileName);
+    setForm(f => ({ ...f, logo_url: urlData.publicUrl }));
+    showToast('Logo uploaded!', 'success');
+    setUploading(false);
+  }
 
   const addPartner = async () => {
     const payload = {
@@ -1431,8 +1456,12 @@ function PartnersModule() {
     }
   };
 
-  const deleteSponsor = async (id: string) => {
+  const deleteSponsor = async (id: string, logoUrl?: string) => {
     if (!window.confirm('Delete this partner?')) return;
+    if (logoUrl && logoUrl.includes('partner-logos')) {
+      const path = logoUrl.split('/partner-logos/')[1];
+      if (path) await supabase.storage.from('partner-logos').remove([path]);
+    }
     const { error } = await supabase.from('sponsors').delete().eq('id', id);
     if (error) showToast(error.message, 'error');
     else { showToast('Partner deleted', 'success'); fetchSponsors(); }
@@ -1443,15 +1472,6 @@ function PartnersModule() {
     if (error) showToast(error.message, 'error');
     else { showToast(active ? 'Deactivated' : 'Activated!', 'success'); fetchSponsors(); }
   };
-
-  const partnerFields: { key: string; label: string; type: string }[] = [
-    { key: 'name', label: 'Name', type: 'text' },
-    { key: 'logo_url', label: 'Logo URL', type: 'text' },
-    { key: 'website_url', label: 'Website URL', type: 'text' },
-    { key: 'tier', label: 'Tier (e.g. Gold Partner)', type: 'text' },
-    { key: 'category', label: 'Category (e.g. Equipment)', type: 'text' },
-    { key: 'display_order', label: 'Display Order', type: 'number' },
-  ];
 
   return (
     <div>
@@ -1465,7 +1485,13 @@ function PartnersModule() {
       {showForm && (
         <FormSection title="NEW PARTNER">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12, marginBottom: 12 }}>
-            {partnerFields.map(f => (
+            {[
+              { key: 'name', label: 'Name', type: 'text' },
+              { key: 'website_url', label: 'Website URL', type: 'text' },
+              { key: 'tier', label: 'Tier (e.g. Gold Partner)', type: 'text' },
+              { key: 'category', label: 'Category (e.g. Equipment)', type: 'text' },
+              { key: 'display_order', label: 'Display Order', type: 'number' },
+            ].map(f => (
               <div key={f.key}>
                 <label style={labelStyle}>{f.label}</label>
                 <input type={f.type} value={(form as Record<string, string | boolean>)[f.key] as string}
@@ -1473,13 +1499,43 @@ function PartnersModule() {
               </div>
             ))}
           </div>
-          {form.logo_url && (
-            <div style={{ marginBottom: 12 }}>
-              <label style={labelStyle}>Logo Preview</label>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={form.logo_url} alt="Logo preview" style={{ height: 60, objectFit: 'contain', background: 'rgba(255,255,255,0.05)', padding: 8, borderRadius: 6, border: '1px solid rgba(255,255,255,0.1)' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+
+          {/* Logo upload */}
+          <div style={{ marginBottom: 14 }}>
+            <label style={labelStyle}>Logo</label>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                style={{ ...primaryBtn, background: uploading ? 'rgba(194,24,24,0.4)' : '#C21818', padding: '9px 16px', fontSize: 12 }}
+              >
+                {uploading ? 'Uploading...' : '⬆ Upload Logo'}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                style={{ display: 'none' }}
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleLogoUpload(f); }}
+              />
+              <span style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#555566' }}>or paste URL below</span>
             </div>
-          )}
+            <input
+              type="text"
+              placeholder="https://... (auto-filled after upload)"
+              value={form.logo_url}
+              onChange={e => setForm(p => ({ ...p, logo_url: e.target.value }))}
+              style={{ ...inputStyle, marginTop: 8 }}
+            />
+            {form.logo_url && (
+              <div style={{ marginTop: 10 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={form.logo_url} alt="Logo preview" style={{ height: 64, objectFit: 'contain', background: 'rgba(255,255,255,0.05)', padding: 10, borderRadius: 6, border: '1px solid rgba(255,255,255,0.1)' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+              </div>
+            )}
+          </div>
+
           <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-inter)', fontSize: 13, color: '#e8e8ec', cursor: 'pointer', marginBottom: 16 }}>
             <input type="checkbox" checked={form.active} onChange={e => setForm(p => ({ ...p, active: e.target.checked }))} />
             Active
@@ -1509,7 +1565,7 @@ function PartnersModule() {
                 <td style={tdStyle}>
                   {s.logo_url ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
-                    <img src={s.logo_url} alt={s.name} style={{ height: 40, objectFit: 'contain' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                    <img src={s.logo_url} alt={s.name} style={{ height: 40, objectFit: 'contain', background: 'rgba(255,255,255,0.05)', padding: 4, borderRadius: 4 }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                   ) : (
                     <span style={{ color: '#888899', fontFamily: 'var(--font-inter)', fontSize: 12 }}>No logo</span>
                   )}
@@ -1535,13 +1591,178 @@ function PartnersModule() {
                     <button style={s.active ? dangerBtn : successBtn} onClick={() => toggleActive(s.id, s.active)}>
                       {s.active ? 'Deactivate' : 'Activate'}
                     </button>
-                    <button style={dangerBtn} onClick={() => deleteSponsor(s.id)}>Delete</button>
+                    <button style={dangerBtn} onClick={() => deleteSponsor(s.id, s.logo_url)}>Delete</button>
                   </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+    </div>
+  );
+}
+
+// ─── CHAT LOGS MODULE ────────────────────────────────────────────────────────
+
+function ChatLogsModule() {
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<ChatSession | null>(null);
+  const [search, setSearch] = useState('');
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+
+  const fetchSessions = useCallback(async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from('chat_sessions')
+      .select('*')
+      .order('last_message_at', { ascending: false })
+      .limit(200);
+    if (data) setSessions(data);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchSessions(); }, [fetchSessions]);
+
+  async function deleteSession(id: string) {
+    if (!confirm('Delete this chat session?')) return;
+    await supabase.from('chat_sessions').delete().eq('id', id);
+    if (selected?.id === id) setSelected(null);
+    setToast({ msg: 'Session deleted.', type: 'success' });
+    setTimeout(() => setToast(null), 2500);
+    fetchSessions();
+  }
+
+  function downloadTranscript(s: ChatSession) {
+    const lines = [
+      `RCC Chat Transcript`,
+      `Session: ${s.session_key}`,
+      `Date: ${new Date(s.started_at).toLocaleString('en-IN')}`,
+      `Messages: ${s.total_messages}`,
+      `─────────────────────────────────────`,
+      ...s.messages.map(m => `[${m.role.toUpperCase()}] ${m.content}`),
+    ];
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `rcc-chat-${s.session_key}.txt`; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  const filtered = sessions.filter(s =>
+    search === '' ||
+    s.session_key.toLowerCase().includes(search.toLowerCase()) ||
+    s.messages.some(m => m.content.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  return (
+    <div>
+      {toast && <Toast msg={toast.msg} type={toast.type} />}
+      <SectionHeading title={`CHAT LOGS (${sessions.length})`} />
+
+      <div style={{ display: 'grid', gridTemplateColumns: selected ? '340px 1fr' : '1fr', gap: 16, alignItems: 'start' }}>
+        {/* Sessions list */}
+        <div>
+          <input
+            style={{ ...inputStyle, marginBottom: 12 }}
+            placeholder="Search messages or session ID..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          {loading ? (
+            <div style={{ color: '#888899', fontFamily: 'var(--font-inter)', fontSize: 13 }}>Loading...</div>
+          ) : filtered.length === 0 ? (
+            <div style={{ ...glassCard, textAlign: 'center', color: '#888899', fontFamily: 'var(--font-inter)', fontSize: 14 }}>
+              {sessions.length === 0 ? 'No chat sessions yet. Start a conversation on the website.' : 'No sessions match your search.'}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {filtered.map(s => (
+                <div
+                  key={s.id}
+                  onClick={() => setSelected(selected?.id === s.id ? null : s)}
+                  style={{
+                    ...glassCard,
+                    padding: '14px 16px',
+                    cursor: 'pointer',
+                    border: selected?.id === s.id ? '1px solid rgba(212,175,55,0.4)' : '1px solid rgba(255,255,255,0.08)',
+                    transition: 'border-color 0.15s',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                    <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#D4AF37' }}>{s.session_key}</span>
+                    <span style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#888899', background: 'rgba(255,255,255,0.06)', borderRadius: 4, padding: '2px 6px' }}>
+                      {s.total_messages} msgs
+                    </span>
+                  </div>
+                  {s.messages.length > 0 && (
+                    <div style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#888899', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {s.messages[s.messages.length - 1]?.content ?? ''}
+                    </div>
+                  )}
+                  <div style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#444455', marginTop: 6 }}>
+                    {new Date(s.last_message_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Transcript panel */}
+        {selected && (
+          <div style={{ ...glassCard, position: 'sticky', top: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 13, color: '#D4AF37', letterSpacing: '0.04em' }}>TRANSCRIPT</div>
+                <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#555566', marginTop: 2 }}>{selected.session_key}</div>
+              </div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button style={goldBtn} onClick={() => downloadTranscript(selected)}>⬇ Download</button>
+                <button style={dangerBtn} onClick={() => deleteSession(selected.id)}>Delete</button>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
+              <div style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#888899' }}>
+                <span style={{ color: '#555566' }}>Started:</span> {new Date(selected.started_at).toLocaleString('en-IN')}
+              </div>
+              <div style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#888899' }}>
+                <span style={{ color: '#555566' }}>Messages:</span> {selected.total_messages}
+              </div>
+            </div>
+
+            <div style={{ maxHeight: 500, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {selected.messages.filter(m => m.role === 'user' || m.role === 'assistant').map((m, i) => {
+                const isUser = m.role === 'user';
+                return (
+                  <div key={i} style={{ display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start' }}>
+                    <div style={{
+                      maxWidth: '80%',
+                      padding: '10px 14px',
+                      borderRadius: isUser ? '12px 12px 4px 12px' : '12px 12px 12px 4px',
+                      background: isUser ? 'rgba(194,24,24,0.2)' : 'rgba(255,255,255,0.06)',
+                      border: isUser ? '1px solid rgba(194,24,24,0.3)' : '1px solid rgba(255,255,255,0.08)',
+                      fontFamily: 'var(--font-inter)',
+                      fontSize: 13,
+                      color: '#e8e8ec',
+                      lineHeight: 1.5,
+                    }}>
+                      <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 9, color: isUser ? '#C21818' : '#888899', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>
+                        {isUser ? 'User' : 'RCC AI'}
+                      </div>
+                      {m.content}
+                    </div>
+                  </div>
+                );
+              })}
+              {selected.messages.length === 0 && (
+                <div style={{ color: '#888899', fontFamily: 'var(--font-inter)', fontSize: 13, textAlign: 'center', padding: '20px 0' }}>No messages in this session.</div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1957,7 +2178,7 @@ function UserManagementModule() {
 
 // ─── TABS CONFIG ──────────────────────────────────────────────────────────────
 
-type TabKey = 'overview' | 'members' | 'registrations' | 'events' | 'leaderboard' | 'announcements' | 'instagram' | 'spotlights' | 'partners' | 'blog' | 'users';
+type TabKey = 'overview' | 'members' | 'registrations' | 'events' | 'leaderboard' | 'announcements' | 'instagram' | 'spotlights' | 'partners' | 'chatlogs' | 'blog' | 'users';
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
@@ -2015,6 +2236,7 @@ export default function BackendPage() {
     { key: 'instagram', label: 'Instagram' },
     { key: 'spotlights', label: 'Spotlights' },
     { key: 'partners', label: 'Partners' },
+    { key: 'chatlogs', label: 'Chat Logs' },
     { key: 'blog', label: 'Blog' },
     { key: 'users', label: 'Users & Access' },
   ];
@@ -2127,6 +2349,7 @@ export default function BackendPage() {
         {activeTab === 'instagram'     && <InstagramModule />}
         {activeTab === 'spotlights'    && <SpotlightsModule />}
         {activeTab === 'partners'      && <PartnersModule />}
+        {activeTab === 'chatlogs'      && <ChatLogsModule />}
         {activeTab === 'blog'          && <BlogModule />}
         {activeTab === 'users'         && <UserManagementModule />}
       </div>
