@@ -20,6 +20,8 @@
   --color-outline-variant: #44474d;
   --font-display: var(--font-montserrat);
   --font-sans: var(--font-inter);
+  --font-bebas: var(--font-bebas);
+  --font-dancing: var(--font-dancing);
 }
 
 :root {

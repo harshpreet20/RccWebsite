@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Montserrat, Inter } from 'next/font/google';
+import { Montserrat, Inter, Bebas_Neue, Dancing_Script } from 'next/font/google';
 import './globals.css';
 import ConditionalLayout from '@/components/layout/ConditionalLayout';
 import SmoothScroll from '@/components/layout/SmoothScroll';
@@ -16,6 +16,18 @@ const montserrat = Montserrat({
 const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],
+});
+
+const bebasNeue = Bebas_Neue({
+  variable: '--font-bebas',
+  subsets: ['latin'],
+  weight: '400',
+});
+
+const dancingScript = Dancing_Script({
+  variable: '--font-dancing',
+  subsets: ['latin'],
+  weight: ['400', '700'],
 });
 
 export const metadata: Metadata = {
@@ -36,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${montserrat.variable} ${inter.variable}`}>
+    <html lang="en" className={`${montserrat.variable} ${inter.variable} ${bebasNeue.variable} ${dancingScript.variable}`}>
       <body className="antialiased bg-[#131315] text-[#e4e2e5] overflow-x-hidden cursor-none">
         <CustomCursor />
         <ScrollProgress />
