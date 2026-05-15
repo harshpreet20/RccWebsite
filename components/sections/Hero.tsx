@@ -242,7 +242,7 @@ export default function Hero() {
 
         {/* Athlete image — save photo to /public/athlete.jpg */}
         <img
-          src="/athlete.jpg"
+          src="/athlete.png"
           alt="RCC athlete"
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
           style={{

@@ -3,108 +3,17 @@
 import { useState, useEffect } from 'react';
 import { Search, User, Menu, X } from 'lucide-react';
 
-/* ─── RCC Badge SVG ─────────────────────────────────────────────── */
+/* ─── RCC Badge (real logo image) ───────────────────────────────── */
 function RccBadge({ size = 70 }: { size?: number }) {
-  const r = size / 2;
-  // Arc helper – returns SVG path arc string for text-on-path
   return (
-    <svg
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/rcc-logo.png"
+      alt="Racquets Club Community"
       width={size}
       height={size}
-      viewBox="0 0 100 100"
-      aria-hidden="true"
-      style={{ flexShrink: 0 }}
-    >
-      <defs>
-        {/* Radial gradient for the badge background */}
-        <radialGradient id="badgeBg" cx="50%" cy="40%" r="60%">
-          <stop offset="0%" stopColor="#8B0000" />
-          <stop offset="100%" stopColor="#3D0000" />
-        </radialGradient>
-        {/* Text on top arc */}
-        <path
-          id="topArc"
-          d="M 15,50 A 35,35 0 1,1 85,50"
-          fill="none"
-        />
-        {/* Text on bottom arc */}
-        <path
-          id="bottomArc"
-          d="M 18,56 A 33,33 0 0,0 82,56"
-          fill="none"
-        />
-      </defs>
-
-      {/* Outer gold ring */}
-      <circle cx="50" cy="50" r="48" fill="none" stroke="#D4AF37" strokeWidth="2.5" />
-      <circle cx="50" cy="50" r="44" fill="none" stroke="#D4AF37" strokeWidth="0.6" opacity="0.5" />
-
-      {/* Dark background fill */}
-      <circle cx="50" cy="50" r="43" fill="url(#badgeBg)" />
-
-      {/* "RACQUETS" curved text on top */}
-      <text
-        fontSize="9"
-        fontFamily="Montserrat, sans-serif"
-        fontWeight="900"
-        letterSpacing="2.2"
-        fill="#D4AF37"
-      >
-        <textPath href="#topArc" startOffset="50%" textAnchor="middle">
-          RACQUETS
-        </textPath>
-      </text>
-
-      {/* "CLUB COMMUNITY" curved text on bottom */}
-      <text
-        fontSize="7"
-        fontFamily="Montserrat, sans-serif"
-        fontWeight="700"
-        letterSpacing="1.2"
-        fill="#D4AF37"
-      >
-        <textPath href="#bottomArc" startOffset="50%" textAnchor="middle">
-          CLUB COMMUNITY
-        </textPath>
-      </text>
-
-      {/* Two badminton player silhouettes (left player) */}
-      <g fill="#D4AF37" opacity="0.9">
-        {/* Left player body */}
-        <circle cx="35" cy="36" r="4.5" />
-        <path d="M35 41 L32 55 L36 55 L37 48 L39 55 L43 55 L40 41 Z" />
-        {/* Left player racket arm */}
-        <line x1="40" y1="43" x2="46" y2="36" stroke="#D4AF37" strokeWidth="1.5" />
-        {/* Racket head (left player) */}
-        <ellipse cx="47.5" cy="34.5" rx="3.5" ry="4.5" fill="none" stroke="#D4AF37" strokeWidth="1.2" />
-
-        {/* Right player body */}
-        <circle cx="65" cy="36" r="4.5" />
-        <path d="M65 41 L62 55 L66 55 L67 48 L69 55 L73 55 L70 41 Z" />
-        {/* Right player racket arm */}
-        <line x1="60" y1="43" x2="54" y2="36" stroke="#D4AF37" strokeWidth="1.5" />
-        {/* Racket head (right player) */}
-        <ellipse cx="52.5" cy="34.5" rx="3.5" ry="4.5" fill="none" stroke="#D4AF37" strokeWidth="1.2" />
-
-        {/* Shuttlecock in center */}
-        <circle cx="50" cy="32" r="2" />
-        <path d="M48 30 L46 24 M50 30 L50 23 M52 30 L54 24" stroke="#D4AF37" strokeWidth="0.8" />
-      </g>
-
-      {/* Flame shapes at bottom */}
-      <g opacity="0.85">
-        <path
-          d="M44 72 Q43 65 47 62 Q46 68 50 66 Q49 62 52 60 Q54 65 52 70 Q56 66 55 62 Q59 66 57 72 Z"
-          fill="url(#flameFill)"
-        />
-        <defs>
-          <linearGradient id="flameFill" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0%" stopColor="#C21818" />
-            <stop offset="100%" stopColor="#D4AF37" />
-          </linearGradient>
-        </defs>
-      </g>
-    </svg>
+      style={{ flexShrink: 0, objectFit: 'contain' }}
+    />
   );
 }
 
