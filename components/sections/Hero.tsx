@@ -350,7 +350,7 @@ export default function Hero() {
           style={{
             fontFamily: 'var(--font-pinkblue)',
             color: '#D4AF37',
-            fontSize: 'clamp(2.4rem, 4.2vw, 4.5rem)',
+            fontSize: 'clamp(2.23rem, 3.9vw, 4.19rem)',
             marginBottom: '2px',
             lineHeight: 1.1,
             textShadow: '0 0 40px rgba(212,175,55,0.4)',
@@ -363,7 +363,7 @@ export default function Hero() {
         <div
           style={{
             fontFamily: 'var(--font-pinkblue)',
-            fontSize: 'clamp(6rem, 13vw, 14rem)',
+            fontSize: 'clamp(5.58rem, 12.1vw, 13rem)',
             lineHeight: 0.9,
             display: 'block',
             letterSpacing: '0.01em',
@@ -379,7 +379,7 @@ export default function Hero() {
         <div
           style={{
             fontFamily: 'var(--font-pinkblue)',
-            fontSize: 'clamp(3.2rem, 7.5vw, 8.5rem)',
+            fontSize: 'clamp(2.98rem, 6.98vw, 7.91rem)',
             lineHeight: 0.9,
             display: 'block',
             whiteSpace: 'nowrap',
