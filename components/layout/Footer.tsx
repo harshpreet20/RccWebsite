@@ -55,8 +55,6 @@ const COMMUNITY_LINKS = [
   { label: 'Media Kit', href: '/media-kit' },
 ];
 
-const PARTNERS = ['SIRI FORT', 'DDA VASANT KUNJ', 'YONEX', 'LI-NING', 'VICTOR'];
-
 export default function Footer() {
   const [subEmail, setSubEmail] = useState('');
   const [subStatus, setSubStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
@@ -372,46 +370,6 @@ export default function Footer() {
       </div>
 
       <div style={{ padding: '0 clamp(16px, 5vw, 120px) 32px' }}>
-        <div className="divider" style={{ marginBottom: '24px' }} />
-
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '16px',
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginBottom: '32px',
-          }}
-        >
-          <span
-            style={{
-              fontFamily: 'var(--font-montserrat)',
-              fontSize: '10px',
-              color: '#888899',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-            }}
-          >
-            Partners:
-          </span>
-          {PARTNERS.map((partner) => (
-            <span
-              key={partner}
-              style={{
-                fontFamily: 'var(--font-montserrat)',
-                fontSize: '11px',
-                fontWeight: 700,
-                letterSpacing: '0.15em',
-                color: 'rgba(255,255,255,0.25)',
-                textTransform: 'uppercase',
-              }}
-            >
-              {partner}
-            </span>
-          ))}
-        </div>
-
         <div className="divider" style={{ marginBottom: '24px' }} />
 
         <div

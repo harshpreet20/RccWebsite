@@ -164,25 +164,36 @@ export default function Hero() {
         }}
       />
 
-      {/* 2. Right fire glow */}
+      {/* 2. Right fire glow — large aura filling right half */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
           background:
-            'radial-gradient(ellipse 65% 90% at 82% 45%, rgba(194,24,24,0.55) 0%, rgba(150,15,0,0.30) 35%, transparent 65%)',
+            'radial-gradient(ellipse 80% 110% at 80% 50%, rgba(194,24,24,0.70) 0%, rgba(150,15,0,0.45) 30%, rgba(100,10,0,0.20) 55%, transparent 75%)',
           zIndex: 2,
         }}
       />
 
-      {/* 3. Fire core — pulsing */}
+      {/* 3. Fire core — pulsing, larger */}
       <div
         className="animate-pulse-glow"
         style={{
           position: 'absolute',
           inset: 0,
           background:
-            'radial-gradient(ellipse at 75% 50%, rgba(200,40,0,0.65) 0%, rgba(180,25,0,0.35) 25%, transparent 55%)',
+            'radial-gradient(ellipse 60% 100% at 78% 55%, rgba(220,50,0,0.75) 0%, rgba(180,25,0,0.50) 22%, rgba(120,15,0,0.25) 45%, transparent 65%)',
+          zIndex: 3,
+        }}
+      />
+
+      {/* 3b. Top fire plume */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background:
+            'radial-gradient(ellipse 40% 60% at 75% 10%, rgba(220,60,0,0.45) 0%, transparent 60%)',
           zIndex: 3,
         }}
       />
@@ -243,30 +254,30 @@ export default function Hero() {
           position: 'absolute',
           right: 0,
           bottom: 90,
-          height: '88%',
-          width: '58%',
+          height: '100%',
+          width: '65%',
           zIndex: 6,
-          overflow: 'hidden',
+          overflow: 'visible',
         }}
       >
-        {/* Fire streaks */}
-        {[15, 30, 48, 62, 78].map((pct, i) => (
+        {/* Fire streaks — more and taller */}
+        {[8, 18, 30, 42, 55, 68, 80].map((pct, i) => (
           <div
             key={i}
             style={{
               position: 'absolute',
               left: `${pct}%`,
               bottom: 0,
-              width: '1px',
-              height: `${35 + i * 10}%`,
-              background: `linear-gradient(to top, ${i % 2 === 0 ? 'rgba(194,24,24,0.7)' : 'rgba(212,175,55,0.5)'}, transparent)`,
-              animation: `pulse-glow ${1.8 + i * 0.4}s ease-in-out infinite`,
-              animationDelay: `${i * 0.3}s`,
+              width: i % 3 === 0 ? '2px' : '1px',
+              height: `${40 + i * 8}%`,
+              background: `linear-gradient(to top, ${i % 2 === 0 ? 'rgba(220,40,0,0.85)' : 'rgba(212,175,55,0.6)'}, transparent)`,
+              animation: `pulse-glow ${1.6 + i * 0.35}s ease-in-out infinite`,
+              animationDelay: `${i * 0.25}s`,
             }}
           />
         ))}
 
-        {/* Athlete image — save photo to /public/athlete.jpg */}
+        {/* Athlete image */}
         <img
           src="/athlete.png"
           alt="RCC athlete"
@@ -277,13 +288,12 @@ export default function Hero() {
             position: 'absolute',
             bottom: 0,
             right: 0,
-            height: '100%',
+            height: '105%',
             width: 'auto',
             objectFit: 'contain',
             objectPosition: 'bottom right',
-            /* Black bg in the photo becomes transparent — only the player shows */
             mixBlendMode: 'screen',
-            filter: 'drop-shadow(-30px 0 80px rgba(194,24,24,0.7)) drop-shadow(0 0 40px rgba(212,175,55,0.25))',
+            filter: 'drop-shadow(-40px 0 100px rgba(220,40,0,0.85)) drop-shadow(0 0 60px rgba(212,175,55,0.35)) brightness(1.1)',
             animation: 'smash-3d 3.2s ease-in-out infinite',
             transformStyle: 'preserve-3d',
           }}
@@ -312,40 +322,43 @@ export default function Hero() {
             fontFamily: 'var(--font-dancing)',
             fontStyle: 'italic',
             color: '#D4AF37',
-            fontSize: 'clamp(1.8rem, 3vw, 2.8rem)',
-            marginBottom: '4px',
-            lineHeight: 1.2,
+            fontSize: 'clamp(2.2rem, 3.8vw, 4rem)',
+            marginBottom: '2px',
+            lineHeight: 1.1,
+            textShadow: '0 0 40px rgba(212,175,55,0.4)',
           }}
         >
           We don&apos;t just play
         </div>
 
-        {/* "RACQUETS." */}
+        {/* "RACQUETS." — stroke text, massive */}
         <div
           style={{
             fontFamily: 'var(--font-bebas)',
+            fontSize: 'clamp(6.5rem, 14vw, 15rem)',
+            lineHeight: 0.85,
+            display: 'block',
+            transform: 'skewX(-5deg)',
+            letterSpacing: '0.01em',
             color: '#D4AF37',
-            fontSize: 'clamp(6rem, 12vw, 11rem)',
-            lineHeight: 0.88,
-            display: 'inline-block',
-            transform: 'skewX(-6deg)',
-            letterSpacing: '0.02em',
-            textShadow: '3px 3px 0 rgba(80,0,0,0.5), 0 0 80px rgba(212,175,55,0.25)',
+            WebkitTextStroke: '2px #b8932a',
+            textShadow: '4px 4px 0 rgba(80,20,0,0.6), 0 0 100px rgba(212,175,55,0.3)',
           }}
         >
           RACQUETS.
         </div>
 
-        {/* "WE LIVE IT." */}
+        {/* "WE LIVE IT." — bold red stroke */}
         <div
           style={{
             fontFamily: 'var(--font-bebas)',
-            color: '#C21818',
-            fontSize: 'clamp(4rem, 8.5vw, 8rem)',
+            fontSize: 'clamp(4.5rem, 9.5vw, 10rem)',
             lineHeight: 0.88,
-            display: 'inline-block',
-            transform: 'skewX(-6deg)',
-            textShadow: '3px 3px 0 rgba(50,0,0,0.5), 0 0 60px rgba(194,24,24,0.5)',
+            display: 'block',
+            transform: 'skewX(-5deg)',
+            color: '#C21818',
+            WebkitTextStroke: '1.5px #8b0000',
+            textShadow: '3px 3px 0 rgba(40,0,0,0.7), 0 0 80px rgba(194,24,24,0.6)',
           }}
         >
           WE LIVE IT.

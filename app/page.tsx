@@ -2,15 +2,14 @@ import Navbar from '@/components/layout/Navbar';
 import Hero from '@/components/sections/Hero';
 import PartnersSection from '@/components/sections/PartnersSection';
 import InstagramFeed from '@/components/sections/InstagramFeed';
-import EventsSection from '@/components/sections/EventsSection';
 import MembershipSection from '@/components/sections/MembershipSection';
 import PlayerSpotlight from '@/components/sections/PlayerSpotlight';
 import LeaderboardSection from '@/components/sections/LeaderboardSection';
 import CommunityFeed from '@/components/sections/CommunityFeed';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
-import SupportSection from '@/components/sections/SupportSection';
 import Footer from '@/components/layout/Footer';
 import ChatBot from '@/components/ui/ChatBot';
+import SupportModal from '@/components/ui/SupportModal';
 
 export default function Home() {
   return (
@@ -19,15 +18,14 @@ export default function Home() {
       <Hero />
       <PartnersSection />
       <InstagramFeed />
-      <EventsSection />
       <MembershipSection />
       <PlayerSpotlight />
       <LeaderboardSection />
-      <CommunityFeed />
+      <CommunityFeed limit={4} />
       <TestimonialsSection />
-      <SupportSection />
       <Footer />
       <ChatBot />
+      <SupportModal />
     </main>
   );
 }

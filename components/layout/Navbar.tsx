@@ -137,27 +137,28 @@ export default function Navbar() {
 
         {/* ── RIGHT: Icon row ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <a
-            href="/#support"
+          <button
             className="hidden lg:inline-flex"
+            onClick={() => window.dispatchEvent(new CustomEvent('open-support-modal'))}
             style={{
               fontFamily: 'var(--font-montserrat)',
               fontWeight: 700,
               fontSize: '11px',
               letterSpacing: '0.12em',
               color: '#fff',
-              textDecoration: 'none',
               background: '#C21818',
               padding: '8px 16px',
               borderRadius: '6px',
               whiteSpace: 'nowrap',
+              border: 'none',
+              cursor: 'pointer',
               transition: 'background 0.2s',
             }}
             onMouseOver={e => (e.currentTarget.style.background = '#a81414')}
             onMouseOut={e => (e.currentTarget.style.background = '#C21818')}
           >
             RAISE A TICKET
-          </a>
+          </button>
           <button
             aria-label="Search"
             style={{ background: 'none', border: 'none', padding: '4px', color: 'rgba(255,255,255,0.5)', display: 'flex' }}
@@ -239,9 +240,8 @@ export default function Navbar() {
             {link.label}
           </a>
         ))}
-        <a
-          href="/#support"
-          onClick={() => setMenuOpen(false)}
+        <button
+          onClick={() => { setMenuOpen(false); window.dispatchEvent(new CustomEvent('open-support-modal')); }}
           style={{
             marginTop: '16px',
             display: 'flex',
@@ -252,14 +252,16 @@ export default function Navbar() {
             fontSize: '12px',
             letterSpacing: '0.12em',
             color: '#fff',
-            textDecoration: 'none',
             background: '#C21818',
             padding: '14px 20px',
             borderRadius: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            width: '100%',
           }}
         >
           🎫 RAISE A TICKET
-        </a>
+        </button>
       </div>
 
       {/* Overlay when drawer open */}

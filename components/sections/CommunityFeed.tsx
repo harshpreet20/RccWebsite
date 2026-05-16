@@ -78,7 +78,7 @@ const cardVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const } },
 };
 
-export default function CommunityFeed() {
+export default function CommunityFeed({ limit }: { limit?: number }) {
   const [items, setItems] = useState<Announcement[]>(FALLBACK);
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-15% 0px' });
@@ -94,6 +94,8 @@ export default function CommunityFeed() {
     }
     fetch();
   }, []);
+
+  const displayed = limit ? items.slice(0, limit) : items;
 
   return (
     <section
@@ -114,22 +116,38 @@ export default function CommunityFeed() {
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.6 }}
-        style={{ marginBottom: '48px' }}
+        style={{ marginBottom: '48px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 16 }}
       >
-        <h2 style={{
-          fontFamily: 'var(--font-bebas)',
-          fontSize: 'clamp(3rem, 6vw, 5rem)',
-          color: '#e8e8ec',
-          transform: 'skewX(-4deg)',
-          display: 'inline-block',
-          lineHeight: 1,
-          marginBottom: '12px',
-        }}>
-          COMMUNITY <span className="text-gradient-gold">FEED</span>
-        </h2>
-        <p style={{ fontFamily: 'var(--font-inter)', fontSize: '15px', color: '#888899' }}>
-          Latest news, results, and moments from the RCC community.
-        </p>
+        <div>
+          <h2 style={{
+            fontFamily: 'var(--font-bebas)',
+            fontSize: 'clamp(3rem, 6vw, 5rem)',
+            color: '#e8e8ec',
+            transform: 'skewX(-4deg)',
+            display: 'inline-block',
+            lineHeight: 1,
+            marginBottom: '12px',
+          }}>
+            COMMUNITY <span className="text-gradient-gold">FEED</span>
+          </h2>
+          <p style={{ fontFamily: 'var(--font-inter)', fontSize: '15px', color: '#888899' }}>
+            Latest news, results, and moments from the RCC community.
+          </p>
+        </div>
+        {limit && (
+          <a
+            href="/community"
+            style={{
+              fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 11,
+              letterSpacing: '0.12em', color: '#D4AF37', textDecoration: 'none',
+              border: '1px solid rgba(212,175,55,0.3)', borderRadius: 8,
+              padding: '10px 20px', whiteSpace: 'nowrap',
+              transition: 'background 0.2s',
+            }}
+          >
+            VIEW ALL →
+          </a>
+        )}
       </motion.div>
 
       <motion.div
@@ -139,7 +157,7 @@ export default function CommunityFeed() {
         style={{ columns: 2, columnGap: '20px' }}
         className="community-columns"
       >
-        {items.map((item) => (
+        {displayed.map((item) => (
           <FeedCard key={item.id} item={item} />
         ))}
       </motion.div>
