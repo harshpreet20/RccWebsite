@@ -2958,6 +2958,195 @@ function NewsletterModule() {
       {tab === 'send' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
+          {/* Template picker */}
+          {(() => {
+            const TEMPLATES: { label: string; icon: string; subject: string; body: string }[] = [
+              {
+                label: 'Welcome',
+                icon: '👋',
+                subject: 'Welcome to RCC! 🏸',
+                body: `Hi RCC Family! 👋
+
+We're thrilled to have you with us at Racquets Club Community — Delhi's invite-only elite badminton network!
+
+Here's what you can look forward to:
+
+🏸  Weekend Tournaments & Ladder Leagues
+🏆  Smash Nights every Friday
+⭐  Player spotlights and community events
+📣  Exclusive early registration access
+
+Visit us at: racquetsclubcommunity.com
+
+See you on court!
+— The RCC Team`,
+              },
+              {
+                label: 'Event Announcement',
+                icon: '📣',
+                subject: '🏸 New Event: [Event Name] — Register Now!',
+                body: `Hey RCC Family! 🏸
+
+We're excited to announce a brand-new event:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏸  [EVENT NAME]
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📅  Date:    [Day, DD Month YYYY]
+⏰  Time:    [Time]
+📍  Venue:   [Venue Name]
+🎫  Entry:   ₹[Amount] / Free
+🏆  Prize:   ₹[Prize Pool]
+
+Spots are limited — register early to secure your place!
+
+👉 Register here: racquetsclubcommunity.com/events
+
+Questions? Reply to this email or reach us at admin@racquetsclubcommunity.com
+
+See you on court!
+— The RCC Team`,
+              },
+              {
+                label: 'Event Reminder',
+                icon: '⏰',
+                subject: '⏰ Reminder: [Event Name] is Tomorrow!',
+                body: `Hey RCC Family! ⏰
+
+Just a friendly reminder — [EVENT NAME] is happening tomorrow!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+📅  [Day, DD Month]  |  ⏰  [Time]
+📍  [Venue Name]
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+What to bring:
+• Badminton racquet(s)
+• Court shoes (non-marking soles)
+• Water bottle
+• Your A-game 💪
+
+Not registered yet? Limited walk-in spots may be available.
+👉 racquetsclubcommunity.com/events
+
+See you on court tomorrow!
+— The RCC Team`,
+              },
+              {
+                label: 'Tournament Results',
+                icon: '🏆',
+                subject: '🏆 Tournament Results — [Event Name]',
+                body: `Hey RCC Family! 🏆
+
+What an incredible event! Here are the results from [EVENT NAME]:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+🥇  WINNER
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🥇  [Winner Name]
+🥈  [Runner-up Name]
+🥉  [Third Place Name]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Congratulations to all participants for an amazing display of skill and sportsmanship!
+
+Check the updated leaderboard at: racquetsclubcommunity.com
+
+See you at the next event!
+— The RCC Team`,
+              },
+              {
+                label: 'Weekly Digest',
+                icon: '📅',
+                subject: `🏸 RCC Weekly Roundup — ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`,
+                body: `Hey RCC Family! 👋
+
+Here's everything happening at Racquets Club Community this week.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+📅  EVENTS THIS WEEK
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[List upcoming events here]
+
+Register at: racquetsclubcommunity.com/events
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏆  LEADERBOARD TOP 5
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Leaderboard snapshot]
+
+Full rankings at: racquetsclubcommunity.com
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Have a great week on the courts!
+— The RCC Team`,
+              },
+              {
+                label: 'Member Spotlight',
+                icon: '⭐',
+                subject: '⭐ RCC Member Spotlight — [Player Name]',
+                body: `Hey RCC Family! ⭐
+
+This week we're shining the spotlight on one of our outstanding members:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+⭐  MEMBER SPOTLIGHT
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Player Name] | [Skill Level] | [City/Area]
+
+[Write 2-3 sentences about the player — their journey, achievements, playing style, or something fun about them.]
+
+Recent achievements:
+• [Achievement 1]
+• [Achievement 2]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Know someone deserving a spotlight? Reply to this email and nominate them!
+
+See you on court!
+— The RCC Team`,
+              },
+            ];
+            return (
+              <div style={{ ...glassCard }}>
+                <label style={labelStyle}>Quick Templates</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                  {TEMPLATES.map(t => (
+                    <button
+                      key={t.label}
+                      onClick={() => { setSubject(t.subject); setBody(t.body); setPreview(false); }}
+                      style={{
+                        background: 'rgba(212,175,55,0.06)',
+                        border: '1px solid rgba(212,175,55,0.18)',
+                        borderRadius: 8,
+                        padding: '10px 12px',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: 'background 0.15s',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(212,175,55,0.14)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'rgba(212,175,55,0.06)')}
+                    >
+                      <div style={{ fontSize: 18, marginBottom: 2 }}>{t.icon}</div>
+                      <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, fontWeight: 600, color: '#D4AF37', letterSpacing: '0.04em' }}>{t.label}</div>
+                    </button>
+                  ))}
+                </div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#555566', marginTop: 6 }}>
+                  Click a template to pre-fill subject &amp; body. Then customise before sending.
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Info strip */}
           <div style={{ ...glassCard, background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.15)', padding: '12px 18px' }}>
             <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 12, color: '#888899' }}>
@@ -3361,7 +3550,7 @@ function AiContextModule() {
 
 // ─── TAB: SITE SETTINGS ───────────────────────────────────────────────────────
 
-type SettingKey = 'recaptcha_site_key' | 'recaptcha_secret_key' | 'instagram_access_token' | 'instagram_account_id' | 'email_provider' | 'email_api_key' | 'email_from_address' | 'email_from_name';
+type SettingKey = 'recaptcha_site_key' | 'recaptcha_secret_key' | 'instagram_access_token' | 'instagram_account_id' | 'email_provider' | 'email_api_key' | 'email_from_address' | 'email_from_name' | 'site_url' | 'webhook_secret' | 'cron_secret';
 
 const SETTING_FIELDS: { key: SettingKey; label: string; hint: string; secret: boolean; group: string }[] = [
   { key: 'recaptcha_site_key',    label: 'reCAPTCHA Site Key (public)',    hint: 'Get from console.cloud.google.com → reCAPTCHA → Site key', secret: false, group: 'reCAPTCHA' },
@@ -3372,6 +3561,9 @@ const SETTING_FIELDS: { key: SettingKey; label: string; hint: string; secret: bo
   { key: 'email_api_key',         label: 'Email API Key',                   hint: 'API key from your email provider dashboard', secret: true, group: 'Newsletter Email' },
   { key: 'email_from_address',    label: 'From Email Address',              hint: 'e.g. newsletter@rccdelhi.com — must be verified with your provider', secret: false, group: 'Newsletter Email' },
   { key: 'email_from_name',       label: 'From Name',                       hint: 'e.g. RCC Newsletter', secret: false, group: 'Newsletter Email' },
+  { key: 'site_url',              label: 'Site URL',                        hint: 'Production URL e.g. https://racquetsclubcommunity.com — used by DB webhook triggers', secret: false, group: 'Automation' },
+  { key: 'webhook_secret',        label: 'Webhook Secret',                  hint: 'Secret token for DB → API webhook calls (welcome & confirmation emails). Also set as WEBHOOK_SECRET env var in Vercel.', secret: true, group: 'Automation' },
+  { key: 'cron_secret',           label: 'Cron Secret',                     hint: 'Secret token for Vercel cron jobs (daily digest, weekly roundup). Also set as CRON_SECRET env var in Vercel.', secret: true, group: 'Automation' },
 ];
 
 function SiteSettingsModule() {
@@ -3384,6 +3576,9 @@ function SiteSettingsModule() {
     email_api_key: '',
     email_from_address: '',
     email_from_name: 'RCC Newsletter',
+    site_url: 'https://racquetsclubcommunity.com',
+    webhook_secret: '',
+    cron_secret: '',
   });
   const [reveal, setReveal] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState<Record<string, boolean>>({});
