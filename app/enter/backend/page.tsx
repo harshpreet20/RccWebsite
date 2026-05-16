@@ -3550,7 +3550,7 @@ function AiContextModule() {
 
 // ─── TAB: SITE SETTINGS ───────────────────────────────────────────────────────
 
-type SettingKey = 'recaptcha_site_key' | 'recaptcha_secret_key' | 'instagram_access_token' | 'instagram_account_id' | 'email_provider' | 'email_api_key' | 'email_from_address' | 'email_from_name' | 'site_url' | 'webhook_secret' | 'cron_secret';
+type SettingKey = 'recaptcha_site_key' | 'recaptcha_secret_key' | 'instagram_access_token' | 'instagram_account_id' | 'email_provider' | 'email_api_key' | 'email_from_address' | 'email_from_name' | 'site_url' | 'webhook_secret' | 'cron_secret' | 'admin_email';
 
 const SETTING_FIELDS: { key: SettingKey; label: string; hint: string; secret: boolean; group: string }[] = [
   { key: 'recaptcha_site_key',    label: 'reCAPTCHA Site Key (public)',    hint: 'Get from console.cloud.google.com → reCAPTCHA → Site key', secret: false, group: 'reCAPTCHA' },
@@ -3561,6 +3561,7 @@ const SETTING_FIELDS: { key: SettingKey; label: string; hint: string; secret: bo
   { key: 'email_api_key',         label: 'Email API Key',                   hint: 'API key from your email provider dashboard', secret: true, group: 'Newsletter Email' },
   { key: 'email_from_address',    label: 'From Email Address',              hint: 'e.g. newsletter@rccdelhi.com — must be verified with your provider', secret: false, group: 'Newsletter Email' },
   { key: 'email_from_name',       label: 'From Name',                       hint: 'e.g. RCC Newsletter', secret: false, group: 'Newsletter Email' },
+  { key: 'admin_email',           label: 'Admin Notification Email',        hint: 'Email address that receives contact form submissions & new membership applications', secret: false, group: 'Automation' },
   { key: 'site_url',              label: 'Site URL',                        hint: 'Production URL e.g. https://racquetsclubcommunity.com — used by DB webhook triggers', secret: false, group: 'Automation' },
   { key: 'webhook_secret',        label: 'Webhook Secret',                  hint: 'Secret token for DB → API webhook calls (welcome & confirmation emails). Also set as WEBHOOK_SECRET env var in Vercel.', secret: true, group: 'Automation' },
   { key: 'cron_secret',           label: 'Cron Secret',                     hint: 'Secret token for Vercel cron jobs (daily digest, weekly roundup). Also set as CRON_SECRET env var in Vercel.', secret: true, group: 'Automation' },
@@ -3576,6 +3577,7 @@ function SiteSettingsModule() {
     email_api_key: '',
     email_from_address: '',
     email_from_name: 'RCC Newsletter',
+    admin_email: '',
     site_url: 'https://racquetsclubcommunity.com',
     webhook_secret: '',
     cron_secret: '',

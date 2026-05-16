@@ -339,8 +339,23 @@ export default function MembershipPage() {
       return;
     }
 
-    setAppId(randomAppId());
+    const generatedAppId = randomAppId();
+    setAppId(generatedAppId);
     setSuccess(true);
+
+    // Fire-and-forget: confirmation to applicant + admin notification
+    fetch('/api/email/notify-membership', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: form.name.trim(),
+        email: form.email.trim().toLowerCase(),
+        phone: form.phone.trim(),
+        skill_level: form.skill_level,
+        membership_type: form.membership_type,
+        app_id: generatedAppId,
+      }),
+    }).catch(() => {});
   }
 
   const inputStyle: React.CSSProperties = {

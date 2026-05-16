@@ -14,6 +14,11 @@ export default function AdminLoginPage() {
   const [btnHover, setBtnHover] = useState(false);
   const [emailFocus, setEmailFocus] = useState(false);
   const [passFocus, setPassFocus] = useState(false);
+  const [mode, setMode] = useState<'login' | 'forgot'>('login');
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSent, setResetSent] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -32,6 +37,21 @@ export default function AdminLoginPage() {
       setLoading(false);
     } else {
       router.replace('/enter/backend');
+    }
+  }
+
+  async function handleForgotPassword(e: React.FormEvent) {
+    e.preventDefault();
+    setResetLoading(true);
+    setResetError(null);
+    const { error: resetErr } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+      redirectTo: `${window.location.origin}/enter/backend/reset-password`,
+    });
+    setResetLoading(false);
+    if (resetErr) {
+      setResetError(resetErr.message);
+    } else {
+      setResetSent(true);
     }
   }
 
@@ -200,167 +220,169 @@ export default function AdminLoginPage() {
           }} />
 
           <div style={{ width: '100%', maxWidth: 360 }}>
-            {/* Heading */}
-            <div style={{
-              fontFamily: 'Arial, "Helvetica Neue", sans-serif',
-              fontWeight: 700,
-              fontSize: 28,
-              color: '#e8e8ec',
-              marginBottom: 6,
-              lineHeight: 1.2,
-            }}>
-              Welcome Back
-            </div>
-            <div style={{
-              fontFamily: 'var(--font-montserrat)',
-              fontSize: 13,
-              color: '#888899',
-              marginBottom: 36,
-              letterSpacing: '0.03em',
-            }}>
-              Sign in to your admin account
-            </div>
 
-            <form onSubmit={handleLogin}>
-              {/* Email */}
-              <div style={{ marginBottom: 20 }}>
-                <label style={{
-                  display: 'block',
-                  fontFamily: 'var(--font-montserrat)',
-                  fontWeight: 700,
-                  fontSize: 11,
-                  letterSpacing: '0.1em',
-                  color: '#888899',
-                  textTransform: 'uppercase',
-                  marginBottom: 8,
-                }}>
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  onFocus={() => setEmailFocus(true)}
-                  onBlur={() => setEmailFocus(false)}
-                  required
-                  autoComplete="email"
-                  placeholder="admin@example.com"
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.09)',
-                    borderRadius: 10,
-                    color: '#e8e8ec',
-                    padding: '13px 16px',
-                    width: '100%',
-                    fontFamily: 'var(--font-inter)',
-                    fontSize: 14,
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    transition: 'box-shadow 0.2s, border-color 0.2s',
-                    boxShadow: emailFocus ? '0 0 0 2px rgba(212,175,55,0.25), inset 0 0 0 1px rgba(212,175,55,0.2)' : 'none',
-                  }}
-                />
-              </div>
-
-              {/* Password */}
-              <div style={{ marginBottom: 28 }}>
-                <label style={{
-                  display: 'block',
-                  fontFamily: 'var(--font-montserrat)',
-                  fontWeight: 700,
-                  fontSize: 11,
-                  letterSpacing: '0.1em',
-                  color: '#888899',
-                  textTransform: 'uppercase',
-                  marginBottom: 8,
-                }}>
-                  Password
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  onFocus={() => setPassFocus(true)}
-                  onBlur={() => setPassFocus(false)}
-                  required
-                  autoComplete="current-password"
-                  placeholder="••••••••"
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.09)',
-                    borderRadius: 10,
-                    color: '#e8e8ec',
-                    padding: '13px 16px',
-                    width: '100%',
-                    fontFamily: 'var(--font-inter)',
-                    fontSize: 14,
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    transition: 'box-shadow 0.2s, border-color 0.2s',
-                    boxShadow: passFocus ? '0 0 0 2px rgba(212,175,55,0.25), inset 0 0 0 1px rgba(212,175,55,0.2)' : 'none',
-                  }}
-                />
-              </div>
-
-              {/* Error banner */}
-              {error && (
-                <div style={{
-                  background: 'rgba(194,24,24,0.1)',
-                  border: '1px solid rgba(194,24,24,0.3)',
-                  borderRadius: 20,
-                  padding: '10px 18px',
-                  marginBottom: 20,
-                  fontFamily: 'var(--font-inter)',
-                  fontSize: 13,
-                  color: '#ff6b6b',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                }}>
-                  <span style={{ fontSize: 15 }}>⚠</span>
-                  {error}
+            {mode === 'login' ? (
+              <>
+                <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 28, color: '#e8e8ec', marginBottom: 6, lineHeight: 1.2 }}>
+                  Welcome Back
                 </div>
-              )}
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 13, color: '#888899', marginBottom: 36, letterSpacing: '0.03em' }}>
+                  Sign in to your admin account
+                </div>
 
-              {/* Submit button */}
-              <button
-                type="submit"
-                disabled={loading}
-                onMouseEnter={() => setBtnHover(true)}
-                onMouseLeave={() => setBtnHover(false)}
-                style={{
-                  background: loading
-                    ? 'rgba(100,10,10,0.5)'
-                    : btnHover
-                      ? 'linear-gradient(135deg, #D4AF37 0%, #b8962e 100%)'
-                      : 'linear-gradient(135deg, #C21818 0%, #8b0f0f 100%)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 10,
-                  padding: '14px 20px',
-                  width: '100%',
-                  fontFamily: 'Arial, "Helvetica Neue", sans-serif',
-                  fontWeight: 700,
-                  fontSize: 14,
-                  letterSpacing: '0.08em',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  transition: 'background 0.25s, box-shadow 0.25s',
-                  boxShadow: btnHover && !loading ? '0 4px 20px rgba(212,175,55,0.3)' : '0 4px 16px rgba(194,24,24,0.3)',
-                }}
-              >
-                {loading ? 'SIGNING IN…' : 'SIGN IN'}
-              </button>
-            </form>
+                <form onSubmit={handleLogin}>
+                  {/* Email */}
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: 'block', fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', color: '#888899', textTransform: 'uppercase', marginBottom: 8 }}>
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      onFocus={() => setEmailFocus(true)}
+                      onBlur={() => setEmailFocus(false)}
+                      required
+                      autoComplete="email"
+                      placeholder="admin@example.com"
+                      style={{
+                        background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 10,
+                        color: '#e8e8ec', padding: '13px 16px', width: '100%', fontFamily: 'var(--font-inter)', fontSize: 14,
+                        outline: 'none', boxSizing: 'border-box', transition: 'box-shadow 0.2s',
+                        boxShadow: emailFocus ? '0 0 0 2px rgba(212,175,55,0.25), inset 0 0 0 1px rgba(212,175,55,0.2)' : 'none',
+                      }}
+                    />
+                  </div>
+
+                  {/* Password */}
+                  <div style={{ marginBottom: 8 }}>
+                    <label style={{ display: 'block', fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', color: '#888899', textTransform: 'uppercase', marginBottom: 8 }}>
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      onFocus={() => setPassFocus(true)}
+                      onBlur={() => setPassFocus(false)}
+                      required
+                      autoComplete="current-password"
+                      placeholder="••••••••"
+                      style={{
+                        background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 10,
+                        color: '#e8e8ec', padding: '13px 16px', width: '100%', fontFamily: 'var(--font-inter)', fontSize: 14,
+                        outline: 'none', boxSizing: 'border-box', transition: 'box-shadow 0.2s',
+                        boxShadow: passFocus ? '0 0 0 2px rgba(212,175,55,0.25), inset 0 0 0 1px rgba(212,175,55,0.2)' : 'none',
+                      }}
+                    />
+                  </div>
+
+                  {/* Forgot password link */}
+                  <div style={{ textAlign: 'right', marginBottom: 24 }}>
+                    <button
+                      type="button"
+                      onClick={() => { setMode('forgot'); setResetEmail(email); setResetError(null); setResetSent(false); }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#D4AF37', letterSpacing: '0.04em', padding: 0 }}
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+
+                  {/* Error */}
+                  {error && (
+                    <div style={{ background: 'rgba(194,24,24,0.1)', border: '1px solid rgba(194,24,24,0.3)', borderRadius: 20, padding: '10px 18px', marginBottom: 20, fontFamily: 'var(--font-inter)', fontSize: 13, color: '#ff6b6b', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 15 }}>⚠</span>{error}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    onMouseEnter={() => setBtnHover(true)}
+                    onMouseLeave={() => setBtnHover(false)}
+                    style={{
+                      background: loading ? 'rgba(100,10,10,0.5)' : btnHover ? 'linear-gradient(135deg, #D4AF37 0%, #b8962e 100%)' : 'linear-gradient(135deg, #C21818 0%, #8b0f0f 100%)',
+                      color: '#fff', border: 'none', borderRadius: 10, padding: '14px 20px', width: '100%',
+                      fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 14, letterSpacing: '0.08em',
+                      cursor: loading ? 'not-allowed' : 'pointer', transition: 'background 0.25s, box-shadow 0.25s',
+                      boxShadow: btnHover && !loading ? '0 4px 20px rgba(212,175,55,0.3)' : '0 4px 16px rgba(194,24,24,0.3)',
+                    }}
+                  >
+                    {loading ? 'SIGNING IN…' : 'SIGN IN'}
+                  </button>
+                </form>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setMode('login')}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-montserrat)', fontSize: 12, color: '#888899', letterSpacing: '0.04em', padding: 0, marginBottom: 28, display: 'flex', alignItems: 'center', gap: 6 }}
+                >
+                  ← Back to sign in
+                </button>
+
+                <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 26, color: '#e8e8ec', marginBottom: 6, lineHeight: 1.2 }}>
+                  Reset Password
+                </div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 13, color: '#888899', marginBottom: 32, letterSpacing: '0.03em' }}>
+                  Enter your admin email — we&apos;ll send a reset link.
+                </div>
+
+                {resetSent ? (
+                  <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 12, padding: '20px 22px' }}>
+                    <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 13, color: '#22c55e', marginBottom: 6 }}>✓ Reset link sent!</div>
+                    <div style={{ fontFamily: 'var(--font-inter)', fontSize: 13, color: '#888899', lineHeight: 1.6 }}>
+                      Check your inbox at <strong style={{ color: '#e8e8ec' }}>{resetEmail}</strong>.<br />
+                      The link expires in 1 hour. Check your spam folder if you don&apos;t see it.
+                    </div>
+                  </div>
+                ) : (
+                  <form onSubmit={handleForgotPassword}>
+                    <div style={{ marginBottom: 20 }}>
+                      <label style={{ display: 'block', fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', color: '#888899', textTransform: 'uppercase', marginBottom: 8 }}>
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        value={resetEmail}
+                        onChange={e => setResetEmail(e.target.value)}
+                        required
+                        autoComplete="email"
+                        placeholder="admin@example.com"
+                        style={{
+                          background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 10,
+                          color: '#e8e8ec', padding: '13px 16px', width: '100%', fontFamily: 'var(--font-inter)', fontSize: 14,
+                          outline: 'none', boxSizing: 'border-box',
+                        }}
+                      />
+                    </div>
+
+                    {resetError && (
+                      <div style={{ background: 'rgba(194,24,24,0.1)', border: '1px solid rgba(194,24,24,0.3)', borderRadius: 20, padding: '10px 18px', marginBottom: 20, fontFamily: 'var(--font-inter)', fontSize: 13, color: '#ff6b6b', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span>⚠</span>{resetError}
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={resetLoading}
+                      style={{
+                        background: resetLoading ? 'rgba(100,100,20,0.5)' : 'linear-gradient(135deg, #D4AF37 0%, #b8962e 100%)',
+                        color: '#000', border: 'none', borderRadius: 10, padding: '14px 20px', width: '100%',
+                        fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 14, letterSpacing: '0.08em',
+                        cursor: resetLoading ? 'not-allowed' : 'pointer', transition: 'background 0.25s',
+                        boxShadow: '0 4px 20px rgba(212,175,55,0.25)',
+                      }}
+                    >
+                      {resetLoading ? 'SENDING…' : 'SEND RESET LINK'}
+                    </button>
+                  </form>
+                )}
+              </>
+            )}
 
             {/* Footer text */}
-            <div style={{
-              marginTop: 32,
-              textAlign: 'center',
-              fontFamily: 'var(--font-montserrat)',
-              fontSize: 11,
-              color: '#333344',
-              letterSpacing: '0.06em',
-            }}>
+            <div style={{ marginTop: 32, textAlign: 'center', fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#333344', letterSpacing: '0.06em' }}>
               Secure admin portal · RCC
             </div>
           </div>

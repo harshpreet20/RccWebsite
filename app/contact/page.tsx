@@ -109,6 +109,18 @@ export default function ContactPage() {
     } else {
       setSuccess(true);
       setFormData({ full_name: '', email: '', phone: '', subject: '', message: '' });
+      // Fire-and-forget admin notification
+      fetch('/api/email/notify-contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: formData.full_name,
+          email: formData.email,
+          phone: formData.phone || null,
+          subject: formData.subject || null,
+          message: formData.message,
+        }),
+      }).catch(() => {});
     }
   }
 
