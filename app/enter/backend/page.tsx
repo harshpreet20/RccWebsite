@@ -1031,6 +1031,244 @@ function RegistrationsModule() {
   );
 }
 
+// ─── TAB: CONTACT INBOX ───────────────────────────────────────────────────────
+
+interface ContactSubmission {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string | null;
+  subject: string | null;
+  message: string;
+  status: 'new' | 'read' | 'replied';
+  created_at: string;
+}
+
+function ContactsModule() {
+  const [items, setItems] = useState<ContactSubmission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState<'all' | 'new' | 'read' | 'replied'>('all');
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+
+  function showToast(msg: string, type: 'success' | 'error') {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  }
+
+  async function load() {
+    setLoading(true);
+    const { data } = await supabase
+      .from('contact_submissions')
+      .select('*')
+      .order('created_at', { ascending: false });
+    setItems((data as ContactSubmission[]) ?? []);
+    setLoading(false);
+  }
+
+  useEffect(() => { load(); }, []);
+
+  async function setStatus(id: string, status: ContactSubmission['status']) {
+    const { error } = await supabase.from('contact_submissions').update({ status }).eq('id', id);
+    if (error) { showToast('Update failed', 'error'); return; }
+    setItems(prev => prev.map(c => c.id === id ? { ...c, status } : c));
+  }
+
+  async function remove(id: string) {
+    if (!confirm('Delete this submission?')) return;
+    const { error } = await supabase.from('contact_submissions').delete().eq('id', id);
+    if (error) { showToast('Delete failed', 'error'); return; }
+    setItems(prev => prev.filter(c => c.id !== id));
+    if (expanded === id) setExpanded(null);
+    showToast('Deleted', 'success');
+  }
+
+  const STATUS_COLOR: Record<string, string> = {
+    new: '#C21818',
+    read: '#f59e0b',
+    replied: '#22c55e',
+  };
+
+  const filtered = items.filter(c => {
+    if (filter !== 'all' && c.status !== filter) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      return (
+        c.full_name?.toLowerCase().includes(q) ||
+        c.email?.toLowerCase().includes(q) ||
+        c.subject?.toLowerCase().includes(q) ||
+        c.message?.toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
+
+  const newCount = items.filter(c => c.status === 'new').length;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {toast && <Toast msg={toast.msg} type={toast.type} />}
+
+      {/* Stats row */}
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        {[
+          { label: 'Total', value: items.length, color: '#D4AF37' },
+          { label: 'New', value: newCount, color: '#C21818' },
+          { label: 'Read', value: items.filter(c => c.status === 'read').length, color: '#f59e0b' },
+          { label: 'Replied', value: items.filter(c => c.status === 'replied').length, color: '#22c55e' },
+        ].map(s => (
+          <div key={s.label} style={{ ...glassCard, flex: '1 1 80px', minWidth: 80, textAlign: 'center', padding: '14px 12px' }}>
+            <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontSize: 26, fontWeight: 700, color: s.color }}>{s.value}</div>
+            <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#888899', letterSpacing: '0.06em', marginTop: 2 }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search name, email, subject…"
+          style={{ ...inputStyle, flex: 1, minWidth: 180 }}
+        />
+        {(['all', 'new', 'read', 'replied'] as const).map(f => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            style={{
+              padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer',
+              fontFamily: 'var(--font-montserrat)', fontSize: 11, fontWeight: 700,
+              letterSpacing: '0.06em', textTransform: 'capitalize',
+              background: filter === f ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.04)',
+              color: filter === f ? '#D4AF37' : '#888899',
+              borderBottom: filter === f ? '2px solid #D4AF37' : '2px solid transparent',
+            }}
+          >
+            {f === 'all' ? `All (${items.length})` : f === 'new' ? `New (${newCount})` : f.charAt(0).toUpperCase() + f.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      {/* List */}
+      {loading ? (
+        <div style={{ color: '#888899', textAlign: 'center', padding: 40 }}>Loading…</div>
+      ) : filtered.length === 0 ? (
+        <div style={{ ...glassCard, textAlign: 'center', padding: 40, color: '#555566' }}>
+          {search || filter !== 'all' ? 'No messages match your filter.' : '📩 No contact submissions yet.'}
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {filtered.map(c => {
+            const isOpen = expanded === c.id;
+            const date = new Date(c.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            const time = new Date(c.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+            return (
+              <div
+                key={c.id}
+                style={{
+                  ...glassCard,
+                  padding: 0,
+                  overflow: 'hidden',
+                  borderLeft: `3px solid ${STATUS_COLOR[c.status] ?? '#444'}`,
+                  background: c.status === 'new' ? 'rgba(194,24,24,0.04)' : 'rgba(255,255,255,0.02)',
+                }}
+              >
+                {/* Header row */}
+                <div
+                  onClick={() => {
+                    setExpanded(isOpen ? null : c.id);
+                    if (c.status === 'new') setStatus(c.id, 'read');
+                  }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', cursor: 'pointer' }}
+                >
+                  {/* Avatar */}
+                  <div style={{
+                    width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
+                    background: `linear-gradient(135deg, ${STATUS_COLOR[c.status]}, #0d0d14)`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontFamily: 'Arial, sans-serif', fontWeight: 700, fontSize: 15, color: '#fff',
+                  }}>
+                    {(c.full_name?.[0] ?? '?').toUpperCase()}
+                  </div>
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 14, color: '#e8e8ec' }}>{c.full_name}</span>
+                      {c.status === 'new' && (
+                        <span style={{ background: '#C21818', color: '#fff', borderRadius: 4, padding: '1px 7px', fontSize: 10, fontWeight: 700, letterSpacing: '0.06em' }}>NEW</span>
+                      )}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#888899', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {c.email}{c.subject ? ` · ${c.subject}` : ''}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+                    <span style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#555566' }}>{date}</span>
+                    <span style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#3a3a4a' }}>{time}</span>
+                  </div>
+
+                  <span style={{ color: '#555566', fontSize: 12, marginLeft: 4 }}>{isOpen ? '▲' : '▼'}</span>
+                </div>
+
+                {/* Expanded detail */}
+                {isOpen && (
+                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '16px 18px 18px' }}>
+                    {/* Contact meta */}
+                    <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', marginBottom: 14 }}>
+                      <div>
+                        <div style={labelStyle}>Email</div>
+                        <a href={`mailto:${c.email}`} style={{ fontFamily: 'var(--font-inter)', fontSize: 13, color: '#D4AF37', textDecoration: 'none' }}>{c.email}</a>
+                      </div>
+                      {c.phone && (
+                        <div>
+                          <div style={labelStyle}>Phone</div>
+                          <a href={`tel:${c.phone}`} style={{ fontFamily: 'var(--font-inter)', fontSize: 13, color: '#D4AF37', textDecoration: 'none' }}>{c.phone}</a>
+                        </div>
+                      )}
+                      {c.subject && (
+                        <div>
+                          <div style={labelStyle}>Subject</div>
+                          <div style={{ fontFamily: 'var(--font-inter)', fontSize: 13, color: '#e8e8ec' }}>{c.subject}</div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Message */}
+                    <div style={{ background: 'rgba(0,0,0,0.25)', borderRadius: 8, padding: '14px 16px', fontFamily: 'var(--font-inter)', fontSize: 14, color: '#c9d2df', lineHeight: 1.75, whiteSpace: 'pre-wrap', marginBottom: 16 }}>
+                      {c.message}
+                    </div>
+
+                    {/* Actions */}
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                      <a
+                        href={`mailto:${c.email}?subject=Re: ${encodeURIComponent(c.subject || 'Your enquiry to RCC')}`}
+                        onClick={() => setStatus(c.id, 'replied')}
+                        style={{ ...goldBtn, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                      >
+                        ✉ Reply via Email
+                      </a>
+                      {c.status !== 'replied' && (
+                        <button onClick={() => setStatus(c.id, 'replied')} style={goldBtn}>Mark Replied</button>
+                      )}
+                      {c.status === 'replied' && (
+                        <button onClick={() => setStatus(c.id, 'read')} style={{ ...goldBtn, background: 'rgba(255,255,255,0.05)', color: '#888899' }}>Mark Unread</button>
+                      )}
+                      <button onClick={() => remove(c.id)} style={{ ...dangerBtn, marginLeft: 'auto' }}>Delete</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── TAB 4: EVENTS ────────────────────────────────────────────────────────────
 
 function EventsModule() {
@@ -3702,7 +3940,7 @@ function SiteSettingsModule() {
   );
 }
 
-type TabKey = 'overview' | 'members' | 'registrations' | 'events' | 'leaderboard' | 'announcements' | 'instagram' | 'spotlights' | 'partners' | 'chatlogs' | 'blog' | 'newsletter' | 'users' | 'aicontext' | 'settings';
+type TabKey = 'overview' | 'members' | 'registrations' | 'contacts' | 'events' | 'leaderboard' | 'announcements' | 'instagram' | 'spotlights' | 'partners' | 'chatlogs' | 'blog' | 'newsletter' | 'users' | 'aicontext' | 'settings';
 
 type NavItem = {
   key: TabKey;
@@ -3782,6 +4020,7 @@ export default function BackendPage() {
       items: [
         { key: 'members', label: 'Members', icon: '👥', badge: pendingCount > 0 ? pendingCount : undefined },
         { key: 'registrations', label: 'Registrations', icon: '📋' },
+        { key: 'contacts', label: 'Contact Inbox', icon: '📩' },
         { key: 'events', label: 'Events', icon: '📅' },
         { key: 'leaderboard', label: 'Leaderboard', icon: '🏆' },
       ],
@@ -4175,6 +4414,7 @@ export default function BackendPage() {
             {activeTab === 'overview'      && <OverviewModule />}
             {activeTab === 'members'       && <MembersModule />}
             {activeTab === 'registrations' && <RegistrationsModule />}
+            {activeTab === 'contacts'      && <ContactsModule />}
             {activeTab === 'events'        && <EventsModule />}
             {activeTab === 'leaderboard'   && <LeaderboardModule />}
             {activeTab === 'announcements' && <AnnouncementsModule />}
