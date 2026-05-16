@@ -2369,7 +2369,7 @@ function BlogModule() {
           <h3 style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 14, color: '#D4AF37', margin: '0 0 16px 0' }}>
             {editPost ? 'Edit Post' : 'New Blog Post'}
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
             <div style={{ gridColumn: '1/-1' }}>
               <label style={labelStyle}>Title</label>
               <input style={inputStyle} value={form.title} onChange={e => {
@@ -2459,7 +2459,7 @@ function BlogModule() {
                 <div style={{ padding: 16 }}>
 
                   {/* Main probability gauges */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12, marginBottom: 20 }}>
                     <SeoCircleScore label="Ranking Probability" value={seoResult.rankingProbability} color="#D4AF37" />
                     <SeoCircleScore label="Top-3 Probability" value={seoResult.top3Probability} color="#22c55e" />
                     <SeoCircleScore label="Featured Snippet" value={seoResult.featuredSnippetProbability} color="#3b82f6" />
@@ -2467,7 +2467,7 @@ function BlogModule() {
                   </div>
 
                   {/* Score grid — two columns */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 24px', marginBottom: 20 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '4px 24px', marginBottom: 20 }}>
                     <SeoScoreBar label="SEO Score" value={seoResult.seoScore} color="#D4AF37" />
                     <SeoScoreBar label="Content Score" value={seoResult.contentScore} color="#22c55e" />
                     <SeoScoreBar label="AEO Score" value={seoResult.aeoScore} color="#3b82f6" />
@@ -2484,7 +2484,7 @@ function BlogModule() {
 
                   {/* Strengths & Weaknesses */}
                   {((seoResult.strengths?.length ?? 0) > 0 || (seoResult.weaknesses?.length ?? 0) > 0) && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
                       {(seoResult.strengths?.length ?? 0) > 0 && (
                         <div style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.15)', borderRadius: 8, padding: 12 }}>
                           <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 10, color: '#22c55e', letterSpacing: '0.12em', marginBottom: 10 }}>✓ STRENGTHS</div>
@@ -2725,7 +2725,7 @@ function UserManagementModule() {
       {showForm && (
         <div style={{ ...glassCard, marginBottom: 24 }}>
           <h3 style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 14, color: '#D4AF37', margin: '0 0 16px 0' }}>Add Admin User</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
             <div>
               <label style={labelStyle}>Email</label>
               <input style={inputStyle} type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="user@example.com" />
