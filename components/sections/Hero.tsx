@@ -3,19 +3,22 @@
 import { useEffect, useRef } from 'react';
 import { Flame, Trophy, Users, ArrowRight, Play } from 'lucide-react';
 
-/* ─── Canvas fire particles ────────────────────────────────────────── */
-interface Ember {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  r: number;
-  life: number;
-  maxLife: number;
-  isGold: boolean;
+/* ─── Super Saiyan angular spike aura ──────────────────────────────── */
+interface Spike {
+  angle: number;       // outward direction in radians
+  bx: number;          // base x on body outline (0-1 of canvas)
+  by: number;          // base y on body outline (0-1 of canvas)
+  len: number;         // current rendered length
+  targetLen: number;   // animating toward this
+  baseLen: number;     // resting length
+  width: number;       // base width of triangle
+  phase: number;       // personal time offset
+  speed: number;       // flicker speed
+  hue: number;         // 0=red, 20=orange, 38=gold
+  layer: number;       // 0=inner,1=outer
 }
 
-function useFireCanvas(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
+function useSuperSaiyanAura(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -23,71 +26,149 @@ function useFireCanvas(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
     if (!ctx) return;
 
     let animId: number;
-    const embers: Ember[] = [];
+    let t = 0;
+    let spikes: Spike[] = [];
 
     function resize() {
       if (!canvas) return;
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
+      buildSpikes();
     }
-    resize();
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
 
-    function spawnEmber() {
+    function buildSpikes() {
       if (!canvas) return;
-      const x = canvas.width * (0.45 + Math.random() * 0.50);
-      const y = canvas.height * (0.65 + Math.random() * 0.35);
-      embers.push({
-        x,
-        y,
-        vx: (Math.random() - 0.5) * 1.2,
-        vy: -(1.8 + Math.random() * 3.0),
-        r: 0.8 + Math.random() * 4.5,
-        life: 0,
-        maxLife: 50 + Math.floor(Math.random() * 90),
-        isGold: Math.random() < 0.40,
-      });
+      const W = canvas.width;
+      const H = canvas.height;
+      spikes = [];
+
+      // Body silhouette — narrow ellipse, athlete is right-center
+      // cx ~62% from canvas left, cy ~45% from top, rx ~11%, ry ~44%
+      const cx = W * 0.62;
+      const cy = H * 0.45;
+      const rx = W * 0.11;
+      const ry = H * 0.44;
+
+      // Inner layer — tight, sharp, fast-flicker spikes
+      const INNER = 52;
+      for (let i = 0; i < INNER; i++) {
+        // Bias angles upward: concentrate ~60% in the upper arc
+        const t0 = Math.random();
+        const angle = t0 < 0.6
+          ? -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.3   // upper half
+          : -Math.PI / 2 + Math.PI + (Math.random() - 0.5) * Math.PI; // lower half
+        const bx = cx + Math.cos(angle) * rx;
+        const by = cy + Math.sin(angle) * ry;
+        // Outward direction = angle from center
+        const outAngle = Math.atan2(by - cy, bx - cx);
+        // Upper spikes get extra upward push
+        const upBias = by < cy ? -0.35 : 0;
+        const len = 35 + Math.random() * 90;
+        spikes.push({
+          angle: outAngle + upBias,
+          bx, by,
+          len, targetLen: len, baseLen: len,
+          width: 5 + Math.random() * 14,
+          phase: Math.random() * Math.PI * 2,
+          speed: 2.5 + Math.random() * 4,
+          hue: Math.random() < 0.75 ? 0 : (Math.random() < 0.5 ? 20 : 38),
+          layer: 0,
+        });
+      }
+
+      // Outer layer — long, wide, slow majestic spikes
+      const OUTER = 28;
+      for (let i = 0; i < OUTER; i++) {
+        const t0 = Math.random();
+        const angle = t0 < 0.65
+          ? -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.5
+          : -Math.PI / 2 + Math.PI + (Math.random() - 0.5) * Math.PI * 0.9;
+        const bx = cx + Math.cos(angle) * rx * 1.05;
+        const by = cy + Math.sin(angle) * ry * 1.05;
+        const outAngle = Math.atan2(by - cy, bx - cx);
+        const upBias = by < cy ? -0.5 : 0;
+        const len = 80 + Math.random() * 180;
+        spikes.push({
+          angle: outAngle + upBias,
+          bx, by,
+          len, targetLen: len, baseLen: len,
+          width: 14 + Math.random() * 28,
+          phase: Math.random() * Math.PI * 2,
+          speed: 1.2 + Math.random() * 2.2,
+          hue: Math.random() < 0.8 ? 0 : 20,
+          layer: 1,
+        });
+      }
+    }
+
+    function drawSpike(
+      ctx: CanvasRenderingContext2D,
+      bx: number, by: number,
+      angle: number, len: number, width: number,
+      hue: number, alpha: number, layer: number
+    ) {
+      ctx.save();
+      ctx.translate(bx, by);
+      ctx.rotate(angle);
+
+      // Sharp triangle: base → tip
+      const tipX = 0;
+      const tipY = -len;
+      const halfW = width / 2;
+
+      // Sub-spike for jagged look — split into 2-3 inner triangles
+      const jag = layer === 1 ? 3 : 2;
+      for (let j = 0; j < jag; j++) {
+        const jRatio = (j + 1) / jag;
+        const jW = halfW * (1 - j * 0.3);
+        const jLen = len * (0.5 + jRatio * 0.5);
+        const jOff = (j - (jag - 1) / 2) * halfW * 0.4;
+
+        ctx.beginPath();
+        ctx.moveTo(-jW + jOff, 0);
+        ctx.lineTo(jW + jOff, 0);
+        ctx.lineTo(jOff * 0.3, -jLen);
+        ctx.closePath();
+
+        const grad = ctx.createLinearGradient(0, 0, tipX, tipY * jRatio);
+        const bright = layer === 0 ? '65%' : '55%';
+        grad.addColorStop(0, `hsla(${hue}, 100%, ${bright}, ${alpha})`);
+        grad.addColorStop(0.35, `hsla(${hue + 10}, 100%, 60%, ${alpha * 0.75})`);
+        grad.addColorStop(1, `hsla(${hue + 20}, 100%, 70%, 0)`);
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+
+      ctx.restore();
     }
 
     function tick() {
       if (!canvas || !ctx) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      t += 0.016;
 
-      // Spawn multiple embers per frame for denser fire
-      const spawns = Math.random() < 0.5 ? 2 : 1;
-      for (let s = 0; s < spawns; s++) spawnEmber();
+      for (const s of spikes) {
+        // Animate length with noise-like flicker
+        const wave = Math.sin(t * s.speed + s.phase) * 0.5
+                   + Math.sin(t * s.speed * 1.7 + s.phase * 1.3) * 0.3
+                   + Math.sin(t * s.speed * 0.4 + s.phase * 0.7) * 0.2;
+        // Clamp 0.15–1.0 so spikes never fully disappear
+        const lenFactor = 0.15 + 0.85 * Math.max(0, Math.min(1, (wave + 1) / 2));
+        s.len = s.baseLen * lenFactor;
 
-      for (let i = embers.length - 1; i >= 0; i--) {
-        const e = embers[i];
-        e.life++;
-        if (e.life > e.maxLife) { embers.splice(i, 1); continue; }
+        // Alpha flickers too — inner spikes more opaque
+        const alphaBase = s.layer === 0 ? 0.75 : 0.55;
+        const alpha = alphaBase * (0.5 + 0.5 * lenFactor);
 
-        e.x += e.vx;
-        e.y += e.vy;
-        e.vx += (Math.random() - 0.5) * 0.12;
-
-        const t = e.life / e.maxLife;
-        const alpha = Math.sin(t * Math.PI) * 0.85;
-
-        const hue = e.isGold ? 38 : 0;
-        ctx.beginPath();
-        ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${hue}, 90%, 58%, ${alpha})`;
-        ctx.fill();
-
-        // Soft glow
-        const grd = ctx.createRadialGradient(e.x, e.y, 0, e.x, e.y, e.r * 3);
-        grd.addColorStop(0, `hsla(${hue}, 90%, 58%, ${alpha * 0.4})`);
-        grd.addColorStop(1, `hsla(${hue}, 90%, 58%, 0)`);
-        ctx.beginPath();
-        ctx.arc(e.x, e.y, e.r * 3, 0, Math.PI * 2);
-        ctx.fillStyle = grd;
-        ctx.fill();
+        drawSpike(ctx, s.bx, s.by, s.angle, s.len, s.width, s.hue, alpha, s.layer);
       }
 
       animId = requestAnimationFrame(tick);
     }
+
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
     animId = requestAnimationFrame(tick);
 
     return () => {
@@ -137,8 +218,8 @@ const FEATURES = [
 
 /* ─── Hero ──────────────────────────────────────────────────────────── */
 export default function Hero() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  useFireCanvas(canvasRef);
+  const auraCanvasRef = useRef<HTMLCanvasElement>(null);
+  useSuperSaiyanAura(auraCanvasRef);
 
   return (
     <section
@@ -199,44 +280,7 @@ export default function Hero() {
         }}
       />
 
-      {/* Animations */}
       <style>{`
-        @keyframes aura-rim {
-          0%,100% {
-            filter:
-              drop-shadow(0 0 4px #ff3300)
-              drop-shadow(0 0 10px #ff2200)
-              drop-shadow(0 0 22px #cc1100)
-              drop-shadow(0 -6px 18px rgba(255,80,0,0.55))
-              brightness(1.08);
-          }
-          50% {
-            filter:
-              drop-shadow(0 0 7px #ff6600)
-              drop-shadow(0 0 18px #ff3300)
-              drop-shadow(0 0 38px #dd1500)
-              drop-shadow(0 -14px 32px rgba(255,100,0,0.65))
-              brightness(1.18);
-          }
-        }
-        @keyframes aura-halo {
-          0%,100% {
-            filter:
-              drop-shadow(0 0 18px rgba(255,40,0,0.7))
-              drop-shadow(0 0 45px rgba(200,15,0,0.50))
-              drop-shadow(0 0 80px rgba(180,5,0,0.30))
-              drop-shadow(0 -20px 60px rgba(255,60,0,0.35));
-            opacity: 0.75;
-          }
-          50% {
-            filter:
-              drop-shadow(0 0 28px rgba(255,70,0,0.9))
-              drop-shadow(0 0 70px rgba(230,20,0,0.65))
-              drop-shadow(0 0 120px rgba(200,10,0,0.40))
-              drop-shadow(0 -35px 90px rgba(255,90,0,0.45));
-            opacity: 1;
-          }
-        }
         .hero-feature-strip { grid-template-columns: repeat(4, 1fr); }
         @media (max-width: 768px) { .hero-feature-strip { grid-template-columns: repeat(2, 1fr) !important; } }
         @media (max-width: 480px) { .hero-feature-strip { grid-template-columns: repeat(2, 1fr) !important; } }
@@ -253,20 +297,20 @@ export default function Hero() {
         }}
       />
 
-      {/* 5. Canvas for embers */}
+      {/* 5. Super Saiyan aura canvas — covers full hero, spikes drawn over athlete position */}
       <canvas
-        ref={canvasRef}
+        ref={auraCanvasRef}
         style={{
           position: 'absolute',
           inset: 0,
           width: '100%',
           height: '100%',
-          zIndex: 5,
+          zIndex: 8,
           pointerEvents: 'none',
         }}
       />
 
-      {/* ── Athlete + outward-only fire aura ── */}
+      {/* ── Athlete ── */}
       <div
         style={{
           position: 'absolute',
@@ -278,38 +322,6 @@ export default function Hero() {
           overflow: 'visible',
         }}
       >
-        {/* Wide outer halo — large drop-shadow spreading outward, slow pulse */}
-        <img
-          src="/athlete.png"
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            bottom: 0, right: 0,
-            height: '118%', width: 'auto',
-            objectFit: 'contain', objectPosition: 'bottom right',
-            mixBlendMode: 'screen',
-            animation: 'aura-halo 2.4s ease-in-out infinite',
-            animationDelay: '0.4s',
-            pointerEvents: 'none',
-          }}
-        />
-
-        {/* Tight rim — close drop-shadow tracing the outline, fast flicker */}
-        <img
-          src="/athlete.png"
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            bottom: 0, right: 0,
-            height: '118%', width: 'auto',
-            objectFit: 'contain', objectPosition: 'bottom right',
-            mixBlendMode: 'screen',
-            animation: 'aura-rim 1.3s ease-in-out infinite',
-            pointerEvents: 'none',
-          }}
-        />
-
-        {/* Athlete — crisp on top, no filter so interior stays clean */}
         <img
           src="/athlete.png"
           alt="RCC athlete"
@@ -322,8 +334,8 @@ export default function Hero() {
             height: '118%', width: 'auto',
             objectFit: 'contain', objectPosition: 'bottom right',
             mixBlendMode: 'screen',
-            filter: 'brightness(1.08) contrast(1.04)',
-            zIndex: 10,
+            filter: 'brightness(1.1) contrast(1.05)',
+            zIndex: 7,
             pointerEvents: 'none',
           }}
         />
