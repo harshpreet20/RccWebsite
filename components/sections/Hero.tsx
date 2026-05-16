@@ -3,179 +3,185 @@
 import { useEffect, useRef } from 'react';
 import { Flame, Trophy, Users, ArrowRight, Play } from 'lucide-react';
 
-/* ─── Super Saiyan angular spike aura ──────────────────────────────── */
+/* ─── Super Saiyan angular spike aura — traced from real PNG ────────── */
 interface Spike {
-  angle: number;       // outward direction in radians
-  bx: number;          // base x on body outline (0-1 of canvas)
-  by: number;          // base y on body outline (0-1 of canvas)
-  len: number;         // current rendered length
-  targetLen: number;   // animating toward this
-  baseLen: number;     // resting length
-  width: number;       // base width of triangle
-  phase: number;       // personal time offset
-  speed: number;       // flicker speed
-  hue: number;         // 0=red, 20=orange, 38=gold
-  layer: number;       // 0=inner,1=outer
+  bx: number; by: number;   // base on actual silhouette edge
+  angle: number;             // outward direction
+  baseLen: number; len: number;
+  width: number;
+  phase: number; speed: number;
+  hue: number; layer: number;
 }
 
-function useSuperSaiyanAura(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
+function useSuperSaiyanAura(
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
+  imgRef:    React.RefObject<HTMLImageElement | null>,
+) {
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const img    = imgRef.current;
+    if (!canvas || !img) return;
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     let animId: number;
-    let t = 0;
+    let auraT = 0;
     let spikes: Spike[] = [];
 
-    function resize() {
-      if (!canvas) return;
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-      buildSpikes();
-    }
+    /* ── Sample the actual PNG edge pixels ── */
+    function buildSpikesFromImage() {
+      if (!canvas || !img || !img.complete || img.naturalWidth === 0) return;
 
-    function buildSpikes() {
-      if (!canvas) return;
-      const W = canvas.width;
-      const H = canvas.height;
+      /* 1. Draw image to offscreen at natural resolution */
+      const off  = document.createElement('canvas');
+      off.width  = img.naturalWidth;
+      off.height = img.naturalHeight;
+      const oc   = off.getContext('2d')!;
+      oc.drawImage(img, 0, 0);
+      const pix  = oc.getImageData(0, 0, off.width, off.height).data;
+
+      /* 2. Detect if PNG is alpha-transparent or black-bg (screen blend) */
+      //    Sample corners — if alpha is 0 it's proper transparent
+      const cornerAlpha = pix[3] + pix[(off.width - 1) * 4 + 3];
+      const useAlpha    = cornerAlpha < 10;
+
+      function isAthlete(px: number, py: number): boolean {
+        if (px < 0 || py < 0 || px >= off.width || py >= off.height) return false;
+        const i = (py * off.width + px) * 4;
+        if (useAlpha) return pix[i + 3] > 40;
+        return (pix[i] + pix[i + 1] + pix[i + 2]) > 55;
+      }
+
+      /* 3. Walk pixels and collect edge points */
+      const STEP = 6;
+      const edgePts: Array<{ px: number; py: number }> = [];
+      for (let py = 0; py < off.height; py += STEP) {
+        for (let px = 0; px < off.width; px += STEP) {
+          if (!isAthlete(px, py)) continue;
+          if (
+            !isAthlete(px - STEP, py) || !isAthlete(px + STEP, py) ||
+            !isAthlete(px, py - STEP) || !isAthlete(px, py + STEP)
+          ) edgePts.push({ px, py });
+        }
+      }
+      if (edgePts.length === 0) return;
+
+      /* 4. Map image coords → canvas coords via bounding rects */
+      const imgRect    = img.getBoundingClientRect();
+      const heroRect   = canvas.getBoundingClientRect();
+      const scaleX     = imgRect.width  / img.naturalWidth;
+      const scaleY     = imgRect.height / img.naturalHeight;
+      const offX       = imgRect.left   - heroRect.left;
+      const offY       = imgRect.top    - heroRect.top;
+
+      /* centroid for outward-direction calculation */
+      let sumX = 0, sumY = 0;
+      for (const p of edgePts) { sumX += p.px; sumY += p.py; }
+      const cenPx = sumX / edgePts.length;
+      const cenPy = sumY / edgePts.length;
+
+      /* 5. Build spikes — sample ~140 random edge points */
       spikes = [];
+      const TOTAL = Math.min(edgePts.length, 140);
+      const shuffled = [...edgePts].sort(() => Math.random() - 0.5).slice(0, TOTAL);
 
-      // Body silhouette — narrow ellipse, athlete is right-center
-      // cx ~62% from canvas left, cy ~45% from top, rx ~11%, ry ~44%
-      const cx = W * 0.62;
-      const cy = H * 0.45;
-      const rx = W * 0.11;
-      const ry = H * 0.44;
+      shuffled.forEach((p, idx) => {
+        const bx = offX + p.px * scaleX;
+        const by = offY + p.py * scaleY;
 
-      // Inner layer — tight, sharp, fast-flicker spikes
-      const INNER = 52;
-      for (let i = 0; i < INNER; i++) {
-        // Bias angles upward: concentrate ~60% in the upper arc
-        const t0 = Math.random();
-        const angle = t0 < 0.6
-          ? -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.3   // upper half
-          : -Math.PI / 2 + Math.PI + (Math.random() - 0.5) * Math.PI; // lower half
-        const bx = cx + Math.cos(angle) * rx;
-        const by = cy + Math.sin(angle) * ry;
-        // Outward direction = angle from center
-        const outAngle = Math.atan2(by - cy, bx - cx);
-        // Upper spikes get extra upward push
-        const upBias = by < cy ? -0.35 : 0;
-        const len = 35 + Math.random() * 90;
+        /* outward angle from centroid */
+        const rawAngle = Math.atan2(p.py - cenPy, p.px - cenPx);
+        /* upper-body spikes get extra upward push */
+        const upBias   = p.py < cenPy ? -0.45 : 0;
+
+        const layer    = idx < 90 ? 0 : 1;
+        const baseLen  = layer === 0
+          ? 30 + Math.random() * 80
+          : 70 + Math.random() * 160;
+
         spikes.push({
-          angle: outAngle + upBias,
           bx, by,
-          len, targetLen: len, baseLen: len,
-          width: 5 + Math.random() * 14,
+          angle: rawAngle + upBias,
+          baseLen, len: baseLen,
+          width: layer === 0 ? 4 + Math.random() * 12 : 12 + Math.random() * 26,
           phase: Math.random() * Math.PI * 2,
-          speed: 2.5 + Math.random() * 4,
-          hue: Math.random() < 0.75 ? 0 : (Math.random() < 0.5 ? 20 : 38),
-          layer: 0,
+          speed: layer === 0 ? 2.5 + Math.random() * 4 : 1.2 + Math.random() * 2.2,
+          hue:   Math.random() < 0.75 ? 0 : (Math.random() < 0.5 ? 20 : 38),
+          layer,
         });
-      }
-
-      // Outer layer — long, wide, slow majestic spikes
-      const OUTER = 28;
-      for (let i = 0; i < OUTER; i++) {
-        const t0 = Math.random();
-        const angle = t0 < 0.65
-          ? -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.5
-          : -Math.PI / 2 + Math.PI + (Math.random() - 0.5) * Math.PI * 0.9;
-        const bx = cx + Math.cos(angle) * rx * 1.05;
-        const by = cy + Math.sin(angle) * ry * 1.05;
-        const outAngle = Math.atan2(by - cy, bx - cx);
-        const upBias = by < cy ? -0.5 : 0;
-        const len = 80 + Math.random() * 180;
-        spikes.push({
-          angle: outAngle + upBias,
-          bx, by,
-          len, targetLen: len, baseLen: len,
-          width: 14 + Math.random() * 28,
-          phase: Math.random() * Math.PI * 2,
-          speed: 1.2 + Math.random() * 2.2,
-          hue: Math.random() < 0.8 ? 0 : 20,
-          layer: 1,
-        });
-      }
+      });
     }
 
-    function drawSpike(
-      ctx: CanvasRenderingContext2D,
-      bx: number, by: number,
-      angle: number, len: number, width: number,
-      hue: number, alpha: number, layer: number
-    ) {
+    /* ── Draw one angular spike ── */
+    function drawSpike(s: Spike, alpha: number) {
+      if (!ctx) return;
       ctx.save();
-      ctx.translate(bx, by);
-      ctx.rotate(angle);
+      ctx.translate(s.bx, s.by);
+      ctx.rotate(s.angle);
 
-      // Sharp triangle: base → tip
-      const tipX = 0;
-      const tipY = -len;
-      const halfW = width / 2;
+      const halfW = s.width / 2;
+      const jag   = s.layer === 1 ? 3 : 2;
 
-      // Sub-spike for jagged look — split into 2-3 inner triangles
-      const jag = layer === 1 ? 3 : 2;
       for (let j = 0; j < jag; j++) {
-        const jRatio = (j + 1) / jag;
-        const jW = halfW * (1 - j * 0.3);
-        const jLen = len * (0.5 + jRatio * 0.5);
-        const jOff = (j - (jag - 1) / 2) * halfW * 0.4;
+        const jLen = s.len * (0.55 + (j / jag) * 0.45);
+        const jOff = (j - (jag - 1) / 2) * halfW * 0.45;
+        const jW   = halfW * (1 - j * 0.28);
 
         ctx.beginPath();
         ctx.moveTo(-jW + jOff, 0);
-        ctx.lineTo(jW + jOff, 0);
-        ctx.lineTo(jOff * 0.3, -jLen);
+        ctx.lineTo( jW + jOff, 0);
+        ctx.lineTo( jOff * 0.25, -jLen);
         ctx.closePath();
 
-        const grad = ctx.createLinearGradient(0, 0, tipX, tipY * jRatio);
-        const bright = layer === 0 ? '65%' : '55%';
-        grad.addColorStop(0, `hsla(${hue}, 100%, ${bright}, ${alpha})`);
-        grad.addColorStop(0.35, `hsla(${hue + 10}, 100%, 60%, ${alpha * 0.75})`);
-        grad.addColorStop(1, `hsla(${hue + 20}, 100%, 70%, 0)`);
-        ctx.fillStyle = grad;
+        const g = ctx.createLinearGradient(0, 0, 0, -jLen);
+        const L = s.layer === 0 ? '65%' : '55%';
+        g.addColorStop(0,    `hsla(${s.hue},      100%, ${L}, ${alpha})`);
+        g.addColorStop(0.38, `hsla(${s.hue + 12}, 100%, 62%, ${alpha * 0.72})`);
+        g.addColorStop(1,    `hsla(${s.hue + 22}, 100%, 72%, 0)`);
+        ctx.fillStyle = g;
         ctx.fill();
       }
-
       ctx.restore();
     }
 
+    /* ── Animation loop ── */
     function tick() {
       if (!canvas || !ctx) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      t += 0.016;
+      auraT += 0.016;
 
       for (const s of spikes) {
-        // Animate length with noise-like flicker
-        const wave = Math.sin(t * s.speed + s.phase) * 0.5
-                   + Math.sin(t * s.speed * 1.7 + s.phase * 1.3) * 0.3
-                   + Math.sin(t * s.speed * 0.4 + s.phase * 0.7) * 0.2;
-        // Clamp 0.15–1.0 so spikes never fully disappear
-        const lenFactor = 0.15 + 0.85 * Math.max(0, Math.min(1, (wave + 1) / 2));
-        s.len = s.baseLen * lenFactor;
-
-        // Alpha flickers too — inner spikes more opaque
-        const alphaBase = s.layer === 0 ? 0.75 : 0.55;
-        const alpha = alphaBase * (0.5 + 0.5 * lenFactor);
-
-        drawSpike(ctx, s.bx, s.by, s.angle, s.len, s.width, s.hue, alpha, s.layer);
+        const wave =
+          Math.sin(auraT * s.speed + s.phase) * 0.50 +
+          Math.sin(auraT * s.speed * 1.7 + s.phase * 1.3) * 0.30 +
+          Math.sin(auraT * s.speed * 0.4 + s.phase * 0.7) * 0.20;
+        const lf     = 0.15 + 0.85 * Math.max(0, Math.min(1, (wave + 1) / 2));
+        s.len        = s.baseLen * lf;
+        const alphaB = s.layer === 0 ? 0.80 : 0.58;
+        drawSpike(s, alphaB * (0.5 + 0.5 * lf));
       }
 
       animId = requestAnimationFrame(tick);
     }
 
-    resize();
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
-    animId = requestAnimationFrame(tick);
+    function resize() {
+      if (!canvas) return;
+      canvas.width  = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      buildSpikesFromImage();
+    }
 
-    return () => {
-      cancelAnimationFrame(animId);
-      ro.disconnect();
-    };
-  }, [canvasRef]);
+    function init() { resize(); animId = requestAnimationFrame(tick); }
+
+    const ro = new ResizeObserver(() => { resize(); });
+    ro.observe(canvas);
+
+    if (img.complete && img.naturalWidth > 0) init();
+    else img.addEventListener('load', init, { once: true });
+
+    return () => { cancelAnimationFrame(animId); ro.disconnect(); };
+  }, [canvasRef, imgRef]);
 }
 
 /* ─── Custom racquet SVG icon ───────────────────────────────────────── */
@@ -219,7 +225,8 @@ const FEATURES = [
 /* ─── Hero ──────────────────────────────────────────────────────────── */
 export default function Hero() {
   const auraCanvasRef = useRef<HTMLCanvasElement>(null);
-  useSuperSaiyanAura(auraCanvasRef);
+  const athleteImgRef = useRef<HTMLImageElement>(null);
+  useSuperSaiyanAura(auraCanvasRef, athleteImgRef);
 
   return (
     <section
@@ -323,10 +330,12 @@ export default function Hero() {
         }}
       >
         <img
+          ref={athleteImgRef}
           src="/athlete.png"
           alt="RCC athlete"
           fetchPriority="high"
           loading="eager"
+          crossOrigin="anonymous"
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
           style={{
             position: 'absolute',
