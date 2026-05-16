@@ -137,6 +137,27 @@ export default function Navbar() {
 
         {/* ── RIGHT: Icon row ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <a
+            href="/#support"
+            className="hidden lg:inline-flex"
+            style={{
+              fontFamily: 'var(--font-montserrat)',
+              fontWeight: 700,
+              fontSize: '11px',
+              letterSpacing: '0.12em',
+              color: '#fff',
+              textDecoration: 'none',
+              background: '#C21818',
+              padding: '8px 16px',
+              borderRadius: '6px',
+              whiteSpace: 'nowrap',
+              transition: 'background 0.2s',
+            }}
+            onMouseOver={e => (e.currentTarget.style.background = '#a81414')}
+            onMouseOut={e => (e.currentTarget.style.background = '#C21818')}
+          >
+            RAISE A TICKET
+          </a>
           <button
             aria-label="Search"
             style={{ background: 'none', border: 'none', padding: '4px', color: 'rgba(255,255,255,0.5)', display: 'flex' }}
@@ -218,6 +239,27 @@ export default function Navbar() {
             {link.label}
           </a>
         ))}
+        <a
+          href="/#support"
+          onClick={() => setMenuOpen(false)}
+          style={{
+            marginTop: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontFamily: 'var(--font-montserrat)',
+            fontWeight: 700,
+            fontSize: '12px',
+            letterSpacing: '0.12em',
+            color: '#fff',
+            textDecoration: 'none',
+            background: '#C21818',
+            padding: '14px 20px',
+            borderRadius: '8px',
+          }}
+        >
+          🎫 RAISE A TICKET
+        </a>
       </div>
 
       {/* Overlay when drawer open */}

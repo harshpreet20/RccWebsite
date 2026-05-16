@@ -156,7 +156,7 @@ export default function SupportSection() {
   }
 
   return (
-    <section style={{ background: '#080810', padding: 'clamp(60px,8vw,100px) clamp(16px,5vw,120px)', position: 'relative', overflow: 'hidden' }}>
+    <section id="support" style={{ background: '#080810', padding: 'clamp(60px,8vw,100px) clamp(16px,5vw,120px)', position: 'relative', overflow: 'hidden' }}>
       {/* Background glow */}
       <div style={{
         position: 'absolute', top: '20%', left: '50%', transform: 'translateX(-50%)',
