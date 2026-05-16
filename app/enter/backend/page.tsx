@@ -2180,6 +2180,18 @@ function UserManagementModule() {
 
 type TabKey = 'overview' | 'members' | 'registrations' | 'events' | 'leaderboard' | 'announcements' | 'instagram' | 'spotlights' | 'partners' | 'chatlogs' | 'blog' | 'users';
 
+type NavItem = {
+  key: TabKey;
+  label: string;
+  icon: string;
+  badge?: number;
+};
+
+type NavGroup = {
+  label: string;
+  items: NavItem[];
+};
+
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
 export default function BackendPage() {
@@ -2188,6 +2200,7 @@ export default function BackendPage() {
   const [pendingCount, setPendingCount] = useState(0);
   const [authChecked, setAuthChecked] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -2220,139 +2233,360 @@ export default function BackendPage() {
 
   if (!authChecked) {
     return (
-      <div style={{ background: '#0a0a0f', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ fontFamily: 'var(--font-montserrat)', color: '#888899', fontSize: 13, letterSpacing: '0.1em' }}>LOADING...</div>
+      <div style={{ background: '#080810', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+          <div style={{
+            width: 36,
+            height: 36,
+            border: '3px solid rgba(212,175,55,0.2)',
+            borderTopColor: '#D4AF37',
+            borderRadius: '50%',
+            animation: 'spin 0.8s linear infinite',
+          }} />
+          <div style={{ fontFamily: 'var(--font-montserrat)', color: '#888899', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+            Loading...
+          </div>
+        </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
-  const tabs: { key: TabKey; label: string; badge?: number }[] = [
-    { key: 'overview', label: 'Overview' },
-    { key: 'members', label: 'Members', badge: pendingCount > 0 ? pendingCount : undefined },
-    { key: 'registrations', label: 'Registrations' },
-    { key: 'events', label: 'Events' },
-    { key: 'leaderboard', label: 'Leaderboard' },
-    { key: 'announcements', label: 'Announcements' },
-    { key: 'instagram', label: 'Instagram' },
-    { key: 'spotlights', label: 'Spotlights' },
-    { key: 'partners', label: 'Partners' },
-    { key: 'chatlogs', label: 'Chat Logs' },
-    { key: 'blog', label: 'Blog' },
-    { key: 'users', label: 'Users & Access' },
+  const navGroups: NavGroup[] = [
+    {
+      label: 'Content',
+      items: [
+        { key: 'members', label: 'Members', icon: '👥', badge: pendingCount > 0 ? pendingCount : undefined },
+        { key: 'registrations', label: 'Registrations', icon: '📋' },
+        { key: 'events', label: 'Events', icon: '📅' },
+        { key: 'leaderboard', label: 'Leaderboard', icon: '🏆' },
+      ],
+    },
+    {
+      label: 'Engage',
+      items: [
+        { key: 'announcements', label: 'Announcements', icon: '📣' },
+        { key: 'instagram', label: 'Instagram', icon: '📸' },
+        { key: 'spotlights', label: 'Spotlights', icon: '⭐' },
+        { key: 'blog', label: 'Blog', icon: '✍️' },
+      ],
+    },
+    {
+      label: 'Manage',
+      items: [
+        { key: 'partners', label: 'Partners', icon: '🤝' },
+        { key: 'chatlogs', label: 'Chat Logs', icon: '💬' },
+        { key: 'users', label: 'Users & Access', icon: '🔐' },
+      ],
+    },
   ];
 
-  return (
-    <div style={{ background: '#0a0a0f', minHeight: '100vh', color: '#e8e8ec', fontFamily: 'var(--font-inter)' }}>
-      {/* Header */}
-      <div style={{
-        background: '#080810',
-        borderBottom: '1px solid rgba(255,255,255,0.07)',
-        padding: '16px clamp(20px,5vw,60px)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 14,
-      }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/rcc-logo.png" alt="RCC" style={{ height: 36 }} />
-        <div>
-          <div style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.5rem', color: '#D4AF37', letterSpacing: '0.06em', lineHeight: 1 }}>
-            RCC ADMIN PANEL
+  const allNavItems: NavItem[] = navGroups.flatMap(g => g.items);
+
+  const activeLabel =
+    activeTab === 'overview'
+      ? 'Overview'
+      : allNavItems.find(i => i.key === activeTab)?.label ?? activeTab;
+
+  function NavItemButton({ item }: { item: NavItem }) {
+    const isActive = activeTab === item.key;
+    return (
+      <button
+        key={item.key}
+        onClick={() => { setActiveTab(item.key); setMobileSidebarOpen(false); }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          width: '100%',
+          padding: '9px 16px 9px 14px',
+          background: isActive ? 'rgba(212,175,55,0.1)' : 'transparent',
+          border: 'none',
+          borderLeft: isActive ? '3px solid #D4AF37' : '3px solid transparent',
+          borderRadius: '0 6px 6px 0',
+          color: isActive ? '#D4AF37' : 'rgba(255,255,255,0.45)',
+          fontFamily: 'var(--font-montserrat)',
+          fontWeight: isActive ? 700 : 500,
+          fontSize: 13,
+          letterSpacing: '0.02em',
+          cursor: 'pointer',
+          textAlign: 'left',
+          transition: 'background 0.15s, color 0.15s',
+          whiteSpace: 'nowrap',
+        }}
+        onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)'; }}
+        onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+      >
+        <span style={{ fontSize: 15, lineHeight: 1, flexShrink: 0 }}>{item.icon}</span>
+        <span style={{ flex: 1 }}>{item.label}</span>
+        {item.badge != null && (
+          <span style={{
+            background: '#C21818',
+            color: '#fff',
+            borderRadius: 10,
+            padding: '1px 6px',
+            fontSize: 10,
+            fontWeight: 700,
+            lineHeight: 1.5,
+            flexShrink: 0,
+          }}>
+            {item.badge}
+          </span>
+        )}
+      </button>
+    );
+  }
+
+  const sidebarContent = (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
+      overflowY: 'auto',
+    }}>
+      {/* Logo area */}
+      <div style={{ padding: '20px 16px 18px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/rcc-logo.png" alt="RCC" style={{ height: 36, width: 36, objectFit: 'contain', flexShrink: 0 }} />
+          <div>
+            <div style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.15rem', color: '#D4AF37', letterSpacing: '0.08em', lineHeight: 1 }}>
+              ADMIN PANEL
+            </div>
+            <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 9, color: '#888899', letterSpacing: '0.1em', marginTop: 3, textTransform: 'uppercase' }}>
+              Racquets Club Community
+            </div>
           </div>
-          <div style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#888899', letterSpacing: '0.1em', marginTop: 2 }}>
-            RACQUETS CLUB COMMUNITY
-          </div>
-        </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
-          {userEmail && (
-            <span style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#555566' }}>{userEmail}</span>
-          )}
-          <button
-            onClick={handleSignOut}
-            style={{
-              background: 'transparent',
-              border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: 6,
-              color: '#888899',
-              fontFamily: 'var(--font-montserrat)',
-              fontWeight: 700,
-              fontSize: 11,
-              letterSpacing: '0.06em',
-              padding: '6px 14px',
-              cursor: 'pointer',
-              textTransform: 'uppercase',
-            }}
-          >
-            Sign Out
-          </button>
         </div>
       </div>
 
-      {/* Tab bar */}
-      <div style={{
-        background: '#111118',
-        borderBottom: '1px solid rgba(255,255,255,0.07)',
-        padding: '0 clamp(20px,5vw,60px)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 4,
-        overflowX: 'auto',
-      }}>
-        {tabs.map(t => (
-          <button
-            key={t.key}
-            onClick={() => setActiveTab(t.key)}
-            style={{
-              background: 'none',
-              border: 'none',
-              borderBottom: activeTab === t.key ? '2px solid #D4AF37' : '2px solid transparent',
-              color: activeTab === t.key ? '#D4AF37' : '#888899',
+      {/* Overview nav item */}
+      <div style={{ padding: '10px 0 4px' }}>
+        <NavItemButton item={{ key: 'overview', label: 'Overview', icon: '📊' }} />
+      </div>
+
+      {/* Nav groups */}
+      <div style={{ flex: 1, paddingBottom: 8 }}>
+        {navGroups.map(group => (
+          <div key={group.label} style={{ marginBottom: 4 }}>
+            <div style={{
               fontFamily: 'var(--font-montserrat)',
+              fontSize: 10,
               fontWeight: 700,
-              fontSize: 12,
-              letterSpacing: '0.06em',
-              padding: '14px 16px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              whiteSpace: 'nowrap',
+              color: '#888899',
+              letterSpacing: '0.12em',
               textTransform: 'uppercase',
-              transition: 'color 0.15s',
-            }}
-          >
-            {t.label}
-            {t.badge != null && (
-              <span style={{
-                background: '#C21818',
-                color: '#fff',
-                borderRadius: 10,
-                padding: '1px 6px',
-                fontSize: 10,
-                fontWeight: 700,
-                lineHeight: 1.4,
-              }}>
-                {t.badge}
-              </span>
-            )}
-          </button>
+              padding: '14px 16px 6px',
+            }}>
+              {group.label}
+            </div>
+            {group.items.map(item => (
+              <NavItemButton key={item.key} item={item} />
+            ))}
+          </div>
         ))}
       </div>
 
-      {/* Content */}
-      <div style={{ padding: 'clamp(24px,4vw,48px) clamp(20px,5vw,60px)', maxWidth: 1400, margin: '0 auto' }}>
-        {activeTab === 'overview'      && <OverviewModule />}
-        {activeTab === 'members'       && <MembersModule />}
-        {activeTab === 'registrations' && <RegistrationsModule />}
-        {activeTab === 'events'        && <EventsModule />}
-        {activeTab === 'leaderboard'   && <LeaderboardModule />}
-        {activeTab === 'announcements' && <AnnouncementsModule />}
-        {activeTab === 'instagram'     && <InstagramModule />}
-        {activeTab === 'spotlights'    && <SpotlightsModule />}
-        {activeTab === 'partners'      && <PartnersModule />}
-        {activeTab === 'chatlogs'      && <ChatLogsModule />}
-        {activeTab === 'blog'          && <BlogModule />}
-        {activeTab === 'users'         && <UserManagementModule />}
+      {/* Bottom: user info + sign out */}
+      <div style={{
+        padding: '14px 16px',
+        borderTop: '1px solid rgba(255,255,255,0.06)',
+        flexShrink: 0,
+      }}>
+        {userEmail && (
+          <div style={{
+            fontFamily: 'var(--font-inter)',
+            fontSize: 11,
+            color: '#888899',
+            marginBottom: 10,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>
+            {userEmail}
+          </div>
+        )}
+        <button
+          onClick={handleSignOut}
+          style={{
+            width: '100%',
+            background: 'transparent',
+            border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: 6,
+            color: '#888899',
+            fontFamily: 'var(--font-montserrat)',
+            fontWeight: 700,
+            fontSize: 11,
+            letterSpacing: '0.06em',
+            padding: '8px 0',
+            cursor: 'pointer',
+            textTransform: 'uppercase',
+            transition: 'border-color 0.15s, color 0.15s',
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.25)';
+            (e.currentTarget as HTMLButtonElement).style.color = '#e8e8ec';
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.12)';
+            (e.currentTarget as HTMLButtonElement).style.color = '#888899';
+          }}
+        >
+          Sign Out
+        </button>
       </div>
     </div>
+  );
+
+  // Mobile tab items (flat list for overflow-x scroll)
+  const mobileTabItems: NavItem[] = [
+    { key: 'overview', label: 'Overview', icon: '📊' },
+    ...navGroups.flatMap(g => g.items),
+  ];
+
+  return (
+    <>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 1023px) {
+          .rcc-sidebar { display: none !important; }
+          .rcc-mobile-topbar { display: flex !important; }
+          .rcc-main-col { margin-left: 0 !important; }
+        }
+        @media (min-width: 1024px) {
+          .rcc-mobile-topbar { display: none !important; }
+        }
+      `}</style>
+
+      <div style={{ display: 'flex', minHeight: '100vh', background: '#080810', color: '#e8e8ec', fontFamily: 'var(--font-inter)' }}>
+
+        {/* ── Sidebar (desktop) ── */}
+        <div
+          className="rcc-sidebar"
+          style={{
+            width: 220,
+            flexShrink: 0,
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            background: '#0d0d14',
+            borderRight: '1px solid rgba(255,255,255,0.06)',
+            zIndex: 40,
+          }}
+        >
+          {sidebarContent}
+        </div>
+
+        {/* ── Main content column ── */}
+        <div
+          className="rcc-main-col"
+          style={{ flex: 1, marginLeft: 220, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}
+        >
+          {/* Mobile top tab bar */}
+          <div
+            className="rcc-mobile-topbar"
+            style={{
+              display: 'none',
+              background: '#0d0d14',
+              borderBottom: '1px solid rgba(255,255,255,0.06)',
+              overflowX: 'auto',
+              gap: 0,
+              flexShrink: 0,
+            }}
+          >
+            {mobileTabItems.map(t => {
+              const isActive = activeTab === t.key;
+              return (
+                <button
+                  key={t.key}
+                  onClick={() => setActiveTab(t.key)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    borderBottom: isActive ? '2px solid #D4AF37' : '2px solid transparent',
+                    color: isActive ? '#D4AF37' : '#888899',
+                    fontFamily: 'var(--font-montserrat)',
+                    fontWeight: 700,
+                    fontSize: 11,
+                    letterSpacing: '0.06em',
+                    padding: '13px 14px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    whiteSpace: 'nowrap',
+                    textTransform: 'uppercase',
+                    flexShrink: 0,
+                  }}
+                >
+                  <span>{t.icon}</span>
+                  <span>{t.label}</span>
+                  {t.badge != null && (
+                    <span style={{ background: '#C21818', color: '#fff', borderRadius: 10, padding: '1px 5px', fontSize: 9, fontWeight: 700 }}>
+                      {t.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Top bar (desktop) */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '16px 32px',
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+            background: '#080810',
+            flexShrink: 0,
+          }}>
+            <div style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.6rem', color: '#e8e8ec', letterSpacing: '0.06em', lineHeight: 1 }}>
+              {activeLabel}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              {userEmail && (
+                <span style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#888899' }}>{userEmail}</span>
+              )}
+              <button
+                onClick={handleSignOut}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: 6,
+                  color: '#888899',
+                  fontFamily: 'var(--font-montserrat)',
+                  fontWeight: 700,
+                  fontSize: 11,
+                  letterSpacing: '0.06em',
+                  padding: '6px 14px',
+                  cursor: 'pointer',
+                  textTransform: 'uppercase',
+                }}
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
+
+          {/* Module content */}
+          <div style={{ flex: 1, padding: 'clamp(24px,3vw,40px) clamp(20px,3vw,40px)', overflowY: 'auto' }}>
+            {activeTab === 'overview'      && <OverviewModule />}
+            {activeTab === 'members'       && <MembersModule />}
+            {activeTab === 'registrations' && <RegistrationsModule />}
+            {activeTab === 'events'        && <EventsModule />}
+            {activeTab === 'leaderboard'   && <LeaderboardModule />}
+            {activeTab === 'announcements' && <AnnouncementsModule />}
+            {activeTab === 'instagram'     && <InstagramModule />}
+            {activeTab === 'spotlights'    && <SpotlightsModule />}
+            {activeTab === 'partners'      && <PartnersModule />}
+            {activeTab === 'chatlogs'      && <ChatLogsModule />}
+            {activeTab === 'blog'          && <BlogModule />}
+            {activeTab === 'users'         && <UserManagementModule />}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
