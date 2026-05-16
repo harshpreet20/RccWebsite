@@ -319,10 +319,9 @@ export default function Hero() {
         {/* "We don't just play" */}
         <div
           style={{
-            fontFamily: 'var(--font-dancing)',
-            fontStyle: 'italic',
+            fontFamily: 'var(--font-pinkblue)',
             color: '#D4AF37',
-            fontSize: 'clamp(2.2rem, 3.8vw, 4rem)',
+            fontSize: 'clamp(2.4rem, 4.2vw, 4.5rem)',
             marginBottom: '2px',
             lineHeight: 1.1,
             textShadow: '0 0 40px rgba(212,175,55,0.4)',
@@ -331,33 +330,31 @@ export default function Hero() {
           We don&apos;t just play
         </div>
 
-        {/* "RACQUETS." — stroke text, massive */}
+        {/* "RACQUETS." — Pink Blue font, massive */}
         <div
           style={{
-            fontFamily: 'var(--font-bebas)',
-            fontSize: 'clamp(6.5rem, 14vw, 15rem)',
-            lineHeight: 0.85,
+            fontFamily: 'var(--font-pinkblue)',
+            fontSize: 'clamp(6rem, 13vw, 14rem)',
+            lineHeight: 0.9,
             display: 'block',
-            transform: 'skewX(-5deg)',
             letterSpacing: '0.01em',
             color: '#D4AF37',
-            WebkitTextStroke: '2px #b8932a',
+            WebkitTextStroke: '1px #b8932a',
             textShadow: '4px 4px 0 rgba(80,20,0,0.6), 0 0 100px rgba(212,175,55,0.3)',
           }}
         >
           RACQUETS.
         </div>
 
-        {/* "WE LIVE IT." — bold red stroke */}
+        {/* "WE LIVE IT." — Pink Blue font, bold red */}
         <div
           style={{
-            fontFamily: 'var(--font-bebas)',
-            fontSize: 'clamp(4.5rem, 9.5vw, 10rem)',
-            lineHeight: 0.88,
+            fontFamily: 'var(--font-pinkblue)',
+            fontSize: 'clamp(4rem, 9vw, 9.5rem)',
+            lineHeight: 0.9,
             display: 'block',
-            transform: 'skewX(-5deg)',
             color: '#C21818',
-            WebkitTextStroke: '1.5px #8b0000',
+            WebkitTextStroke: '1px #8b0000',
             textShadow: '3px 3px 0 rgba(40,0,0,0.7), 0 0 80px rgba(194,24,24,0.6)',
           }}
         >
