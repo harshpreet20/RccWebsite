@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
+import { useRecaptcha, verifyRecaptchaToken } from '@/lib/recaptcha';
 import { Check, ArrowRight } from 'lucide-react';
 
 export default function MembershipSection() {
@@ -11,6 +12,7 @@ export default function MembershipSection() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const { executeRecaptcha } = useRecaptcha();
 
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-15% 0px' });
@@ -19,6 +21,15 @@ export default function MembershipSection() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    const token = await executeRecaptcha('membership_section');
+    if (token) {
+      const passed = await verifyRecaptchaToken(token);
+      if (!passed) {
+        setError('Security check failed. Please try again.');
+        setLoading(false);
+        return;
+      }
+    }
     const { error: err } = await supabase.from('members').insert({
       name: form.name,
       email: form.email,

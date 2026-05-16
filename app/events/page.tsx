@@ -6,6 +6,7 @@ import { Calendar, MapPin, Users, Clock, X, Check, ChevronRight, Filter } from '
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { supabase } from '@/lib/supabase';
+import { useRecaptcha, verifyRecaptchaToken } from '@/lib/recaptcha';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -659,6 +660,7 @@ function RegistrationModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [ticket, setTicket] = useState<TicketData | null>(null);
+  const { executeRecaptcha } = useRecaptcha();
 
   const { day, date, time } = formatEventDate(event.event_date);
 
@@ -670,6 +672,15 @@ function RegistrationModal({
       return;
     }
     setLoading(true);
+    const token = await executeRecaptcha('event_registration');
+    if (token) {
+      const passed = await verifyRecaptchaToken(token);
+      if (!passed) {
+        setError('Security check failed. Please try again.');
+        setLoading(false);
+        return;
+      }
+    }
     const ticket_id = generateTicketId();
     const { error: dbError } = await supabase.from('event_registrations').insert({
       event_id: event.id,

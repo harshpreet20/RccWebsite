@@ -6,6 +6,7 @@ import { Check, ArrowRight, Shield, Users, Trophy, Calendar } from 'lucide-react
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { supabase } from '@/lib/supabase';
+import { useRecaptcha, verifyRecaptchaToken } from '@/lib/recaptcha';
 
 /* ─── Types ────────────────────────────────────────────────── */
 type SkillLevel = 'beginner' | 'intermediate' | 'advanced' | 'elite';
@@ -291,6 +292,7 @@ export default function MembershipPage() {
   const [success, setSuccess] = useState(false);
   const [appId, setAppId] = useState('');
   const [error, setError] = useState('');
+  const { executeRecaptcha } = useRecaptcha();
 
   const formRef = useRef(null);
   const formInView = useInView(formRef, { once: true, margin: '-60px' });
@@ -306,6 +308,16 @@ export default function MembershipPage() {
     e.preventDefault();
     setSubmitting(true);
     setError('');
+
+    const token = await executeRecaptcha('membership_form');
+    if (token) {
+      const passed = await verifyRecaptchaToken(token);
+      if (!passed) {
+        setError('Security check failed. Please try again.');
+        setSubmitting(false);
+        return;
+      }
+    }
 
     const { error: dbError } = await supabase.from('members').insert({
       name: form.name.trim(),

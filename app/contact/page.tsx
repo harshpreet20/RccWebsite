@@ -6,6 +6,7 @@ import { MapPin, Mail, Phone, Send, Clock, ChevronRight } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { supabase } from '@/lib/supabase';
+import { useRecaptcha, verifyRecaptchaToken } from '@/lib/recaptcha';
 
 /* ─── Instagram SVG icon ────────────────────────────────────────────── */
 function InstagramIcon({ size = 22, color = 'currentColor' }: { size?: number; color?: string }) {
@@ -63,6 +64,7 @@ export default function ContactPage() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const { executeRecaptcha } = useRecaptcha();
 
   /* InView refs */
   const heroRef = useRef(null);
@@ -81,6 +83,16 @@ export default function ContactPage() {
     e.preventDefault();
     setSubmitting(true);
     setErrorMsg('');
+
+    const token = await executeRecaptcha('contact_form');
+    if (token) {
+      const passed = await verifyRecaptchaToken(token);
+      if (!passed) {
+        setErrorMsg('Security check failed. Please try again.');
+        setSubmitting(false);
+        return;
+      }
+    }
 
     const { error } = await supabase.from('contact_submissions').insert({
       full_name: formData.full_name,

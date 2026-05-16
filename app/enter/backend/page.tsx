@@ -3214,7 +3214,139 @@ function AiContextModule() {
   );
 }
 
-type TabKey = 'overview' | 'members' | 'registrations' | 'events' | 'leaderboard' | 'announcements' | 'instagram' | 'spotlights' | 'partners' | 'chatlogs' | 'blog' | 'newsletter' | 'users' | 'aicontext';
+// ─── TAB: SITE SETTINGS ───────────────────────────────────────────────────────
+
+type SettingKey = 'recaptcha_site_key' | 'recaptcha_secret_key' | 'instagram_access_token' | 'instagram_account_id';
+
+const SETTING_FIELDS: { key: SettingKey; label: string; hint: string; secret: boolean }[] = [
+  { key: 'recaptcha_site_key',    label: 'reCAPTCHA Site Key (public)',    hint: 'Get from console.cloud.google.com → reCAPTCHA → Site key', secret: false },
+  { key: 'recaptcha_secret_key',  label: 'reCAPTCHA Secret Key (private)', hint: 'Used server-side to verify tokens. Keep this private.', secret: true },
+  { key: 'instagram_access_token','label': 'Instagram Access Token',       hint: 'From Meta for Developers → Basic Display or Business API', secret: true },
+  { key: 'instagram_account_id',  label: 'Instagram Business Account ID',  hint: 'Required for Business/Creator accounts. Leave blank for personal.', secret: false },
+];
+
+function SiteSettingsModule() {
+  const [values, setValues] = useState<Record<SettingKey, string>>({
+    recaptcha_site_key: '',
+    recaptcha_secret_key: '',
+    instagram_access_token: '',
+    instagram_account_id: '',
+  });
+  const [reveal, setReveal] = useState<Record<string, boolean>>({});
+  const [saving, setSaving] = useState<Record<string, boolean>>({});
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  function showToast(msg: string, type: 'success' | 'error') {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  }
+
+  useEffect(() => {
+    async function load() {
+      const { data } = await supabase.from('site_settings').select('key, value');
+      if (data) {
+        const map: Record<string, string> = {};
+        data.forEach(r => { map[r.key] = r.value ?? ''; });
+        setValues(prev => ({ ...prev, ...map }));
+      }
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  async function saveSetting(key: SettingKey) {
+    setSaving(prev => ({ ...prev, [key]: true }));
+    const { error } = await supabase
+      .from('site_settings')
+      .upsert({ key, value: values[key], updated_at: new Date().toISOString() }, { onConflict: 'key' });
+    setSaving(prev => ({ ...prev, [key]: false }));
+    if (error) showToast(`Failed to save ${key}`, 'error');
+    else showToast('Saved!', 'success');
+  }
+
+  return (
+    <div>
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 'clamp(20px,2.5vw,28px)', color: '#e8e8ec', margin: 0 }}>
+          Site Settings
+        </h2>
+        <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 12, color: '#888899', marginTop: 4 }}>
+          API keys for reCAPTCHA and Instagram. Stored securely in your database.
+        </div>
+      </div>
+
+      {toast && <Toast msg={toast.msg} type={toast.type} />}
+
+      {loading ? (
+        <div style={{ color: '#888899', fontFamily: 'var(--font-montserrat)', fontSize: 13, padding: 32 }}>Loading settings…</div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {SETTING_FIELDS.map(field => (
+            <div key={field.key} style={{ ...glassCard }}>
+              <label style={labelStyle}>{field.label}</label>
+              <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#555566', marginBottom: 10 }}>{field.hint}</div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <input
+                  type={field.secret && !reveal[field.key] ? 'password' : 'text'}
+                  value={values[field.key]}
+                  onChange={e => setValues(prev => ({ ...prev, [field.key]: e.target.value }))}
+                  placeholder={field.secret ? '••••••••••••••••' : 'Enter value…'}
+                  style={{ ...inputStyle, flex: 1, minWidth: 200 }}
+                />
+                {field.secret && (
+                  <button
+                    onClick={() => setReveal(prev => ({ ...prev, [field.key]: !prev[field.key] }))}
+                    style={{ ...goldBtn, flexShrink: 0 }}
+                  >
+                    {reveal[field.key] ? 'Hide' : 'Show'}
+                  </button>
+                )}
+                <button
+                  onClick={() => saveSetting(field.key)}
+                  disabled={saving[field.key]}
+                  style={{ ...primaryBtn, flexShrink: 0, opacity: saving[field.key] ? 0.7 : 1 }}
+                >
+                  {saving[field.key] ? 'Saving…' : 'Save'}
+                </button>
+              </div>
+              {values[field.key] && (
+                <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
+                  <span style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#22c55e' }}>Configured</span>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* Help card */}
+          <div style={{ ...glassCard, background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.15)', marginTop: 8 }}>
+            <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 14, color: '#D4AF37', marginBottom: 12 }}>
+              Setup Guide
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {[
+                { title: 'reCAPTCHA v3', steps: ['Go to google.com/recaptcha → Admin Console', 'Create a new site with reCAPTCHA v3', 'Add your domain (e.g. rccdelhi.com)', 'Copy the Site Key (public) and Secret Key (private) here'] },
+                { title: 'Instagram Graph API', steps: ['Go to developers.facebook.com → My Apps', 'Create an app → Add Instagram Basic Display product', 'Generate an access token for your Instagram account', 'For Business accounts also paste your Business Account ID'] },
+              ].map(guide => (
+                <div key={guide.title}>
+                  <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 12, color: '#888899', marginBottom: 4 }}>{guide.title}</div>
+                  <ol style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {guide.steps.map((s, i) => (
+                      <li key={i} style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#666677', lineHeight: 1.5 }}>{s}</li>
+                    ))}
+                  </ol>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+type TabKey = 'overview' | 'members' | 'registrations' | 'events' | 'leaderboard' | 'announcements' | 'instagram' | 'spotlights' | 'partners' | 'chatlogs' | 'blog' | 'newsletter' | 'users' | 'aicontext' | 'settings';
 
 type NavItem = {
   key: TabKey;
@@ -3315,6 +3447,7 @@ export default function BackendPage() {
         { key: 'chatlogs', label: 'Chat Logs', icon: '💬' },
         { key: 'newsletter', label: 'Newsletter', icon: '📧' },
         { key: 'users', label: 'Users & Access', icon: '🔐' },
+        { key: 'settings', label: 'Site Settings', icon: '⚙️' },
       ],
     },
   ];
@@ -3697,6 +3830,7 @@ export default function BackendPage() {
             {activeTab === 'blog'          && <BlogModule />}
             {activeTab === 'users'         && <UserManagementModule />}
             {activeTab === 'aicontext'      && <AiContextModule />}
+            {activeTab === 'settings'       && <SiteSettingsModule />}
           </div>
         </div>
       </div>

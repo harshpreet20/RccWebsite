@@ -48,12 +48,24 @@ export default function InstagramFeed() {
 
   useEffect(() => {
     async function fetchPosts() {
+      // Try Instagram Graph API first
+      try {
+        const res = await fetch('/api/instagram');
+        const json = (await res.json()) as { posts?: InstagramPost[]; source?: string };
+        if (json.posts && json.posts.length > 0) {
+          setPosts(json.posts);
+          return;
+        }
+      } catch { /* fall through */ }
+
+      // Fall back to manually-uploaded Supabase posts
       const { data } = await supabase
         .from('instagram_posts')
         .select('*')
         .order('posted_at', { ascending: false })
         .limit(6);
       if (data && data.length > 0) setPosts(data);
+      // otherwise keep FALLBACK_POSTS already set as default state
     }
     fetchPosts();
   }, []);
