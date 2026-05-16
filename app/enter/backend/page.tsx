@@ -617,100 +617,85 @@ function OverviewModule() {
       ) : stats ? (
         <>
           {/* ── Section 1: KPI Hero Cards ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
+          <style>{`
+            .kpi-number { font-family: Arial,"Helvetica Neue",sans-serif; font-weight: 700; font-size: clamp(36px,3.5vw,56px); line-height: 1; }
+          `}</style>
+          <div className="kpi-grid">
             {/* Card 1: Members */}
             <div style={{
-              background: 'linear-gradient(135deg, #1a0a20 0%, #2d1040 100%)',
-              border: '1px solid rgba(139,92,246,0.2)',
-              borderRadius: 20,
-              padding: '24px 20px',
-              minHeight: 180,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              position: 'relative',
-              overflow: 'hidden',
+              background: 'linear-gradient(135deg, rgba(139,92,246,0.22) 0%, rgba(109,40,217,0.12) 100%)',
+              border: '1px solid rgba(139,92,246,0.35)',
+              borderRadius: 20, padding: '24px 20px', minHeight: 180,
+              display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
             }}>
               <div>
-                <div style={{ fontSize: 28, marginBottom: 8 }}>👥</div>
-                <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 11, color: '#888899', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Community Members</div>
-                <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 52, color: '#D4AF37', lineHeight: 1 }}>{stats.totalMembers}</div>
-                <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#8b5cf6', marginTop: 6 }}>{stats.pendingMembers} pending approval</div>
+                <div style={{ fontSize: 26, marginBottom: 10 }}>👥</div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 10, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Community Members</div>
+                <div className="kpi-number" style={{ color: '#c4b5fd' }}>{stats.totalMembers}</div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: 'rgba(196,181,253,0.7)', marginTop: 6 }}>{stats.pendingMembers} pending approval</div>
               </div>
-              <div style={{ height: 4, background: 'rgba(139,92,246,0.15)', borderRadius: 4, marginTop: 12 }}>
-                <div style={{ height: '100%', width: '72%', background: 'linear-gradient(to right, #8b5cf6, #D4AF37)', borderRadius: 4 }} />
+              <div style={{ height: 3, background: 'rgba(139,92,246,0.2)', borderRadius: 4, marginTop: 16 }}>
+                <div style={{ height: '100%', width: '72%', background: 'linear-gradient(to right, #8b5cf6, #c4b5fd)', borderRadius: 4 }} />
               </div>
             </div>
 
             {/* Card 2: Registrations */}
             <div style={{
-              background: 'linear-gradient(135deg, #0a1a10 0%, #0d2d1a 100%)',
-              border: '1px solid rgba(34,197,94,0.2)',
-              borderRadius: 20,
-              padding: '24px 20px',
-              minHeight: 180,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
+              background: 'linear-gradient(135deg, rgba(34,197,94,0.22) 0%, rgba(16,185,129,0.12) 100%)',
+              border: '1px solid rgba(34,197,94,0.35)',
+              borderRadius: 20, padding: '24px 20px', minHeight: 180,
+              display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
             }}>
               <div>
-                <div style={{ fontSize: 28, marginBottom: 8 }}>🎫</div>
-                <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 11, color: '#888899', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Event Registrations</div>
-                <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 52, color: '#22c55e', lineHeight: 1 }}>{stats.totalRegistrations}</div>
-                <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#22c55e', marginTop: 6 }}>Tickets Issued</div>
+                <div style={{ fontSize: 26, marginBottom: 10 }}>🎫</div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 10, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Event Registrations</div>
+                <div className="kpi-number" style={{ color: '#86efac' }}>{stats.totalRegistrations}</div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: 'rgba(134,239,172,0.7)', marginTop: 6 }}>Tickets issued</div>
               </div>
-              <div style={{ height: 4, background: 'rgba(34,197,94,0.15)', borderRadius: 4, marginTop: 12 }}>
+              <div style={{ height: 3, background: 'rgba(34,197,94,0.2)', borderRadius: 4, marginTop: 16 }}>
                 <div style={{ height: '100%', width: '65%', background: 'linear-gradient(to right, #22c55e, #86efac)', borderRadius: 4 }} />
               </div>
             </div>
 
             {/* Card 3: Newsletter */}
             <div style={{
-              background: 'linear-gradient(135deg, #1a100a 0%, #2d1a0a 100%)',
-              border: '1px solid rgba(245,158,11,0.2)',
-              borderRadius: 20,
-              padding: '24px 20px',
-              minHeight: 180,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
+              background: 'linear-gradient(135deg, rgba(245,158,11,0.22) 0%, rgba(234,179,8,0.12) 100%)',
+              border: '1px solid rgba(245,158,11,0.35)',
+              borderRadius: 20, padding: '24px 20px', minHeight: 180,
+              display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
             }}>
               <div>
-                <div style={{ fontSize: 28, marginBottom: 8 }}>📬</div>
-                <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 11, color: '#888899', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Newsletter Reach</div>
-                <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 52, color: '#f59e0b', lineHeight: 1 }}>{stats.totalNewsletterSubscribers}</div>
-                <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#f59e0b', marginTop: 6 }}>Active subscribers</div>
+                <div style={{ fontSize: 26, marginBottom: 10 }}>📬</div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 10, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Newsletter Reach</div>
+                <div className="kpi-number" style={{ color: '#fcd34d' }}>{stats.totalNewsletterSubscribers}</div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: 'rgba(252,211,77,0.7)', marginTop: 6 }}>Active subscribers</div>
               </div>
-              <div style={{ height: 4, background: 'rgba(245,158,11,0.15)', borderRadius: 4, marginTop: 12 }}>
+              <div style={{ height: 3, background: 'rgba(245,158,11,0.2)', borderRadius: 4, marginTop: 16 }}>
                 <div style={{ height: '100%', width: '80%', background: 'linear-gradient(to right, #f59e0b, #fcd34d)', borderRadius: 4 }} />
               </div>
             </div>
 
             {/* Card 4: Events */}
             <div style={{
-              background: 'linear-gradient(135deg, #1a0a0a 0%, #2d0d0d 100%)',
-              border: '1px solid rgba(194,24,24,0.2)',
-              borderRadius: 20,
-              padding: '24px 20px',
-              minHeight: 180,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
+              background: 'linear-gradient(135deg, rgba(194,24,24,0.22) 0%, rgba(220,38,38,0.12) 100%)',
+              border: '1px solid rgba(194,24,24,0.35)',
+              borderRadius: 20, padding: '24px 20px', minHeight: 180,
+              display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
             }}>
               <div>
-                <div style={{ fontSize: 28, marginBottom: 8 }}>📅</div>
-                <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 11, color: '#888899', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Live Events</div>
-                <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 52, color: '#C21818', lineHeight: 1 }}>{stats.upcomingEvents}</div>
-                <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#C21818', marginTop: 6 }}>{stats.totalEvents} total events</div>
+                <div style={{ fontSize: 26, marginBottom: 10 }}>📅</div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 10, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Upcoming Events</div>
+                <div className="kpi-number" style={{ color: '#fca5a5' }}>{stats.upcomingEvents}</div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: 'rgba(252,165,165,0.7)', marginTop: 6 }}>{stats.totalEvents} total events</div>
               </div>
-              <div style={{ height: 4, background: 'rgba(194,24,24,0.15)', borderRadius: 4, marginTop: 12 }}>
+              <div style={{ height: 3, background: 'rgba(194,24,24,0.2)', borderRadius: 4, marginTop: 16 }}>
                 <div style={{ height: '100%', width: '60%', background: 'linear-gradient(to right, #C21818, #ef4444)', borderRadius: 4 }} />
               </div>
             </div>
           </div>
 
           {/* ── Section 2: Donut Charts Row ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
+          <div className="donut-grid">
             <DonutChart
               title="Skill Distribution"
               data={buildChartData(stats.skillDistribution, skillKeys)}
@@ -729,7 +714,7 @@ function OverviewModule() {
           </div>
 
           {/* ── Section 3: Recent Activity (two-column) ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16, marginBottom: 24 }}>
+          <div className="activity-grid">
             {/* Recent Registrations */}
             <div style={{ background: '#0d0d18', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: '24px 20px' }}>
               <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 14, color: '#e8e8ec', marginBottom: 16, letterSpacing: '0.04em' }}>
@@ -831,7 +816,7 @@ function OverviewModule() {
             <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 10, color: '#444455', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 14 }}>
               Sponsor Highlights
             </div>
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <div className="sponsor-grid">
               {[
                 { label: 'Avg Skill Level', value: 'Intermediate' },
                 { label: 'Player Retention', value: '94%' },
@@ -839,19 +824,13 @@ function OverviewModule() {
                 { label: 'Community Growth', value: '+12% MoM' },
               ].map(pill => (
                 <div key={pill.label} style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(212,175,55,0.15)',
-                  borderRadius: 40,
-                  padding: '10px 20px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  flex: 1,
-                  minWidth: 160,
-                  justifyContent: 'space-between',
+                  background: 'rgba(212,175,55,0.06)',
+                  border: '1px solid rgba(212,175,55,0.18)',
+                  borderRadius: 16,
+                  padding: '14px 18px',
                 }}>
-                  <span style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#888899', fontWeight: 600 }}>{pill.label}</span>
-                  <span style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 13, color: '#D4AF37' }}>{pill.value}</span>
+                  <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#555566', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>{pill.label}</div>
+                  <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 22, color: '#D4AF37' }}>{pill.value}</div>
                 </div>
               ))}
             </div>
@@ -3178,6 +3157,23 @@ export default function BackendPage() {
     <>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* KPI + donut grids break to 2-col on tablet, 1-col on mobile */
+        .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+        .donut-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 24px; }
+        .activity-grid { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; margin-bottom: 24px; }
+        .sponsor-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+        @media (max-width: 1100px) {
+          .kpi-grid { grid-template-columns: repeat(2,1fr) !important; }
+          .donut-grid { grid-template-columns: repeat(2,1fr) !important; }
+        }
+        @media (max-width: 700px) {
+          .kpi-grid { grid-template-columns: 1fr !important; }
+          .donut-grid { grid-template-columns: 1fr !important; }
+          .activity-grid { grid-template-columns: 1fr !important; }
+          .sponsor-grid { grid-template-columns: repeat(2,1fr) !important; }
+        }
+
         @media (max-width: 768px) {
           .admin-sidebar {
             position: fixed !important;
