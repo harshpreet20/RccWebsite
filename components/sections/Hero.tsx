@@ -36,17 +36,17 @@ function useFireCanvas(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
 
     function spawnEmber() {
       if (!canvas) return;
-      const x = canvas.width * (0.55 + Math.random() * 0.40);
-      const y = canvas.height * (0.75 + Math.random() * 0.25);
+      const x = canvas.width * (0.45 + Math.random() * 0.50);
+      const y = canvas.height * (0.65 + Math.random() * 0.35);
       embers.push({
         x,
         y,
-        vx: (Math.random() - 0.5) * 0.8,
-        vy: -(1.2 + Math.random() * 2.0),
-        r: 0.5 + Math.random() * 3.5,
+        vx: (Math.random() - 0.5) * 1.2,
+        vy: -(1.8 + Math.random() * 3.0),
+        r: 0.8 + Math.random() * 4.5,
         life: 0,
-        maxLife: 60 + Math.floor(Math.random() * 100),
-        isGold: Math.random() < 0.35,
+        maxLife: 50 + Math.floor(Math.random() * 90),
+        isGold: Math.random() < 0.40,
       });
     }
 
@@ -54,8 +54,9 @@ function useFireCanvas(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
       if (!canvas || !ctx) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Spawn
-      if (Math.random() < 0.4) spawnEmber();
+      // Spawn multiple embers per frame for denser fire
+      const spawns = Math.random() < 0.5 ? 2 : 1;
+      for (let s = 0; s < spawns; s++) spawnEmber();
 
       for (let i = embers.length - 1; i >= 0; i--) {
         const e = embers[i];
@@ -198,30 +199,43 @@ export default function Hero() {
         }}
       />
 
-      {/* Smash 3D animation + responsive styles */}
+      {/* Animations + responsive styles */}
       <style>{`
-        @keyframes smash-3d {
-          0%   { transform: perspective(700px) translateY(0px) rotateY(-8deg) rotateZ(-3deg) scale(1); }
-          18%  { transform: perspective(700px) translateY(-28px) rotateY(-18deg) rotateZ(-7deg) scale(1.04); }
-          36%  { transform: perspective(700px) translateY(-44px) rotateY(-25deg) rotateZ(-10deg) scale(1.06); }
-          52%  { transform: perspective(700px) translateY(-8px) rotateY(8deg) rotateZ(4deg) scale(0.97); }
-          62%  { transform: perspective(700px) translateY(0px) rotateY(-4deg) rotateZ(-2deg) scale(1.02); }
-          80%  { transform: perspective(700px) translateY(-8px) rotateY(-6deg) rotateZ(-2deg) scale(1.01); }
-          100% { transform: perspective(700px) translateY(0px) rotateY(-8deg) rotateZ(-3deg) scale(1); }
+        @keyframes aura-breathe {
+          0%, 100% { transform: scale(1);    opacity: 0.85; }
+          50%       { transform: scale(1.12); opacity: 1; }
         }
-        .hero-feature-strip {
-          grid-template-columns: repeat(4, 1fr);
+        @keyframes aura-breathe-slow {
+          0%, 100% { transform: scale(1);    opacity: 0.6; }
+          50%       { transform: scale(1.18); opacity: 0.9; }
         }
-        @media (max-width: 768px) {
-          .hero-feature-strip {
-            grid-template-columns: repeat(2, 1fr) !important;
-          }
+        @keyframes aura-spin {
+          from { transform: rotate(0deg) scale(1.05); }
+          to   { transform: rotate(360deg) scale(1.05); }
         }
-        @media (max-width: 480px) {
-          .hero-feature-strip {
-            grid-template-columns: repeat(2, 1fr) !important;
-          }
+        @keyframes aura-spin-reverse {
+          from { transform: rotate(0deg) scale(0.95); }
+          to   { transform: rotate(-360deg) scale(0.95); }
         }
+        @keyframes fire-lick {
+          0%, 100% { transform: scaleY(1)   scaleX(1)    translateY(0);   opacity: 0.9; }
+          33%      { transform: scaleY(1.15) scaleX(0.92) translateY(-6px); opacity: 1; }
+          66%      { transform: scaleY(0.95) scaleX(1.06) translateY(3px);  opacity: 0.8; }
+        }
+        @keyframes fire-flicker {
+          0%,100% { opacity: 0.7; }
+          25%     { opacity: 1;   }
+          50%     { opacity: 0.85;}
+          75%     { opacity: 1;   }
+        }
+        @keyframes streak-rise {
+          0%   { transform: scaleY(0.6); opacity: 0; }
+          30%  { opacity: 1; }
+          100% { transform: scaleY(1.2); opacity: 0; }
+        }
+        .hero-feature-strip { grid-template-columns: repeat(4, 1fr); }
+        @media (max-width: 768px) { .hero-feature-strip { grid-template-columns: repeat(2, 1fr) !important; } }
+        @media (max-width: 480px) { .hero-feature-strip { grid-template-columns: repeat(2, 1fr) !important; } }
       `}</style>
 
       {/* 4. Gold floor glow */}
@@ -254,30 +268,129 @@ export default function Hero() {
           position: 'absolute',
           right: 0,
           bottom: 90,
-          height: '100%',
-          width: '65%',
+          height: '105%',
+          width: '68%',
           zIndex: 6,
           overflow: 'visible',
         }}
       >
-        {/* Fire streaks — more and taller */}
-        {[8, 18, 30, 42, 55, 68, 80].map((pct, i) => (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              left: `${pct}%`,
-              bottom: 0,
-              width: i % 3 === 0 ? '2px' : '1px',
-              height: `${40 + i * 8}%`,
-              background: `linear-gradient(to top, ${i % 2 === 0 ? 'rgba(220,40,0,0.85)' : 'rgba(212,175,55,0.6)'}, transparent)`,
-              animation: `pulse-glow ${1.6 + i * 0.35}s ease-in-out infinite`,
-              animationDelay: `${i * 0.25}s`,
-            }}
-          />
+        {/* ── Fire aura layers (behind the player) ── */}
+
+        {/* Outermost slow breathe — wide soft halo */}
+        <div style={{
+          position: 'absolute',
+          bottom: '5%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '90%',
+          height: '90%',
+          borderRadius: '50%',
+          background: 'radial-gradient(ellipse, rgba(220,50,0,0.45) 0%, rgba(160,20,0,0.25) 40%, transparent 70%)',
+          animation: 'aura-breathe-slow 3.2s ease-in-out infinite',
+          filter: 'blur(28px)',
+          zIndex: 1,
+        }} />
+
+        {/* Mid ring — faster pulse */}
+        <div style={{
+          position: 'absolute',
+          bottom: '8%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '72%',
+          height: '78%',
+          borderRadius: '50%',
+          background: 'radial-gradient(ellipse, rgba(240,70,0,0.65) 0%, rgba(200,30,0,0.40) 35%, transparent 65%)',
+          animation: 'aura-breathe 2.2s ease-in-out infinite',
+          filter: 'blur(18px)',
+          zIndex: 2,
+        }} />
+
+        {/* Hot core */}
+        <div style={{
+          position: 'absolute',
+          bottom: '12%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '50%',
+          height: '60%',
+          borderRadius: '50%',
+          background: 'radial-gradient(ellipse, rgba(255,120,0,0.70) 0%, rgba(230,50,0,0.55) 30%, transparent 60%)',
+          animation: 'aura-breathe 1.6s ease-in-out infinite',
+          animationDelay: '0.3s',
+          filter: 'blur(12px)',
+          zIndex: 3,
+        }} />
+
+        {/* Gold shimmer ring */}
+        <div style={{
+          position: 'absolute',
+          bottom: '6%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '80%',
+          height: '85%',
+          borderRadius: '50%',
+          background: 'radial-gradient(ellipse at 50% 80%, rgba(212,175,55,0.35) 0%, transparent 55%)',
+          animation: 'aura-breathe 2.8s ease-in-out infinite',
+          animationDelay: '1s',
+          filter: 'blur(20px)',
+          zIndex: 2,
+        }} />
+
+        {/* Fire lick columns — tall flares rising up */}
+        {[22, 35, 50, 65, 78].map((pct, i) => (
+          <div key={i} style={{
+            position: 'absolute',
+            left: `${pct}%`,
+            bottom: '2%',
+            width: `${14 + i * 4}px`,
+            height: `${45 + i * 9}%`,
+            background: `linear-gradient(to top,
+              ${i % 2 === 0 ? 'rgba(255,80,0,0.95)' : 'rgba(220,40,0,0.90)'} 0%,
+              ${i % 2 === 0 ? 'rgba(255,140,0,0.60)' : 'rgba(212,175,55,0.50)'} 40%,
+              transparent 100%)`,
+            borderRadius: '50% 50% 0 0',
+            filter: 'blur(6px)',
+            animation: `fire-lick ${1.4 + i * 0.3}s ease-in-out infinite`,
+            animationDelay: `${i * 0.18}s`,
+            transformOrigin: 'bottom center',
+            zIndex: 2,
+          }} />
         ))}
 
-        {/* Athlete image */}
+        {/* Thin bright streaks */}
+        {[18, 30, 44, 58, 70, 82].map((pct, i) => (
+          <div key={i} style={{
+            position: 'absolute',
+            left: `${pct}%`,
+            bottom: 0,
+            width: i % 2 === 0 ? '3px' : '2px',
+            height: `${35 + i * 7}%`,
+            background: `linear-gradient(to top, ${i % 3 === 0 ? 'rgba(255,160,0,1)' : 'rgba(255,60,0,0.9)'}, transparent)`,
+            borderRadius: 2,
+            animation: `streak-rise ${1.2 + i * 0.28}s ease-in-out infinite`,
+            animationDelay: `${i * 0.22}s`,
+            filter: 'blur(1px)',
+            zIndex: 3,
+          }} />
+        ))}
+
+        {/* Floor glow beneath player */}
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '100%',
+          height: '25%',
+          background: 'radial-gradient(ellipse at 50% 100%, rgba(220,80,0,0.60) 0%, rgba(180,30,0,0.30) 40%, transparent 70%)',
+          filter: 'blur(12px)',
+          animation: 'fire-flicker 1.8s ease-in-out infinite',
+          zIndex: 2,
+        }} />
+
+        {/* Athlete image — bigger, no movement animation */}
         <img
           src="/athlete.png"
           alt="RCC athlete"
@@ -288,14 +401,13 @@ export default function Hero() {
             position: 'absolute',
             bottom: 0,
             right: 0,
-            height: '105%',
+            height: '118%',
             width: 'auto',
             objectFit: 'contain',
             objectPosition: 'bottom right',
             mixBlendMode: 'screen',
-            filter: 'drop-shadow(-40px 0 100px rgba(220,40,0,0.85)) drop-shadow(0 0 60px rgba(212,175,55,0.35)) brightness(1.1)',
-            animation: 'smash-3d 3.2s ease-in-out infinite',
-            transformStyle: 'preserve-3d',
+            filter: 'drop-shadow(-20px 0 60px rgba(255,80,0,0.9)) drop-shadow(0 0 40px rgba(212,175,55,0.4)) brightness(1.15) contrast(1.05)',
+            zIndex: 10,
           }}
         />
       </div>
