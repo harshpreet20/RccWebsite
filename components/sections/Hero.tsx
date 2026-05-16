@@ -201,21 +201,41 @@ export default function Hero() {
 
       {/* Animations */}
       <style>{`
-        @keyframes aura-inner {
-          0%,100% { opacity: 0.85; transform: scale(1.02); filter: blur(6px) brightness(8) sepia(1) saturate(20) hue-rotate(-5deg); }
-          50%     { opacity: 1;    transform: scale(1.05); filter: blur(8px) brightness(10) sepia(1) saturate(25) hue-rotate(5deg); }
+        @keyframes aura-rim {
+          0%,100% {
+            filter:
+              drop-shadow(0 0 4px #ff3300)
+              drop-shadow(0 0 10px #ff2200)
+              drop-shadow(0 0 22px #cc1100)
+              drop-shadow(0 -6px 18px rgba(255,80,0,0.55))
+              brightness(1.08);
+          }
+          50% {
+            filter:
+              drop-shadow(0 0 7px #ff6600)
+              drop-shadow(0 0 18px #ff3300)
+              drop-shadow(0 0 38px #dd1500)
+              drop-shadow(0 -14px 32px rgba(255,100,0,0.65))
+              brightness(1.18);
+          }
         }
-        @keyframes aura-mid {
-          0%,100% { opacity: 0.55; transform: scale(1.06) translateY(-4px); filter: blur(16px) brightness(6) sepia(1) saturate(18) hue-rotate(-8deg); }
-          50%     { opacity: 0.80; transform: scale(1.11) translateY(-8px); filter: blur(20px) brightness(8) sepia(1) saturate(22) hue-rotate(8deg); }
-        }
-        @keyframes aura-outer {
-          0%,100% { opacity: 0.30; transform: scale(1.12) translateY(-10px); filter: blur(32px) brightness(5) sepia(1) saturate(14) hue-rotate(-12deg); }
-          50%     { opacity: 0.50; transform: scale(1.18) translateY(-18px); filter: blur(40px) brightness(7) sepia(1) saturate(18) hue-rotate(12deg); }
-        }
-        @keyframes aura-floor {
-          0%,100% { opacity: 0.6; transform: scaleX(1);    filter: blur(20px) brightness(6) sepia(1) saturate(20); }
-          50%     { opacity: 0.9; transform: scaleX(1.08); filter: blur(24px) brightness(8) sepia(1) saturate(25); }
+        @keyframes aura-halo {
+          0%,100% {
+            filter:
+              drop-shadow(0 0 18px rgba(255,40,0,0.7))
+              drop-shadow(0 0 45px rgba(200,15,0,0.50))
+              drop-shadow(0 0 80px rgba(180,5,0,0.30))
+              drop-shadow(0 -20px 60px rgba(255,60,0,0.35));
+            opacity: 0.75;
+          }
+          50% {
+            filter:
+              drop-shadow(0 0 28px rgba(255,70,0,0.9))
+              drop-shadow(0 0 70px rgba(230,20,0,0.65))
+              drop-shadow(0 0 120px rgba(200,10,0,0.40))
+              drop-shadow(0 -35px 90px rgba(255,90,0,0.45));
+            opacity: 1;
+          }
         }
         .hero-feature-strip { grid-template-columns: repeat(4, 1fr); }
         @media (max-width: 768px) { .hero-feature-strip { grid-template-columns: repeat(2, 1fr) !important; } }
@@ -246,7 +266,7 @@ export default function Hero() {
         }}
       />
 
-      {/* ── Athlete + silhouette fire aura ── */}
+      {/* ── Athlete + outward-only fire aura ── */}
       <div
         style={{
           position: 'absolute',
@@ -258,83 +278,38 @@ export default function Hero() {
           overflow: 'visible',
         }}
       >
-        {/* Aura layer 3 — outermost, widest fire halo, rises upward */}
+        {/* Wide outer halo — large drop-shadow spreading outward, slow pulse */}
         <img
           src="/athlete.png"
           aria-hidden="true"
           style={{
             position: 'absolute',
-            bottom: 0,
-            right: 0,
-            height: '118%',
-            width: 'auto',
-            objectFit: 'contain',
-            objectPosition: 'bottom right',
+            bottom: 0, right: 0,
+            height: '118%', width: 'auto',
+            objectFit: 'contain', objectPosition: 'bottom right',
             mixBlendMode: 'screen',
-            animation: 'aura-outer 2.0s ease-in-out infinite',
-            animationDelay: '0.6s',
+            animation: 'aura-halo 2.4s ease-in-out infinite',
+            animationDelay: '0.4s',
             pointerEvents: 'none',
           }}
         />
 
-        {/* Aura layer 2 — mid fire crown */}
+        {/* Tight rim — close drop-shadow tracing the outline, fast flicker */}
         <img
           src="/athlete.png"
           aria-hidden="true"
           style={{
             position: 'absolute',
-            bottom: 0,
-            right: 0,
-            height: '118%',
-            width: 'auto',
-            objectFit: 'contain',
-            objectPosition: 'bottom right',
+            bottom: 0, right: 0,
+            height: '118%', width: 'auto',
+            objectFit: 'contain', objectPosition: 'bottom right',
             mixBlendMode: 'screen',
-            animation: 'aura-mid 1.6s ease-in-out infinite',
-            animationDelay: '0.3s',
+            animation: 'aura-rim 1.3s ease-in-out infinite',
             pointerEvents: 'none',
           }}
         />
 
-        {/* Aura layer 1 — innermost tight glow tracing body */}
-        <img
-          src="/athlete.png"
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            right: 0,
-            height: '118%',
-            width: 'auto',
-            objectFit: 'contain',
-            objectPosition: 'bottom right',
-            mixBlendMode: 'screen',
-            animation: 'aura-inner 1.2s ease-in-out infinite',
-            pointerEvents: 'none',
-          }}
-        />
-
-        {/* Floor burn — aura pool at feet */}
-        <img
-          src="/athlete.png"
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            right: 0,
-            height: '118%',
-            width: 'auto',
-            objectFit: 'contain',
-            objectPosition: 'bottom right',
-            mixBlendMode: 'screen',
-            animation: 'aura-floor 1.8s ease-in-out infinite',
-            animationDelay: '0.9s',
-            clipPath: 'inset(80% 0 0 0)',
-            pointerEvents: 'none',
-          }}
-        />
-
-        {/* Real athlete image — on top, crisp */}
+        {/* Athlete — crisp on top, no filter so interior stays clean */}
         <img
           src="/athlete.png"
           alt="RCC athlete"
@@ -343,14 +318,11 @@ export default function Hero() {
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
           style={{
             position: 'absolute',
-            bottom: 0,
-            right: 0,
-            height: '118%',
-            width: 'auto',
-            objectFit: 'contain',
-            objectPosition: 'bottom right',
+            bottom: 0, right: 0,
+            height: '118%', width: 'auto',
+            objectFit: 'contain', objectPosition: 'bottom right',
             mixBlendMode: 'screen',
-            filter: 'brightness(1.1) contrast(1.05)',
+            filter: 'brightness(1.08) contrast(1.04)',
             zIndex: 10,
             pointerEvents: 'none',
           }}
@@ -403,13 +375,14 @@ export default function Hero() {
           RACQUETS.
         </div>
 
-        {/* "WE LIVE IT." — Pink Blue font, bold red */}
+        {/* "WE LIVE IT." — Pink Blue font, bold red, one line */}
         <div
           style={{
             fontFamily: 'var(--font-pinkblue)',
-            fontSize: 'clamp(4rem, 9vw, 9.5rem)',
+            fontSize: 'clamp(3.2rem, 7.5vw, 8.5rem)',
             lineHeight: 0.9,
             display: 'block',
+            whiteSpace: 'nowrap',
             color: '#C21818',
             WebkitTextStroke: '1px #8b0000',
             textShadow: '3px 3px 0 rgba(40,0,0,0.7), 0 0 80px rgba(194,24,24,0.6)',
