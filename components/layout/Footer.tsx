@@ -61,15 +61,20 @@ export default function Footer() {
   const [subEmail, setSubEmail] = useState('');
   const [subStatus, setSubStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
 
-  async function handleSubscribe() {
+  async function handleSubscribe(e?: React.FormEvent) {
+    e?.preventDefault();
     const email = subEmail.trim();
     if (!email || subStatus === 'loading') return;
     setSubStatus('loading');
-    const { error } = await supabase.from('newsletter_subscribers').insert({ email, source: 'footer' });
-    if (error) {
-      setSubStatus(error.code === '23505' ? 'done' : 'error');
-    } else {
-      setSubStatus('done');
+    try {
+      const { error } = await supabase.from('newsletter_subscribers').insert({ email, source: 'footer' });
+      if (error) {
+        setSubStatus(error.code === '23505' ? 'done' : 'error');
+      } else {
+        setSubStatus('done');
+      }
+    } catch {
+      setSubStatus('error');
     }
   }
   return (
@@ -316,34 +321,40 @@ export default function Footer() {
             </div>
             {subStatus === 'done' ? (
               <div style={{ fontFamily: 'var(--font-inter)', fontSize: 13, color: '#22c55e', padding: '10px 0' }}>
-                You&apos;re subscribed!
+                ✓ You&apos;re subscribed!
               </div>
             ) : (
-              <div className="footer-newsletter-row" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <input
-                  type="email"
-                  placeholder="your@email.com"
-                  value={subEmail}
-                  onChange={e => setSubEmail(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleSubscribe()}
-                  style={{
-                    flex: 1, padding: '10px 14px',
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '6px', color: '#e8e8ec',
-                    fontFamily: 'var(--font-inter)', fontSize: '13px',
-                    outline: 'none', minWidth: 0,
-                  }}
-                />
-                <button className="footer-subscribe-btn" type="button" aria-label="Subscribe" onClick={handleSubscribe} disabled={subStatus === 'loading'}>
-                  <SendIcon />
-                </button>
-              </div>
-            )}
-            {subStatus === 'error' && (
-              <div style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#C21818', marginTop: 4 }}>
-                Something went wrong. Try again.
-              </div>
+              <form onSubmit={handleSubscribe} noValidate={false}>
+                <div className="footer-newsletter-row" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <input
+                    type="email"
+                    placeholder="your@email.com"
+                    value={subEmail}
+                    onChange={e => { setSubEmail(e.target.value); if (subStatus === 'error') setSubStatus('idle'); }}
+                    required
+                    style={{
+                      flex: 1, padding: '10px 14px',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: `1px solid ${subStatus === 'error' ? 'rgba(194,24,24,0.6)' : 'rgba(255,255,255,0.1)'}`,
+                      borderRadius: '6px', color: '#e8e8ec',
+                      fontFamily: 'var(--font-inter)', fontSize: '13px',
+                      outline: 'none', minWidth: 0,
+                    }}
+                  />
+                  <button className="footer-subscribe-btn" type="submit" aria-label="Subscribe" disabled={subStatus === 'loading'}>
+                    {subStatus === 'loading' ? (
+                      <span style={{ fontSize: 11 }}>…</span>
+                    ) : (
+                      <SendIcon />
+                    )}
+                  </button>
+                </div>
+                {subStatus === 'error' && (
+                  <div style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#ff6b6b', marginTop: 6 }}>
+                    Something went wrong — please try again.
+                  </div>
+                )}
+              </form>
             )}
           </div>
 
