@@ -125,6 +125,40 @@ type AdminUser = {
   created_at: string;
 };
 
+type SeoSuggestion = {
+  priority: 'high' | 'medium' | 'low';
+  category: string;
+  action: string;
+  impact: string;
+};
+
+type SeoAnalysisResult = {
+  rankingProbability?: number;
+  top3Probability?: number;
+  featuredSnippetProbability?: number;
+  aiCitationProbability?: number;
+  keywordDifficulty?: number;
+  contentScore?: number;
+  seoScore?: number;
+  aeoScore?: number;
+  geoScore?: number;
+  readabilityScore?: number;
+  localSeoScore?: number;
+  semanticAlignment?: number;
+  entityCoverage?: number;
+  queryCoverage?: number;
+  intentAlignment?: number;
+  serpCompetitionScore?: number;
+  serpVolatility?: number;
+  freshnessBias?: number;
+  localRankingPotential?: number;
+  strengths?: string[];
+  weaknesses?: string[];
+  suggestions?: SeoSuggestion[];
+  billing?: { creditsUsed: number; currency: string; remainingCredits: number };
+  error?: string;
+};
+
 type ChatSession = {
   id: string;
   session_key: string;
@@ -1777,6 +1811,10 @@ function BlogModule() {
   const [editPost, setEditPost] = useState<BlogPost | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
   const [form, setForm] = useState({ title: '', slug: '', excerpt: '', content: '', cover_image_url: '', author: 'RCC Admin', category: 'general', tags: '', published: false, featured: false });
+  const [seoKeyword, setSeoKeyword] = useState('');
+  const [seoLoading, setSeoLoading] = useState(false);
+  const [seoResult, setSeoResult] = useState<SeoAnalysisResult | null>(null);
+  const [showSeoPanel, setShowSeoPanel] = useState(false);
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
@@ -1852,6 +1890,67 @@ function BlogModule() {
     fetchPosts();
   }
 
+  async function analyzeSeo() {
+    if (!form.content && !form.title) { showToast('Add title or content before analyzing SEO.', 'error'); return; }
+    setSeoLoading(true);
+    setShowSeoPanel(true);
+    setSeoResult(null);
+    try {
+      const res = await fetch('/api/seo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          keyword: seoKeyword.trim() || form.title,
+          content: form.content,
+          metaTitle: form.title,
+          metaDescription: form.excerpt,
+          domainUrl: 'racquetsclubcommunity.com',
+        }),
+      });
+      const data: SeoAnalysisResult = await res.json();
+      if (res.ok) setSeoResult(data);
+      else showToast((data as { error?: string }).error || 'SEO analysis failed.', 'error');
+    } catch {
+      showToast('Network error during SEO analysis.', 'error');
+    }
+    setSeoLoading(false);
+  }
+
+  function SeoScoreBar({ label, value, color }: { label: string; value: number | undefined; color: string }) {
+    const pct = Math.round((value ?? 0) * 100);
+    return (
+      <div style={{ marginBottom: 10 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+          <span style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#888899' }}>{label}</span>
+          <span style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 11, color }}>{pct}%</span>
+        </div>
+        <div style={{ height: 5, background: 'rgba(255,255,255,0.07)', borderRadius: 3, overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 3, transition: 'width 0.6s ease' }} />
+        </div>
+      </div>
+    );
+  }
+
+  function SeoCircleScore({ label, value, color }: { label: string; value: number | undefined; color: string }) {
+    const pct = Math.round((value ?? 0) * 100);
+    const r = 22, circumference = 2 * Math.PI * r;
+    const offset = circumference - (pct / 100) * circumference;
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+        <svg width={56} height={56} viewBox="0 0 56 56">
+          <circle cx={28} cy={28} r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={5} />
+          <circle cx={28} cy={28} r={r} fill="none" stroke={color} strokeWidth={5}
+            strokeDasharray={circumference} strokeDashoffset={offset}
+            strokeLinecap="round" transform="rotate(-90 28 28)"
+            style={{ transition: 'stroke-dashoffset 0.6s ease' }}
+          />
+          <text x={28} y={32} textAnchor="middle" fill={color} fontSize={11} fontWeight={700} fontFamily="var(--font-montserrat)">{pct}</text>
+        </svg>
+        <span style={{ fontFamily: 'var(--font-inter)', fontSize: 10, color: '#888899', textAlign: 'center', maxWidth: 60 }}>{label}</span>
+      </div>
+    );
+  }
+
   const catColor: Record<string, string> = {
     news: '#3b82f6', match_report: '#C21818', tips: '#22c55e', community: '#a78bfa', general: '#888899',
   };
@@ -1919,6 +2018,136 @@ function BlogModule() {
               <label htmlFor="feat" style={{ ...labelStyle, margin: 0, cursor: 'pointer' }}>Featured</label>
             </div>
           </div>
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', marginTop: 20, paddingTop: 16 }}>
+            <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 11, color: '#D4AF37', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 10 }}>
+              SEO Analysis
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <input
+                style={{ ...inputStyle, flex: 1 }}
+                value={seoKeyword}
+                onChange={e => setSeoKeyword(e.target.value)}
+                placeholder="Target keyword (defaults to title)"
+              />
+              <button
+                style={{ ...goldBtn, whiteSpace: 'nowrap', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 6 }}
+                onClick={analyzeSeo}
+                disabled={seoLoading}
+              >
+                {seoLoading ? '⏳ Analyzing...' : '🔍 Analyze SEO'}
+              </button>
+            </div>
+          </div>
+
+          {showSeoPanel && (
+            <div style={{ marginTop: 16, border: '1px solid rgba(212,175,55,0.2)', borderRadius: 10, background: 'rgba(212,175,55,0.03)', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid rgba(212,175,55,0.1)', background: 'rgba(212,175,55,0.06)' }}>
+                <span style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 12, color: '#D4AF37', letterSpacing: '0.1em' }}>SEO ANALYSIS RESULTS</span>
+                <button onClick={() => setShowSeoPanel(false)} style={{ background: 'none', border: 'none', color: '#888899', cursor: 'pointer', fontSize: 16, padding: 0 }}>×</button>
+              </div>
+
+              {seoLoading && (
+                <div style={{ padding: 32, textAlign: 'center', color: '#888899', fontFamily: 'var(--font-inter)', fontSize: 13 }}>
+                  <div style={{ marginBottom: 8, fontSize: 24 }}>⏳</div>
+                  Analyzing content against SEO signals...
+                </div>
+              )}
+
+              {!seoLoading && seoResult && (
+                <div style={{ padding: 16 }}>
+
+                  {/* Main probability gauges */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+                    <SeoCircleScore label="Ranking Probability" value={seoResult.rankingProbability} color="#D4AF37" />
+                    <SeoCircleScore label="Top-3 Probability" value={seoResult.top3Probability} color="#22c55e" />
+                    <SeoCircleScore label="Featured Snippet" value={seoResult.featuredSnippetProbability} color="#3b82f6" />
+                    <SeoCircleScore label="AI Citation" value={seoResult.aiCitationProbability} color="#a78bfa" />
+                  </div>
+
+                  {/* Score grid — two columns */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 24px', marginBottom: 20 }}>
+                    <SeoScoreBar label="SEO Score" value={seoResult.seoScore} color="#D4AF37" />
+                    <SeoScoreBar label="Content Score" value={seoResult.contentScore} color="#22c55e" />
+                    <SeoScoreBar label="AEO Score" value={seoResult.aeoScore} color="#3b82f6" />
+                    <SeoScoreBar label="GEO Score" value={seoResult.geoScore} color="#a78bfa" />
+                    <SeoScoreBar label="Readability" value={seoResult.readabilityScore} color="#f59e0b" />
+                    <SeoScoreBar label="Local SEO" value={seoResult.localSeoScore} color="#ec4899" />
+                    <SeoScoreBar label="Semantic Alignment" value={seoResult.semanticAlignment} color="#06b6d4" />
+                    <SeoScoreBar label="Entity Coverage" value={seoResult.entityCoverage} color="#14b8a6" />
+                    <SeoScoreBar label="Query Coverage" value={seoResult.queryCoverage} color="#f97316" />
+                    <SeoScoreBar label="Intent Alignment" value={seoResult.intentAlignment} color="#84cc16" />
+                    <SeoScoreBar label="SERP Competition" value={seoResult.serpCompetitionScore} color="#C21818" />
+                    <SeoScoreBar label="Keyword Difficulty" value={seoResult.keywordDifficulty} color="#ef4444" />
+                  </div>
+
+                  {/* Strengths & Weaknesses */}
+                  {((seoResult.strengths?.length ?? 0) > 0 || (seoResult.weaknesses?.length ?? 0) > 0) && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+                      {(seoResult.strengths?.length ?? 0) > 0 && (
+                        <div style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.15)', borderRadius: 8, padding: 12 }}>
+                          <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 10, color: '#22c55e', letterSpacing: '0.12em', marginBottom: 10 }}>✓ STRENGTHS</div>
+                          {seoResult.strengths!.map((s, i) => (
+                            <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+                              <span style={{ color: '#22c55e', flexShrink: 0, fontSize: 11 }}>✓</span>
+                              <span style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#aab8a8', lineHeight: 1.5 }}>{s}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {(seoResult.weaknesses?.length ?? 0) > 0 && (
+                        <div style={{ background: 'rgba(194,24,24,0.06)', border: '1px solid rgba(194,24,24,0.2)', borderRadius: 8, padding: 12 }}>
+                          <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 10, color: '#C21818', letterSpacing: '0.12em', marginBottom: 10 }}>✗ WEAKNESSES</div>
+                          {seoResult.weaknesses!.map((w, i) => (
+                            <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+                              <span style={{ color: '#C21818', flexShrink: 0, fontSize: 11 }}>✗</span>
+                              <span style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#b8a8a8', lineHeight: 1.5 }}>{w}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Suggestions table */}
+                  {(seoResult.suggestions?.length ?? 0) > 0 && (
+                    <div style={{ marginBottom: 16 }}>
+                      <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 10, color: '#888899', letterSpacing: '0.12em', marginBottom: 10 }}>ACTIONABLE SUGGESTIONS</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {seoResult.suggestions!.map((s, i) => {
+                          const priorityColor = s.priority === 'high' ? '#C21818' : s.priority === 'medium' ? '#f59e0b' : '#22c55e';
+                          return (
+                            <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6, padding: '10px 12px', display: 'grid', gridTemplateColumns: 'auto auto 1fr auto', gap: '8px 12px', alignItems: 'start' }}>
+                              <span style={{ background: `${priorityColor}22`, color: priorityColor, border: `1px solid ${priorityColor}44`, borderRadius: 3, padding: '2px 7px', fontSize: 9, fontFamily: 'var(--font-montserrat)', fontWeight: 700, textTransform: 'uppercase', whiteSpace: 'nowrap', alignSelf: 'center' }}>
+                                {s.priority}
+                              </span>
+                              <span style={{ background: 'rgba(212,175,55,0.1)', color: '#D4AF37', borderRadius: 3, padding: '2px 7px', fontSize: 9, fontFamily: 'var(--font-montserrat)', fontWeight: 700, textTransform: 'uppercase', whiteSpace: 'nowrap', alignSelf: 'center' }}>
+                                {s.category}
+                              </span>
+                              <span style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#c8c8d4', lineHeight: 1.5 }}>{s.action}</span>
+                              <span style={{ fontFamily: 'var(--font-inter)', fontSize: 10, color: '#888899', whiteSpace: 'nowrap', alignSelf: 'center' }}>{s.impact}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Billing footer */}
+                  {seoResult.billing && (
+                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontFamily: 'var(--font-inter)', fontSize: 10, color: '#555566' }}>
+                        Credits used: <span style={{ color: '#888899' }}>{seoResult.billing.creditsUsed}</span>
+                      </span>
+                      <span style={{ fontFamily: 'var(--font-inter)', fontSize: 10, color: '#555566' }}>
+                        Remaining: <span style={{ color: '#22c55e' }}>{seoResult.billing.remainingCredits}</span>
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
             <button style={primaryBtn} onClick={handleSave}>{editPost ? 'Save Changes' : 'Publish Post'}</button>
             <button style={dangerBtn} onClick={resetForm}>Cancel</button>
