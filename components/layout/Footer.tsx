@@ -1,4 +1,8 @@
+'use client';
+
+import { useState } from 'react';
 import { Mail, Phone } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 function InstagramIcon() {
   return (
@@ -54,6 +58,20 @@ const COMMUNITY_LINKS = [
 const PARTNERS = ['SIRI FORT', 'DDA VASANT KUNJ', 'YONEX', 'LI-NING', 'VICTOR'];
 
 export default function Footer() {
+  const [subEmail, setSubEmail] = useState('');
+  const [subStatus, setSubStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+
+  async function handleSubscribe() {
+    const email = subEmail.trim();
+    if (!email || subStatus === 'loading') return;
+    setSubStatus('loading');
+    const { error } = await supabase.from('newsletter_subscribers').insert({ email, source: 'footer' });
+    if (error) {
+      setSubStatus(error.code === '23505' ? 'done' : 'error');
+    } else {
+      setSubStatus('done');
+    }
+  }
   return (
     <footer
       style={{
@@ -290,27 +308,37 @@ export default function Footer() {
             >
               Stay in the loop
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <input
-                type="email"
-                placeholder="your@email.com"
-                style={{
-                  flex: 1,
-                  padding: '10px 14px',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '6px',
-                  color: '#e8e8ec',
-                  fontFamily: 'var(--font-inter)',
-                  fontSize: '13px',
-                  outline: 'none',
-                  minWidth: 0,
-                }}
-              />
-              <button className="footer-subscribe-btn" type="button" aria-label="Subscribe">
-                <SendIcon />
-              </button>
-            </div>
+            {subStatus === 'done' ? (
+              <div style={{ fontFamily: 'var(--font-inter)', fontSize: 13, color: '#22c55e', padding: '10px 0' }}>
+                You&apos;re subscribed!
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="email"
+                  placeholder="your@email.com"
+                  value={subEmail}
+                  onChange={e => setSubEmail(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSubscribe()}
+                  style={{
+                    flex: 1, padding: '10px 14px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '6px', color: '#e8e8ec',
+                    fontFamily: 'var(--font-inter)', fontSize: '13px',
+                    outline: 'none', minWidth: 0,
+                  }}
+                />
+                <button className="footer-subscribe-btn" type="button" aria-label="Subscribe" onClick={handleSubscribe} disabled={subStatus === 'loading'}>
+                  <SendIcon />
+                </button>
+              </div>
+            )}
+            {subStatus === 'error' && (
+              <div style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#C21818', marginTop: 4 }}>
+                Something went wrong. Try again.
+              </div>
+            )}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

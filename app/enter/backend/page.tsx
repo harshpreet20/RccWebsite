@@ -2178,13 +2178,111 @@ function UserManagementModule() {
 
 // ─── TABS CONFIG ──────────────────────────────────────────────────────────────
 
-type TabKey = 'overview' | 'members' | 'registrations' | 'events' | 'leaderboard' | 'announcements' | 'instagram' | 'spotlights' | 'partners' | 'chatlogs' | 'blog' | 'users';
+type NewsletterSubscriber = {
+  id: string;
+  email: string;
+  full_name?: string;
+  source?: string;
+  status: string;
+  subscribed_at: string;
+};
+
+function NewsletterModule() {
+  const [subs, setSubs] = useState<NewsletterSubscriber[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+
+  const fetchSubs = useCallback(async () => {
+    setLoading(true);
+    const { data } = await supabase.from('newsletter_subscribers').select('*').order('subscribed_at', { ascending: false });
+    if (data) setSubs(data);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchSubs(); }, [fetchSubs]);
+
+  function showToast(msg: string, type: 'success' | 'error') { setToast({ msg, type }); setTimeout(() => setToast(null), 3000); }
+
+  async function unsubscribe(id: string) {
+    await supabase.from('newsletter_subscribers').update({ status: 'unsubscribed' }).eq('id', id);
+    showToast('Marked as unsubscribed.', 'success'); fetchSubs();
+  }
+
+  async function deleteSub(id: string) {
+    if (!confirm('Remove this subscriber?')) return;
+    await supabase.from('newsletter_subscribers').delete().eq('id', id);
+    showToast('Subscriber removed.', 'success'); fetchSubs();
+  }
+
+  function exportCSV() {
+    const rows = [['Email', 'Name', 'Source', 'Status', 'Subscribed At'], ...subs.map(s => [s.email, s.full_name ?? '', s.source ?? '', s.status, new Date(s.subscribed_at).toLocaleString('en-IN')])];
+    const blob = new Blob([rows.map(r => r.join(',')).join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'rcc-newsletter-subscribers.csv'; a.click(); URL.revokeObjectURL(url);
+  }
+
+  const filtered = subs.filter(s => search === '' || s.email.toLowerCase().includes(search.toLowerCase()) || (s.full_name ?? '').toLowerCase().includes(search.toLowerCase()));
+  const active = subs.filter(s => s.status === 'active').length;
+
+  return (
+    <div>
+      {toast && <Toast msg={toast.msg} type={toast.type} />}
+      <SectionHeading title={`NEWSLETTER (${subs.length})`} action={
+        <div style={{ display: 'flex', gap: 8 }}>
+          <span style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#22c55e', alignSelf: 'center' }}>{active} active</span>
+          <button style={{ ...goldBtn, fontSize: 12 }} onClick={exportCSV}>⬇ Export CSV</button>
+        </div>
+      } />
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px,1fr))', gap: 12, marginBottom: 20 }}>
+        {[{ label: 'Total', value: subs.length, color: '#D4AF37' }, { label: 'Active', value: active, color: '#22c55e' }, { label: 'Unsubscribed', value: subs.filter(s => s.status !== 'active').length, color: '#888899' }].map(stat => (
+          <div key={stat.label} style={{ ...glassCard, textAlign: 'center', padding: '16px' }}>
+            <div style={{ fontFamily: 'var(--font-bebas)', fontSize: '2rem', color: stat.color, lineHeight: 1 }}>{stat.value}</div>
+            <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#888899', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 4 }}>{stat.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <input style={{ ...inputStyle, marginBottom: 12 }} placeholder="Search by email or name..." value={search} onChange={e => setSearch(e.target.value)} />
+
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead><tr>{['Email', 'Name', 'Source', 'Status', 'Date', 'Actions'].map(h => <th key={h} style={thStyle}>{h}</th>)}</tr></thead>
+          <tbody>
+            {loading && <LoadingRow cols={6} />}
+            {!loading && filtered.length === 0 && <EmptyRow cols={6} msg="No subscribers yet." />}
+            {filtered.map(s => (
+              <tr key={s.id} style={{ opacity: s.status === 'active' ? 1 : 0.5 }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                <td style={{ ...tdStyle, fontWeight: 600 }}>{s.email}</td>
+                <td style={tdStyle}>{s.full_name ?? '—'}</td>
+                <td style={{ ...tdStyle, color: '#888899' }}>{s.source ?? 'footer'}</td>
+                <td style={tdStyle}><StatusBadge value={s.status} /></td>
+                <td style={{ ...tdStyle, color: '#888899' }}>{new Date(s.subscribed_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                <td style={{ ...tdStyle, whiteSpace: 'nowrap' }}>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    {s.status === 'active' && <button style={dangerBtn} onClick={() => unsubscribe(s.id)}>Unsub</button>}
+                    <button style={dangerBtn} onClick={() => deleteSub(s.id)}>Remove</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+type TabKey = 'overview' | 'members' | 'registrations' | 'events' | 'leaderboard' | 'announcements' | 'instagram' | 'spotlights' | 'partners' | 'chatlogs' | 'blog' | 'newsletter' | 'users';
 
 type NavItem = {
   key: TabKey;
   label: string;
   icon: string;
-  badge?: number;
+  badge?: number | null;
 };
 
 type NavGroup = {
@@ -2276,6 +2374,7 @@ export default function BackendPage() {
       items: [
         { key: 'partners', label: 'Partners', icon: '🤝' },
         { key: 'chatlogs', label: 'Chat Logs', icon: '💬' },
+        { key: 'newsletter', label: 'Newsletter', icon: '📧' },
         { key: 'users', label: 'Users & Access', icon: '🔐' },
       ],
     },
@@ -2581,6 +2680,7 @@ export default function BackendPage() {
             {activeTab === 'instagram'     && <InstagramModule />}
             {activeTab === 'spotlights'    && <SpotlightsModule />}
             {activeTab === 'partners'      && <PartnersModule />}
+            {activeTab === 'newsletter'    && <NewsletterModule />}
             {activeTab === 'chatlogs'      && <ChatLogsModule />}
             {activeTab === 'blog'          && <BlogModule />}
             {activeTab === 'users'         && <UserManagementModule />}

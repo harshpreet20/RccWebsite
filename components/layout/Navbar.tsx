@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { Search, User, Menu, X } from 'lucide-react';
 
 /* ─── RCC Badge (real logo image) ───────────────────────────────── */
@@ -19,12 +20,10 @@ function RccBadge({ size = 70 }: { size?: number }) {
 
 /* ─── Nav links ──────────────────────────────────────────────────── */
 const NAV_LINKS = [
-  { label: 'HOME', href: '/', active: true },
+  { label: 'HOME', href: '/' },
   { label: 'ABOUT US', href: '/about' },
-  { label: 'CLUBS', href: '/clubs' },
   { label: 'EVENTS', href: '/events' },
   { label: 'MEMBERSHIP', href: '/membership' },
-  { label: 'SHOP', href: '/shop' },
   { label: 'CONTACT', href: '/contact' },
 ];
 
@@ -32,6 +31,7 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -110,7 +110,7 @@ export default function Navbar() {
                 fontWeight: 700,
                 fontSize: '11px',
                 letterSpacing: '0.14em',
-                color: link.active ? '#D4AF37' : 'rgba(255,255,255,0.6)',
+                color: pathname === link.href ? '#D4AF37' : 'rgba(255,255,255,0.6)',
                 textDecoration: 'none',
                 position: 'relative',
                 paddingBottom: '4px',
@@ -118,7 +118,7 @@ export default function Navbar() {
               }}
             >
               {link.label}
-              {link.active && (
+              {pathname === link.href && (
                 <span
                   style={{
                     position: 'absolute',
@@ -208,7 +208,7 @@ export default function Navbar() {
               fontWeight: 700,
               fontSize: '13px',
               letterSpacing: '0.16em',
-              color: link.active ? '#D4AF37' : 'rgba(255,255,255,0.65)',
+              color: pathname === link.href ? '#D4AF37' : 'rgba(255,255,255,0.65)',
               textDecoration: 'none',
               padding: '14px 0',
               borderBottom: '1px solid rgba(255,255,255,0.05)',
