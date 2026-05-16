@@ -199,39 +199,23 @@ export default function Hero() {
         }}
       />
 
-      {/* Animations + responsive styles */}
+      {/* Animations */}
       <style>{`
-        @keyframes aura-breathe {
-          0%, 100% { transform: scale(1);    opacity: 0.85; }
-          50%       { transform: scale(1.12); opacity: 1; }
+        @keyframes aura-inner {
+          0%,100% { opacity: 0.85; transform: scale(1.02); filter: blur(6px) brightness(8) sepia(1) saturate(20) hue-rotate(-5deg); }
+          50%     { opacity: 1;    transform: scale(1.05); filter: blur(8px) brightness(10) sepia(1) saturate(25) hue-rotate(5deg); }
         }
-        @keyframes aura-breathe-slow {
-          0%, 100% { transform: scale(1);    opacity: 0.6; }
-          50%       { transform: scale(1.18); opacity: 0.9; }
+        @keyframes aura-mid {
+          0%,100% { opacity: 0.55; transform: scale(1.06) translateY(-4px); filter: blur(16px) brightness(6) sepia(1) saturate(18) hue-rotate(-8deg); }
+          50%     { opacity: 0.80; transform: scale(1.11) translateY(-8px); filter: blur(20px) brightness(8) sepia(1) saturate(22) hue-rotate(8deg); }
         }
-        @keyframes aura-spin {
-          from { transform: rotate(0deg) scale(1.05); }
-          to   { transform: rotate(360deg) scale(1.05); }
+        @keyframes aura-outer {
+          0%,100% { opacity: 0.30; transform: scale(1.12) translateY(-10px); filter: blur(32px) brightness(5) sepia(1) saturate(14) hue-rotate(-12deg); }
+          50%     { opacity: 0.50; transform: scale(1.18) translateY(-18px); filter: blur(40px) brightness(7) sepia(1) saturate(18) hue-rotate(12deg); }
         }
-        @keyframes aura-spin-reverse {
-          from { transform: rotate(0deg) scale(0.95); }
-          to   { transform: rotate(-360deg) scale(0.95); }
-        }
-        @keyframes fire-lick {
-          0%, 100% { transform: scaleY(1)   scaleX(1)    translateY(0);   opacity: 0.9; }
-          33%      { transform: scaleY(1.15) scaleX(0.92) translateY(-6px); opacity: 1; }
-          66%      { transform: scaleY(0.95) scaleX(1.06) translateY(3px);  opacity: 0.8; }
-        }
-        @keyframes fire-flicker {
-          0%,100% { opacity: 0.7; }
-          25%     { opacity: 1;   }
-          50%     { opacity: 0.85;}
-          75%     { opacity: 1;   }
-        }
-        @keyframes streak-rise {
-          0%   { transform: scaleY(0.6); opacity: 0; }
-          30%  { opacity: 1; }
-          100% { transform: scaleY(1.2); opacity: 0; }
+        @keyframes aura-floor {
+          0%,100% { opacity: 0.6; transform: scaleX(1);    filter: blur(20px) brightness(6) sepia(1) saturate(20); }
+          50%     { opacity: 0.9; transform: scaleX(1.08); filter: blur(24px) brightness(8) sepia(1) saturate(25); }
         }
         .hero-feature-strip { grid-template-columns: repeat(4, 1fr); }
         @media (max-width: 768px) { .hero-feature-strip { grid-template-columns: repeat(2, 1fr) !important; } }
@@ -262,7 +246,7 @@ export default function Hero() {
         }}
       />
 
-      {/* ── Athlete area ── */}
+      {/* ── Athlete + silhouette fire aura ── */}
       <div
         style={{
           position: 'absolute',
@@ -274,123 +258,83 @@ export default function Hero() {
           overflow: 'visible',
         }}
       >
-        {/* ── Fire aura layers (behind the player) ── */}
-
-        {/* Outermost slow breathe — wide soft halo */}
-        <div style={{
-          position: 'absolute',
-          bottom: '5%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '90%',
-          height: '90%',
-          borderRadius: '50%',
-          background: 'radial-gradient(ellipse, rgba(220,50,0,0.45) 0%, rgba(160,20,0,0.25) 40%, transparent 70%)',
-          animation: 'aura-breathe-slow 3.2s ease-in-out infinite',
-          filter: 'blur(28px)',
-          zIndex: 1,
-        }} />
-
-        {/* Mid ring — faster pulse */}
-        <div style={{
-          position: 'absolute',
-          bottom: '8%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '72%',
-          height: '78%',
-          borderRadius: '50%',
-          background: 'radial-gradient(ellipse, rgba(240,70,0,0.65) 0%, rgba(200,30,0,0.40) 35%, transparent 65%)',
-          animation: 'aura-breathe 2.2s ease-in-out infinite',
-          filter: 'blur(18px)',
-          zIndex: 2,
-        }} />
-
-        {/* Hot core */}
-        <div style={{
-          position: 'absolute',
-          bottom: '12%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '50%',
-          height: '60%',
-          borderRadius: '50%',
-          background: 'radial-gradient(ellipse, rgba(255,120,0,0.70) 0%, rgba(230,50,0,0.55) 30%, transparent 60%)',
-          animation: 'aura-breathe 1.6s ease-in-out infinite',
-          animationDelay: '0.3s',
-          filter: 'blur(12px)',
-          zIndex: 3,
-        }} />
-
-        {/* Gold shimmer ring */}
-        <div style={{
-          position: 'absolute',
-          bottom: '6%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '80%',
-          height: '85%',
-          borderRadius: '50%',
-          background: 'radial-gradient(ellipse at 50% 80%, rgba(212,175,55,0.35) 0%, transparent 55%)',
-          animation: 'aura-breathe 2.8s ease-in-out infinite',
-          animationDelay: '1s',
-          filter: 'blur(20px)',
-          zIndex: 2,
-        }} />
-
-        {/* Fire lick columns — tall flares rising up */}
-        {[22, 35, 50, 65, 78].map((pct, i) => (
-          <div key={i} style={{
+        {/* Aura layer 3 — outermost, widest fire halo, rises upward */}
+        <img
+          src="/athlete.png"
+          aria-hidden="true"
+          style={{
             position: 'absolute',
-            left: `${pct}%`,
-            bottom: '2%',
-            width: `${14 + i * 4}px`,
-            height: `${45 + i * 9}%`,
-            background: `linear-gradient(to top,
-              ${i % 2 === 0 ? 'rgba(255,80,0,0.95)' : 'rgba(220,40,0,0.90)'} 0%,
-              ${i % 2 === 0 ? 'rgba(255,140,0,0.60)' : 'rgba(212,175,55,0.50)'} 40%,
-              transparent 100%)`,
-            borderRadius: '50% 50% 0 0',
-            filter: 'blur(6px)',
-            animation: `fire-lick ${1.4 + i * 0.3}s ease-in-out infinite`,
-            animationDelay: `${i * 0.18}s`,
-            transformOrigin: 'bottom center',
-            zIndex: 2,
-          }} />
-        ))}
-
-        {/* Thin bright streaks */}
-        {[18, 30, 44, 58, 70, 82].map((pct, i) => (
-          <div key={i} style={{
-            position: 'absolute',
-            left: `${pct}%`,
             bottom: 0,
-            width: i % 2 === 0 ? '3px' : '2px',
-            height: `${35 + i * 7}%`,
-            background: `linear-gradient(to top, ${i % 3 === 0 ? 'rgba(255,160,0,1)' : 'rgba(255,60,0,0.9)'}, transparent)`,
-            borderRadius: 2,
-            animation: `streak-rise ${1.2 + i * 0.28}s ease-in-out infinite`,
-            animationDelay: `${i * 0.22}s`,
-            filter: 'blur(1px)',
-            zIndex: 3,
-          }} />
-        ))}
+            right: 0,
+            height: '118%',
+            width: 'auto',
+            objectFit: 'contain',
+            objectPosition: 'bottom right',
+            mixBlendMode: 'screen',
+            animation: 'aura-outer 2.0s ease-in-out infinite',
+            animationDelay: '0.6s',
+            pointerEvents: 'none',
+          }}
+        />
 
-        {/* Floor glow beneath player */}
-        <div style={{
-          position: 'absolute',
-          bottom: 0,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '100%',
-          height: '25%',
-          background: 'radial-gradient(ellipse at 50% 100%, rgba(220,80,0,0.60) 0%, rgba(180,30,0,0.30) 40%, transparent 70%)',
-          filter: 'blur(12px)',
-          animation: 'fire-flicker 1.8s ease-in-out infinite',
-          zIndex: 2,
-        }} />
+        {/* Aura layer 2 — mid fire crown */}
+        <img
+          src="/athlete.png"
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            height: '118%',
+            width: 'auto',
+            objectFit: 'contain',
+            objectPosition: 'bottom right',
+            mixBlendMode: 'screen',
+            animation: 'aura-mid 1.6s ease-in-out infinite',
+            animationDelay: '0.3s',
+            pointerEvents: 'none',
+          }}
+        />
 
-        {/* Athlete image — bigger, no movement animation */}
+        {/* Aura layer 1 — innermost tight glow tracing body */}
+        <img
+          src="/athlete.png"
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            height: '118%',
+            width: 'auto',
+            objectFit: 'contain',
+            objectPosition: 'bottom right',
+            mixBlendMode: 'screen',
+            animation: 'aura-inner 1.2s ease-in-out infinite',
+            pointerEvents: 'none',
+          }}
+        />
+
+        {/* Floor burn — aura pool at feet */}
+        <img
+          src="/athlete.png"
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            height: '118%',
+            width: 'auto',
+            objectFit: 'contain',
+            objectPosition: 'bottom right',
+            mixBlendMode: 'screen',
+            animation: 'aura-floor 1.8s ease-in-out infinite',
+            animationDelay: '0.9s',
+            clipPath: 'inset(80% 0 0 0)',
+            pointerEvents: 'none',
+          }}
+        />
+
+        {/* Real athlete image — on top, crisp */}
         <img
           src="/athlete.png"
           alt="RCC athlete"
@@ -406,8 +350,9 @@ export default function Hero() {
             objectFit: 'contain',
             objectPosition: 'bottom right',
             mixBlendMode: 'screen',
-            filter: 'drop-shadow(-20px 0 60px rgba(255,80,0,0.9)) drop-shadow(0 0 40px rgba(212,175,55,0.4)) brightness(1.15) contrast(1.05)',
+            filter: 'brightness(1.1) contrast(1.05)',
             zIndex: 10,
+            pointerEvents: 'none',
           }}
         />
       </div>
