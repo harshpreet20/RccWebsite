@@ -251,12 +251,18 @@ export default function AboutPage() {
       </div>
 
       {/* ── Stats bar ── */}
+      <style>{`
+        @media (max-width: 480px) {
+          .about-stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .about-stats-grid > div { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        }
+      `}</style>
       <div style={{
         borderTop: '1px solid rgba(255,255,255,0.06)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         background: 'rgba(255,255,255,0.02)',
       }}>
-        <div style={{
+        <div className="about-stats-grid" style={{
           maxWidth: '900px', margin: '0 auto',
           padding: '32px clamp(20px,5vw,48px)',
           display: 'grid',

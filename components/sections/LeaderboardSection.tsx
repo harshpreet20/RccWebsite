@@ -199,7 +199,7 @@ export default function LeaderboardSection() {
           backdropFilter: 'blur(20px)',
           border: '1px solid rgba(255,255,255,0.07)',
           borderRadius: '16px',
-          overflow: 'hidden',
+          overflowX: 'auto',
           boxShadow: '0 0 80px rgba(194,24,24,0.05)',
         }}
       >
@@ -255,6 +255,7 @@ export default function LeaderboardSection() {
           .lb-header { grid-template-columns: 40px 1fr auto !important; }
           .lb-row { grid-template-columns: 40px 1fr auto !important; }
           .lb-hide { display: none !important; }
+          .lb-hide-sm { display: none !important; }
         }
       `}</style>
     </section>

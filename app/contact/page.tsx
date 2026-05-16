@@ -611,6 +611,7 @@ export default function ContactPage() {
                         gap: '10px',
                         width: '100%',
                         padding: '14px 28px',
+                        minHeight: '44px',
                         background: submitting
                           ? 'rgba(194,24,24,0.5)'
                           : 'linear-gradient(135deg, #C21818, #a01515)',

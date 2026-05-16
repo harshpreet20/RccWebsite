@@ -187,7 +187,7 @@ export default function Hero() {
         }}
       />
 
-      {/* Smash 3D animation */}
+      {/* Smash 3D animation + responsive styles */}
       <style>{`
         @keyframes smash-3d {
           0%   { transform: perspective(700px) translateY(0px) rotateY(-8deg) rotateZ(-3deg) scale(1); }
@@ -197,6 +197,19 @@ export default function Hero() {
           62%  { transform: perspective(700px) translateY(0px) rotateY(-4deg) rotateZ(-2deg) scale(1.02); }
           80%  { transform: perspective(700px) translateY(-8px) rotateY(-6deg) rotateZ(-2deg) scale(1.01); }
           100% { transform: perspective(700px) translateY(0px) rotateY(-8deg) rotateZ(-3deg) scale(1); }
+        }
+        .hero-feature-strip {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        @media (max-width: 768px) {
+          .hero-feature-strip {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .hero-feature-strip {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
         }
       `}</style>
 
@@ -368,6 +381,7 @@ export default function Hero() {
               alignItems: 'center',
               gap: '8px',
               padding: '14px 24px',
+              minHeight: '44px',
               border: '1px solid rgba(212,175,55,0.5)',
               borderRadius: '4px',
               background: 'transparent',
@@ -400,6 +414,7 @@ export default function Hero() {
               alignItems: 'center',
               gap: '8px',
               padding: '14px 24px',
+              minHeight: '44px',
               border: '1px solid rgba(255,255,255,0.15)',
               borderRadius: '4px',
               background: 'transparent',
@@ -463,19 +478,19 @@ export default function Hero() {
 
       {/* ── Feature strip ── */}
       <div
+        className="hero-feature-strip"
         style={{
           position: 'absolute',
           bottom: 0,
           left: 0,
           right: 0,
-          height: '90px',
+          minHeight: '90px',
           background: 'rgba(0,0,0,0.50)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
           borderTop: '1px solid rgba(255,255,255,0.07)',
           zIndex: 20,
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
         }}
       >
         {FEATURES.map((feat, i) => (

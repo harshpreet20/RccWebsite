@@ -110,6 +110,7 @@ export default function Footer() {
         }
         .footer-subscribe-btn {
           padding: 10px 14px;
+          min-height: 44px;
           background: #C21818;
           border: none;
           border-radius: 6px;
@@ -153,6 +154,11 @@ export default function Footer() {
         }
         @media (max-width: 520px) {
           .footer-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 480px) {
+          .footer-grid { grid-template-columns: 1fr !important; }
+          .footer-newsletter-row { flex-wrap: wrap !important; }
+          .footer-newsletter-row .footer-subscribe-btn { width: 100%; justify-content: center; }
         }
       `}</style>
 
@@ -313,7 +319,7 @@ export default function Footer() {
                 You&apos;re subscribed!
               </div>
             ) : (
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div className="footer-newsletter-row" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <input
                   type="email"
                   placeholder="your@email.com"

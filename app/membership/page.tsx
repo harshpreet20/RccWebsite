@@ -148,8 +148,9 @@ function MembershipCard({
       type="button"
       onClick={() => onSelect(type)}
       style={{
-        flex: '1 1 0',
+        flex: '1 1 80px',
         padding: '16px 12px',
+        minHeight: '44px',
         borderRadius: 12,
         border: selected
           ? '1px solid rgba(212,175,55,0.6)'
@@ -693,7 +694,7 @@ export default function MembershipPage() {
                 {/* Membership Type */}
                 <div>
                   <label style={labelStyle}>Membership Type *</label>
-                  <div style={{ display: 'flex', gap: 10 }}>
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                     <MembershipCard
                       type="monthly"
                       label="Monthly"

@@ -713,7 +713,7 @@ function RegistrationModal({
         padding: '1rem',
       }}
     >
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 480, position: 'relative' }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 480, position: 'relative', maxHeight: '90vh', overflowY: 'auto' }}>
         <AnimatePresence mode="wait">
           {ticket ? (
             <TicketCard key="ticket" ticket={ticket} onClose={onClose} />
@@ -989,7 +989,7 @@ export default function EventsPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.15 }}
-            style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}
+            style={{ display: 'flex', gap: '0.5rem', flexWrap: 'nowrap', overflowX: 'auto', alignItems: 'center', paddingBottom: '4px' }}
           >
             <Filter size={15} style={{ color: '#888899', marginRight: 4 }} />
             {FILTER_TABS.map(tab => (
@@ -1096,11 +1096,17 @@ export default function EventsPage() {
         )}
       </AnimatePresence>
 
-      {/* Pulse animation for skeleton */}
+      {/* Pulse animation for skeleton + responsive styles */}
       <style>{`
         @keyframes pulse {
           0%, 100% { opacity: 0.5; }
           50% { opacity: 1; }
+        }
+        @media (max-width: 480px) {
+          .events-modal-inner { padding: 20px !important; }
+          .events-countdown-value {
+            font-size: clamp(0.75rem, 3vw, 1rem) !important;
+          }
         }
       `}</style>
     </>

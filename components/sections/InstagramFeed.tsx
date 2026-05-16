@@ -126,7 +126,7 @@ export default function InstagramFeed() {
         variants={containerVariants}
         initial="hidden"
         animate={isInView ? 'visible' : 'hidden'}
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '16px' }}
         className="instagram-grid"
       >
         {posts.map((post) => (
@@ -161,11 +161,6 @@ export default function InstagramFeed() {
         </a>
       </div>
 
-      <style>{`
-        @media (max-width: 640px) {
-          .instagram-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        }
-      `}</style>
     </section>
   );
 }

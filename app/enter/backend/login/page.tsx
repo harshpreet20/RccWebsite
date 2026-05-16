@@ -183,7 +183,7 @@ export default function AdminLoginPage() {
         </div>
 
         {/* ── RIGHT PANEL ── */}
-        <div style={{
+        <div className="rcc-right-panel" style={{
           flex: '0 0 40%',
           background: '#0d0d14',
           display: 'flex',
@@ -366,11 +366,15 @@ export default function AdminLoginPage() {
           </div>
         </div>
 
-        {/* Hide left panel on mobile via inline media-query hack */}
+        {/* Mobile responsive styles */}
         <style>{`
           @media (max-width: 768px) {
             .rcc-left-panel { display: none !important; }
-            .rcc-right-panel-inner { flex: 0 0 100% !important; }
+            .rcc-right-panel {
+              flex: 1 !important;
+              width: 100% !important;
+              padding: 24px 20px !important;
+            }
           }
         `}</style>
       </div>

@@ -617,7 +617,7 @@ function OverviewModule() {
       ) : stats ? (
         <>
           {/* ── Section 1: KPI Hero Cards ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
             {/* Card 1: Members */}
             <div style={{
               background: 'linear-gradient(135deg, #1a0a20 0%, #2d1040 100%)',
@@ -710,7 +710,7 @@ function OverviewModule() {
           </div>
 
           {/* ── Section 2: Donut Charts Row ── */}
-          <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
             <DonutChart
               title="Skill Distribution"
               data={buildChartData(stats.skillDistribution, skillKeys)}
@@ -729,9 +729,9 @@ function OverviewModule() {
           </div>
 
           {/* ── Section 3: Recent Activity (two-column) ── */}
-          <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
-            {/* Recent Registrations (60%) */}
-            <div style={{ flex: '0 0 60%', background: '#0d0d18', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: '24px 20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16, marginBottom: 24 }}>
+            {/* Recent Registrations */}
+            <div style={{ background: '#0d0d18', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: '24px 20px' }}>
               <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 14, color: '#e8e8ec', marginBottom: 16, letterSpacing: '0.04em' }}>
                 Recent Registrations
               </div>
@@ -769,8 +769,8 @@ function OverviewModule() {
               </div>
             </div>
 
-            {/* Top Players (40%) */}
-            <div style={{ flex: '0 0 40%', background: '#0d0d18', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: '24px 20px' }}>
+            {/* Top Players */}
+            <div style={{ background: '#0d0d18', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: '24px 20px' }}>
               <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 14, color: '#e8e8ec', marginBottom: 16, letterSpacing: '0.04em' }}>
                 Top Players
               </div>
@@ -908,7 +908,7 @@ function MembersModule() {
         </p>
       )}
       {toast && <Toast msg={toast.msg} type={toast.type} />}
-      <div style={{ ...glassCard, padding: 0, overflow: 'hidden' }}>
+      <div style={{ ...glassCard, padding: 0, overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
@@ -993,7 +993,7 @@ function RegistrationsModule() {
     <div>
       <SectionHeading title="REGISTRATIONS" count={regs.length} />
       {toast && <Toast msg={toast.msg} type={toast.type} />}
-      <div style={{ ...glassCard, padding: 0, overflow: 'hidden' }}>
+      <div style={{ ...glassCard, padding: 0, overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
@@ -1162,7 +1162,7 @@ function EventsModule() {
         </FormSection>
       )}
 
-      <div style={{ ...glassCard, padding: 0, overflow: 'hidden' }}>
+      <div style={{ ...glassCard, padding: 0, overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
@@ -1314,7 +1314,7 @@ function LeaderboardModule() {
         </FormSection>
       )}
 
-      <div style={{ ...glassCard, padding: 0, overflow: 'hidden' }}>
+      <div style={{ ...glassCard, padding: 0, overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
@@ -1463,7 +1463,7 @@ function AnnouncementsModule() {
 
       {showForm && (
         <FormSection title="NEW ANNOUNCEMENT">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12, marginBottom: 12 }}>
             <div>
               <label style={labelStyle}>Title</label>
               <input type="text" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} style={inputStyle} />
@@ -1629,7 +1629,7 @@ function InstagramModule() {
       {loading ? (
         <div style={{ color: '#888899', fontFamily: 'var(--font-inter)', padding: 24 }}>Loading…</div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
           {posts.map(p => (
             <div key={p.id}
               style={{ ...glassCard, padding: 0, overflow: 'hidden', position: 'relative' }}
@@ -1980,7 +1980,7 @@ function PartnersModule() {
         </FormSection>
       )}
 
-      <div style={{ ...glassCard, padding: 0, overflow: 'hidden' }}>
+      <div style={{ ...glassCard, padding: 0, overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
@@ -3178,21 +3178,57 @@ export default function BackendPage() {
     <>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
-        @media (max-width: 1023px) {
+        @media (max-width: 768px) {
+          .admin-sidebar {
+            position: fixed !important;
+            top: 0; left: 0; bottom: 0;
+            z-index: 300;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+          }
+          .admin-sidebar.open {
+            transform: translateX(0) !important;
+          }
+          .admin-main {
+            margin-left: 0 !important;
+            width: 100% !important;
+          }
+          .rcc-sidebar { display: flex !important; }
+          .rcc-mobile-topbar { display: none !important; }
+          .rcc-main-col { margin-left: 0 !important; }
+          .rcc-desktop-topbar { display: flex !important; }
+          .rcc-hamburger { display: block !important; }
+        }
+        @media (min-width: 769px) and (max-width: 1023px) {
           .rcc-sidebar { display: none !important; }
           .rcc-mobile-topbar { display: flex !important; }
           .rcc-main-col { margin-left: 0 !important; }
+          .rcc-desktop-topbar { display: flex !important; }
         }
         @media (min-width: 1024px) {
           .rcc-mobile-topbar { display: none !important; }
+          .rcc-desktop-topbar { display: flex !important; }
         }
       `}</style>
 
       <div style={{ display: 'flex', minHeight: '100vh', background: '#080810', color: '#e8e8ec', fontFamily: 'var(--font-inter)' }}>
 
-        {/* ── Sidebar (desktop) ── */}
+        {/* ── Mobile overlay backdrop ── */}
+        {mobileSidebarOpen && (
+          <div
+            onClick={() => setMobileSidebarOpen(false)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 200,
+              background: 'rgba(0,0,0,0.6)',
+            }}
+          />
+        )}
+
+        {/* ── Sidebar (desktop + mobile slide-in) ── */}
         <div
-          className="rcc-sidebar"
+          className={`rcc-sidebar admin-sidebar${mobileSidebarOpen ? ' open' : ''}`}
           style={{
             width: 220,
             flexShrink: 0,
@@ -3210,7 +3246,7 @@ export default function BackendPage() {
 
         {/* ── Main content column ── */}
         <div
-          className="rcc-main-col"
+          className="rcc-main-col admin-main"
           style={{ flex: 1, marginLeft: 220, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}
         >
           {/* Mobile top tab bar */}
@@ -3262,8 +3298,8 @@ export default function BackendPage() {
             })}
           </div>
 
-          {/* Top bar (desktop) */}
-          <div style={{
+          {/* Top bar */}
+          <div className="rcc-desktop-topbar" style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -3272,8 +3308,28 @@ export default function BackendPage() {
             background: '#080810',
             flexShrink: 0,
           }}>
-            <div style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.6rem', color: '#e8e8ec', letterSpacing: '0.06em', lineHeight: 1 }}>
-              {activeLabel}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {/* Hamburger button — only visible on mobile via CSS */}
+              <button
+                className="rcc-hamburger"
+                onClick={() => setMobileSidebarOpen(v => !v)}
+                style={{
+                  display: 'none',
+                  background: 'transparent',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: 6,
+                  color: '#888899',
+                  cursor: 'pointer',
+                  padding: '6px 10px',
+                  lineHeight: 1,
+                  fontSize: 18,
+                }}
+              >
+                ☰
+              </button>
+              <div style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.6rem', color: '#e8e8ec', letterSpacing: '0.06em', lineHeight: 1 }}>
+                {activeLabel}
+              </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               {userEmail && (

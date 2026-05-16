@@ -209,6 +209,8 @@ export default function PlayerSpotlight() {
                   alignItems: 'center',
                   gap: '8px',
                   padding: '10px 20px',
+                  minWidth: '44px',
+                  minHeight: '44px',
                   background: 'transparent',
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '8px',
@@ -259,6 +261,8 @@ export default function PlayerSpotlight() {
                   alignItems: 'center',
                   gap: '8px',
                   padding: '10px 20px',
+                  minWidth: '44px',
+                  minHeight: '44px',
                   background: 'transparent',
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '8px',
@@ -286,7 +290,7 @@ export default function PlayerSpotlight() {
       )}
 
       <style>{`
-        @media (max-width: 768px) {
+        @media (max-width: 640px) {
           .spotlight-grid {
             grid-template-columns: 1fr !important;
           }

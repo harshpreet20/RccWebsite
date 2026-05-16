@@ -149,6 +149,7 @@ export default function MembershipSection() {
                   letterSpacing: '0.12em', textTransform: 'uppercase',
                   cursor: loading ? 'not-allowed' : 'pointer', transition: 'background 0.2s',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '4px',
+                  minHeight: '44px',
                 }}
                 onMouseEnter={(e) => { if (!loading) { (e.currentTarget as HTMLButtonElement).style.background = '#D4AF37'; (e.currentTarget as HTMLButtonElement).style.color = '#0a0a0f'; } }}
                 onMouseLeave={(e) => { if (!loading) { (e.currentTarget as HTMLButtonElement).style.background = '#C21818'; (e.currentTarget as HTMLButtonElement).style.color = '#fff'; } }}
