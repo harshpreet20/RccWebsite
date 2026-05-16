@@ -27,7 +27,7 @@ async function buildSystemPrompt(): Promise<string> {
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     if (!supabaseUrl || !supabaseKey) return BASE_SYSTEM_PROMPT;
 
-    const client = createClient(supabaseUrl, supabaseKey);
+    const client = createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseKey, { auth: { persistSession: false } });
     const { data } = await client
       .from('ai_knowledge_base')
       .select('title, content, category')

@@ -2809,10 +2809,22 @@ type NewsletterSubscriber = {
 };
 
 function NewsletterModule() {
+  const [tab, setTab] = useState<'subscribers' | 'send'>('subscribers');
+
+  // ── Subscribers state ──
   const [subs, setSubs] = useState<NewsletterSubscriber[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+
+  // ── Campaign state ──
+  const [subject, setSubject] = useState('');
+  const [body, setBody] = useState('');
+  const [testEmail, setTestEmail] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sendResult, setSendResult] = useState<{ sent: number; errors: number; total: number; provider?: string } | null>(null);
+  const [sendError, setSendError] = useState('');
+  const [preview, setPreview] = useState(false);
 
   const fetchSubs = useCallback(async () => {
     setLoading(true);
@@ -2823,7 +2835,7 @@ function NewsletterModule() {
 
   useEffect(() => { fetchSubs(); }, [fetchSubs]);
 
-  function showToast(msg: string, type: 'success' | 'error') { setToast({ msg, type }); setTimeout(() => setToast(null), 3000); }
+  function showToast(msg: string, type: 'success' | 'error') { setToast({ msg, type }); setTimeout(() => setToast(null), 4000); }
 
   async function unsubscribe(id: string) {
     await supabase.from('newsletter_subscribers').update({ status: 'unsubscribed' }).eq('id', id);
@@ -2843,56 +2855,189 @@ function NewsletterModule() {
     const a = document.createElement('a'); a.href = url; a.download = 'rcc-newsletter-subscribers.csv'; a.click(); URL.revokeObjectURL(url);
   }
 
+  async function sendCampaign(isTest: boolean) {
+    if (!subject.trim() || !body.trim()) { showToast('Subject and body are required.', 'error'); return; }
+    if (isTest && !testEmail.trim()) { showToast('Enter a test email address.', 'error'); return; }
+    if (!isTest && !confirm(`Send this campaign to all ${active} active subscribers?`)) return;
+    setSending(true);
+    setSendResult(null);
+    setSendError('');
+    try {
+      const res = await fetch('/api/newsletter/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject: subject.trim(), html: body.trim(), ...(isTest ? { test_email: testEmail.trim() } : {}) }),
+      });
+      const data = await res.json() as { sent?: number; errors?: number; total?: number; provider?: string; error?: string };
+      if (!res.ok || data.error) {
+        setSendError(data.error ?? 'Send failed. Check your email settings.');
+      } else {
+        setSendResult({ sent: data.sent ?? 0, errors: data.errors ?? 0, total: data.total ?? 0, provider: data.provider });
+        showToast(isTest ? 'Test email sent!' : `Campaign sent to ${data.sent} subscribers!`, 'success');
+      }
+    } catch { setSendError('Network error. Please try again.'); }
+    setSending(false);
+  }
+
   const filtered = subs.filter(s => search === '' || s.email.toLowerCase().includes(search.toLowerCase()) || (s.full_name ?? '').toLowerCase().includes(search.toLowerCase()));
   const active = subs.filter(s => s.status === 'active').length;
+
+  const tabBtn = (t: 'subscribers' | 'send', label: string) => (
+    <button onClick={() => setTab(t)} style={{
+      background: tab === t ? 'rgba(212,175,55,0.15)' : 'transparent',
+      border: `1px solid ${tab === t ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.08)'}`,
+      color: tab === t ? '#D4AF37' : '#888899',
+      borderRadius: 8, padding: '8px 20px',
+      fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 12,
+      letterSpacing: '0.04em', cursor: 'pointer',
+    }}>{label}</button>
+  );
 
   return (
     <div>
       {toast && <Toast msg={toast.msg} type={toast.type} />}
-      <SectionHeading title={`NEWSLETTER (${subs.length})`} action={
-        <div style={{ display: 'flex', gap: 8 }}>
-          <span style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#22c55e', alignSelf: 'center' }}>{active} active</span>
-          <button style={{ ...goldBtn, fontSize: 12 }} onClick={exportCSV}>⬇ Export CSV</button>
-        </div>
-      } />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px,1fr))', gap: 12, marginBottom: 20 }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
+        <h2 style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 'clamp(20px,2.5vw,28px)', color: '#e8e8ec', margin: 0 }}>
+          Newsletter
+        </h2>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {tabBtn('subscribers', `Subscribers (${subs.length})`)}
+          {tabBtn('send', '✉ Send Campaign')}
+        </div>
+      </div>
+
+      {/* Stats row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px,1fr))', gap: 12, marginBottom: 20 }}>
         {[{ label: 'Total', value: subs.length, color: '#D4AF37' }, { label: 'Active', value: active, color: '#22c55e' }, { label: 'Unsubscribed', value: subs.filter(s => s.status !== 'active').length, color: '#888899' }].map(stat => (
           <div key={stat.label} style={{ ...glassCard, textAlign: 'center', padding: '16px' }}>
-            <div style={{ fontFamily: 'var(--font-bebas)', fontSize: '2rem', color: stat.color, lineHeight: 1 }}>{stat.value}</div>
+            <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: '2rem', color: stat.color, lineHeight: 1 }}>{stat.value}</div>
             <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#888899', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 4 }}>{stat.label}</div>
           </div>
         ))}
       </div>
 
-      <input style={{ ...inputStyle, marginBottom: 12 }} placeholder="Search by email or name..." value={search} onChange={e => setSearch(e.target.value)} />
+      {/* ── SUBSCRIBERS TAB ── */}
+      {tab === 'subscribers' && (
+        <>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+            <input style={{ ...inputStyle, flex: 1, minWidth: 200 }} placeholder="Search by email or name..." value={search} onChange={e => setSearch(e.target.value)} />
+            <button style={{ ...goldBtn }} onClick={exportCSV}>⬇ Export CSV</button>
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead><tr>{['Email', 'Name', 'Source', 'Status', 'Date', 'Actions'].map(h => <th key={h} style={thStyle}>{h}</th>)}</tr></thead>
+              <tbody>
+                {loading && <LoadingRow cols={6} />}
+                {!loading && filtered.length === 0 && <EmptyRow cols={6} msg="No subscribers yet." />}
+                {filtered.map(s => (
+                  <tr key={s.id} style={{ opacity: s.status === 'active' ? 1 : 0.5 }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                    <td style={{ ...tdStyle, fontWeight: 600 }}>{s.email}</td>
+                    <td style={tdStyle}>{s.full_name ?? '—'}</td>
+                    <td style={{ ...tdStyle, color: '#888899' }}>{s.source ?? 'footer'}</td>
+                    <td style={tdStyle}><StatusBadge value={s.status} /></td>
+                    <td style={{ ...tdStyle, color: '#888899' }}>{new Date(s.subscribed_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                    <td style={{ ...tdStyle, whiteSpace: 'nowrap' }}>
+                      <div style={{ display: 'flex', gap: 4 }}>
+                        {s.status === 'active' && <button style={dangerBtn} onClick={() => unsubscribe(s.id)}>Unsub</button>}
+                        <button style={dangerBtn} onClick={() => deleteSub(s.id)}>Remove</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead><tr>{['Email', 'Name', 'Source', 'Status', 'Date', 'Actions'].map(h => <th key={h} style={thStyle}>{h}</th>)}</tr></thead>
-          <tbody>
-            {loading && <LoadingRow cols={6} />}
-            {!loading && filtered.length === 0 && <EmptyRow cols={6} msg="No subscribers yet." />}
-            {filtered.map(s => (
-              <tr key={s.id} style={{ opacity: s.status === 'active' ? 1 : 0.5 }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                <td style={{ ...tdStyle, fontWeight: 600 }}>{s.email}</td>
-                <td style={tdStyle}>{s.full_name ?? '—'}</td>
-                <td style={{ ...tdStyle, color: '#888899' }}>{s.source ?? 'footer'}</td>
-                <td style={tdStyle}><StatusBadge value={s.status} /></td>
-                <td style={{ ...tdStyle, color: '#888899' }}>{new Date(s.subscribed_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                <td style={{ ...tdStyle, whiteSpace: 'nowrap' }}>
-                  <div style={{ display: 'flex', gap: 4 }}>
-                    {s.status === 'active' && <button style={dangerBtn} onClick={() => unsubscribe(s.id)}>Unsub</button>}
-                    <button style={dangerBtn} onClick={() => deleteSub(s.id)}>Remove</button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* ── SEND CAMPAIGN TAB ── */}
+      {tab === 'send' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+          {/* Info strip */}
+          <div style={{ ...glassCard, background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.15)', padding: '12px 18px' }}>
+            <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 12, color: '#888899' }}>
+              Will send to <strong style={{ color: '#22c55e' }}>{active} active subscribers</strong>.
+              Configure provider &amp; API key under <strong style={{ color: '#D4AF37' }}>Site Settings ⚙️</strong>.
+              Supported: <strong style={{ color: '#e8e8ec' }}>Resend</strong> (free 100/day · 3k/mo) · <strong style={{ color: '#e8e8ec' }}>SendGrid</strong> (free 100/day) · <strong style={{ color: '#e8e8ec' }}>Brevo</strong> (free 300/day)
+            </div>
+          </div>
+
+          {/* Subject */}
+          <div style={glassCard}>
+            <label style={labelStyle}>Subject Line</label>
+            <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. RCC Smash Night #12 – Register Now 🏸" style={inputStyle} />
+          </div>
+
+          {/* Body */}
+          <div style={glassCard}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <label style={{ ...labelStyle, marginBottom: 0 }}>Email Body</label>
+              <button onClick={() => setPreview(!preview)} style={goldBtn}>{preview ? 'Edit' : 'Preview'}</button>
+            </div>
+            {preview ? (
+              <div style={{ background: '#fff', borderRadius: 8, padding: '24px', color: '#333', fontSize: 14, lineHeight: 1.7, whiteSpace: 'pre-wrap', minHeight: 160, fontFamily: 'Arial, sans-serif' }}>
+                {body || <span style={{ color: '#aaa' }}>Nothing to preview yet…</span>}
+              </div>
+            ) : (
+              <textarea
+                value={body}
+                onChange={e => setBody(e.target.value)}
+                placeholder={`Write your email here. Plain text or HTML.\n\nExample:\nHello RCC Family! 👋\n\nSmash Night #12 is happening this Friday at Siri Fort.\n📅 Friday, 23 May · 7:00 PM onwards\n🏸 All skill levels welcome\n\nRegister here: racquetsclubcommunity.com/events\n\nSee you on court!\n— The RCC Team`}
+                rows={12}
+                style={{ ...inputStyle, resize: 'vertical', minHeight: 180 }}
+              />
+            )}
+          </div>
+
+          {/* Send results */}
+          {sendResult && (
+            <div style={{ ...glassCard, background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.25)' }}>
+              <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 15, color: '#22c55e', marginBottom: 8 }}>
+                ✓ Campaign sent via {sendResult.provider ?? 'email'}
+              </div>
+              <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 13, color: '#888899', display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+                <span>Sent: <strong style={{ color: '#22c55e' }}>{sendResult.sent}</strong></span>
+                {sendResult.errors > 0 && <span>Errors: <strong style={{ color: '#C21818' }}>{sendResult.errors}</strong></span>}
+                <span>Total: {sendResult.total}</span>
+              </div>
+            </div>
+          )}
+
+          {sendError && <Toast msg={sendError} type="error" />}
+
+          {/* Test send */}
+          <div style={glassCard}>
+            <label style={labelStyle}>Send Test Email First</label>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <input value={testEmail} onChange={e => setTestEmail(e.target.value)} type="email" placeholder="your@email.com" style={{ ...inputStyle, flex: 1, minWidth: 200 }} />
+              <button onClick={() => sendCampaign(true)} disabled={sending} style={{ ...goldBtn, padding: '10px 20px', flexShrink: 0, opacity: sending ? 0.7 : 1 }}>
+                {sending ? 'Sending…' : 'Send Test'}
+              </button>
+            </div>
+          </div>
+
+          {/* Send to all */}
+          <button
+            onClick={() => sendCampaign(false)}
+            disabled={sending || active === 0}
+            style={{
+              ...primaryBtn,
+              width: '100%',
+              padding: '14px 20px',
+              fontSize: 14,
+              letterSpacing: '0.06em',
+              opacity: (sending || active === 0) ? 0.6 : 1,
+            }}
+          >
+            {sending ? 'Sending Campaign…' : `📨 Send to All ${active} Active Subscribers`}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -3216,13 +3361,17 @@ function AiContextModule() {
 
 // ─── TAB: SITE SETTINGS ───────────────────────────────────────────────────────
 
-type SettingKey = 'recaptcha_site_key' | 'recaptcha_secret_key' | 'instagram_access_token' | 'instagram_account_id';
+type SettingKey = 'recaptcha_site_key' | 'recaptcha_secret_key' | 'instagram_access_token' | 'instagram_account_id' | 'email_provider' | 'email_api_key' | 'email_from_address' | 'email_from_name';
 
-const SETTING_FIELDS: { key: SettingKey; label: string; hint: string; secret: boolean }[] = [
-  { key: 'recaptcha_site_key',    label: 'reCAPTCHA Site Key (public)',    hint: 'Get from console.cloud.google.com → reCAPTCHA → Site key', secret: false },
-  { key: 'recaptcha_secret_key',  label: 'reCAPTCHA Secret Key (private)', hint: 'Used server-side to verify tokens. Keep this private.', secret: true },
-  { key: 'instagram_access_token','label': 'Instagram Access Token',       hint: 'From Meta for Developers → Basic Display or Business API', secret: true },
-  { key: 'instagram_account_id',  label: 'Instagram Business Account ID',  hint: 'Required for Business/Creator accounts. Leave blank for personal.', secret: false },
+const SETTING_FIELDS: { key: SettingKey; label: string; hint: string; secret: boolean; group: string }[] = [
+  { key: 'recaptcha_site_key',    label: 'reCAPTCHA Site Key (public)',    hint: 'Get from console.cloud.google.com → reCAPTCHA → Site key', secret: false, group: 'reCAPTCHA' },
+  { key: 'recaptcha_secret_key',  label: 'reCAPTCHA Secret Key (private)', hint: 'Used server-side to verify tokens. Keep this private.', secret: true, group: 'reCAPTCHA' },
+  { key: 'instagram_access_token','label': 'Instagram Access Token',       hint: 'From Meta for Developers → Basic Display or Business API', secret: true, group: 'Instagram' },
+  { key: 'instagram_account_id',  label: 'Instagram Business Account ID',  hint: 'Required for Business/Creator accounts. Leave blank for personal.', secret: false, group: 'Instagram' },
+  { key: 'email_provider',        label: 'Email Provider',                  hint: 'resend · sendgrid · brevo  (default: resend)', secret: false, group: 'Newsletter Email' },
+  { key: 'email_api_key',         label: 'Email API Key',                   hint: 'API key from your email provider dashboard', secret: true, group: 'Newsletter Email' },
+  { key: 'email_from_address',    label: 'From Email Address',              hint: 'e.g. newsletter@rccdelhi.com — must be verified with your provider', secret: false, group: 'Newsletter Email' },
+  { key: 'email_from_name',       label: 'From Name',                       hint: 'e.g. RCC Newsletter', secret: false, group: 'Newsletter Email' },
 ];
 
 function SiteSettingsModule() {
@@ -3231,6 +3380,10 @@ function SiteSettingsModule() {
     recaptcha_secret_key: '',
     instagram_access_token: '',
     instagram_account_id: '',
+    email_provider: 'resend',
+    email_api_key: '',
+    email_from_address: '',
+    email_from_name: 'RCC Newsletter',
   });
   const [reveal, setReveal] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState<Record<string, boolean>>({});
@@ -3272,7 +3425,7 @@ function SiteSettingsModule() {
           Site Settings
         </h2>
         <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 12, color: '#888899', marginTop: 4 }}>
-          API keys for reCAPTCHA and Instagram. Stored securely in your database.
+          API keys for reCAPTCHA, Instagram, and Newsletter email. Stored securely in your database.
         </div>
       </div>
 
@@ -3282,7 +3435,12 @@ function SiteSettingsModule() {
         <div style={{ color: '#888899', fontFamily: 'var(--font-montserrat)', fontSize: 13, padding: 32 }}>Loading settings…</div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {SETTING_FIELDS.map(field => (
+          {SETTING_FIELDS.map((field, idx) => (<>
+            {(idx === 0 || SETTING_FIELDS[idx - 1].group !== field.group) && (
+              <div key={`group-${field.group}`} style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 13, color: '#D4AF37', marginTop: idx === 0 ? 0 : 8, marginBottom: -4, letterSpacing: '0.04em' }}>
+                {field.group}
+              </div>
+            )}
             <div key={field.key} style={{ ...glassCard }}>
               <label style={labelStyle}>{field.label}</label>
               <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#555566', marginBottom: 10 }}>{field.hint}</div>
@@ -3317,7 +3475,7 @@ function SiteSettingsModule() {
                 </div>
               )}
             </div>
-          ))}
+          </>))}
 
           {/* Help card */}
           <div style={{ ...glassCard, background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.15)', marginTop: 8 }}>
@@ -3328,6 +3486,7 @@ function SiteSettingsModule() {
               {[
                 { title: 'reCAPTCHA v3', steps: ['Go to google.com/recaptcha → Admin Console', 'Create a new site with reCAPTCHA v3', 'Add your domain (e.g. rccdelhi.com)', 'Copy the Site Key (public) and Secret Key (private) here'] },
                 { title: 'Instagram Graph API', steps: ['Go to developers.facebook.com → My Apps', 'Create an app → Add Instagram Basic Display product', 'Generate an access token for your Instagram account', 'For Business accounts also paste your Business Account ID'] },
+                { title: 'Newsletter Email (pick one free provider)', steps: ['Resend (resend.com) — 100 emails/day free, best API: sign up → API Keys → create key, set provider=resend', 'SendGrid (sendgrid.com) — 100 emails/day free: sign up → Settings → API Keys → Full Access, set provider=sendgrid', 'Brevo (brevo.com) — 300 emails/day free: sign up → SMTP & API → API Keys, set provider=brevo', 'Verify your From Address with the provider (DNS/DKIM setup) before sending'] },
               ].map(guide => (
                 <div key={guide.title}>
                   <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 12, color: '#888899', marginBottom: 4 }}>{guide.title}</div>
