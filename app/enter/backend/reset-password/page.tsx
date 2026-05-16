@@ -14,10 +14,10 @@ export default function ResetPasswordPage() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // Supabase parses the token from the URL hash and establishes a session
-    supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') setReady(true);
     });
+    return () => subscription.unsubscribe();
   }, []);
 
   async function handleReset(e: React.FormEvent) {

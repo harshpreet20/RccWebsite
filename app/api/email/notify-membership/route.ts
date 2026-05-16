@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     .from('site_settings')
     .select('value')
     .eq('key', 'admin_email')
-    .single();
+    .maybeSingle();
 
   const adminEmail = data?.value || process.env.ADMIN_EMAIL || '';
   const settings = await getEmailSettings();
