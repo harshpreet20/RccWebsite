@@ -8,6 +8,7 @@ import PlayerSpotlight from '@/components/sections/PlayerSpotlight';
 import LeaderboardSection from '@/components/sections/LeaderboardSection';
 import CommunityFeed from '@/components/sections/CommunityFeed';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
+import SupportSection from '@/components/sections/SupportSection';
 import Footer from '@/components/layout/Footer';
 import ChatBot from '@/components/ui/ChatBot';
 
@@ -24,6 +25,7 @@ export default function Home() {
       <LeaderboardSection />
       <CommunityFeed />
       <TestimonialsSection />
+      <SupportSection />
       <Footer />
       <ChatBot />
     </main>

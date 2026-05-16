@@ -1269,6 +1269,219 @@ function ContactsModule() {
   );
 }
 
+// ─── TAB: SUPPORT TICKETS ─────────────────────────────────────────────────────
+
+interface SupportTicket {
+  id: string;
+  ticket_number: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  category: string;
+  subject: string;
+  description: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  admin_notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+const TICKET_PRIORITY_COLOR: Record<string, string> = { low: '#22c55e', medium: '#f59e0b', high: '#ef4444', urgent: '#C21818' };
+const TICKET_STATUS_COLOR:   Record<string, string> = { open: '#C21818', in_progress: '#f59e0b', resolved: '#22c55e', closed: '#555566' };
+const TICKET_STATUS_LABEL:   Record<string, string> = { open: 'Open', in_progress: 'In Progress', resolved: 'Resolved', closed: 'Closed' };
+const TICKET_CAT_LABEL:      Record<string, string> = {
+  general: 'General', event: 'Event Issue', membership: 'Membership',
+  payment: 'Payment', court_booking: 'Court Booking', technical: 'Technical', other: 'Other',
+};
+
+function SupportTicketsModule() {
+  const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [priorityFilter, setPriorityFilter] = useState<string>('all');
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [savingNotes, setSavingNotes] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+
+  function showToast(msg: string, type: 'success' | 'error') {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  }
+
+  async function load() {
+    setLoading(true);
+    const { data } = await supabase.from('support_tickets').select('*').order('created_at', { ascending: false });
+    const t = (data as SupportTicket[]) ?? [];
+    setTickets(t);
+    const n: Record<string, string> = {};
+    t.forEach(tk => { n[tk.id] = tk.admin_notes ?? ''; });
+    setNotes(n);
+    setLoading(false);
+  }
+
+  useEffect(() => { load(); }, []);
+
+  async function updateStatus(id: string, status: SupportTicket['status']) {
+    const { error } = await supabase.from('support_tickets').update({ status }).eq('id', id);
+    if (error) { showToast('Update failed', 'error'); return; }
+    setTickets(prev => prev.map(t => t.id === id ? { ...t, status } : t));
+  }
+
+  async function saveNotes(id: string) {
+    setSavingNotes(id);
+    const { error } = await supabase.from('support_tickets').update({ admin_notes: notes[id] ?? '' }).eq('id', id);
+    setSavingNotes(null);
+    if (error) showToast('Failed to save notes', 'error');
+    else { showToast('Notes saved', 'success'); setTickets(prev => prev.map(t => t.id === id ? { ...t, admin_notes: notes[id] } : t)); }
+  }
+
+  async function remove(id: string) {
+    if (!confirm('Delete this ticket?')) return;
+    const { error } = await supabase.from('support_tickets').delete().eq('id', id);
+    if (error) { showToast('Delete failed', 'error'); return; }
+    setTickets(prev => prev.filter(t => t.id !== id));
+    if (expanded === id) setExpanded(null);
+    showToast('Deleted', 'success');
+  }
+
+  const filtered = tickets.filter(t => {
+    if (statusFilter !== 'all' && t.status !== statusFilter) return false;
+    if (priorityFilter !== 'all' && t.priority !== priorityFilter) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      return t.name?.toLowerCase().includes(q) || t.email?.toLowerCase().includes(q) ||
+        t.subject?.toLowerCase().includes(q) || t.ticket_number?.toLowerCase().includes(q);
+    }
+    return true;
+  });
+
+  const openCount = tickets.filter(t => t.status === 'open').length;
+  const urgentCount = tickets.filter(t => t.priority === 'urgent' && t.status === 'open').length;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {toast && <Toast msg={toast.msg} type={toast.type} />}
+
+      {/* Stats */}
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        {[
+          { label: 'Total', value: tickets.length, color: '#D4AF37' },
+          { label: 'Open', value: openCount, color: '#C21818' },
+          { label: 'In Progress', value: tickets.filter(t => t.status === 'in_progress').length, color: '#f59e0b' },
+          { label: 'Resolved', value: tickets.filter(t => t.status === 'resolved').length, color: '#22c55e' },
+          { label: 'Urgent', value: urgentCount, color: '#ef4444' },
+        ].map(s => (
+          <div key={s.label} style={{ ...glassCard, flex: '1 1 70px', minWidth: 70, textAlign: 'center', padding: '14px 10px' }}>
+            <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontSize: 24, fontWeight: 700, color: s.color }}>{s.value}</div>
+            <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#888899', letterSpacing: '0.05em', marginTop: 2 }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search ticket, name, email…" style={{ ...inputStyle, flex: 1, minWidth: 180 }} />
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ ...inputStyle, width: 'auto' }}>
+          <option value="all">All Statuses</option>
+          {['open','in_progress','resolved','closed'].map(s => <option key={s} value={s}>{TICKET_STATUS_LABEL[s]}</option>)}
+        </select>
+        <select value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)} style={{ ...inputStyle, width: 'auto' }}>
+          <option value="all">All Priorities</option>
+          {['urgent','high','medium','low'].map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase()+p.slice(1)}</option>)}
+        </select>
+      </div>
+
+      {/* Tickets list */}
+      {loading ? (
+        <div style={{ color: '#888899', textAlign: 'center', padding: 40 }}>Loading…</div>
+      ) : filtered.length === 0 ? (
+        <div style={{ ...glassCard, textAlign: 'center', padding: 40, color: '#555566' }}>
+          {search || statusFilter !== 'all' || priorityFilter !== 'all' ? 'No tickets match your filters.' : '🎫 No support tickets yet.'}
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {filtered.map(t => {
+            const isOpen = expanded === t.id;
+            const date = new Date(t.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            const time = new Date(t.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+            return (
+              <div key={t.id} style={{ ...glassCard, padding: 0, overflow: 'hidden', borderLeft: `3px solid ${TICKET_PRIORITY_COLOR[t.priority] ?? '#444'}` }}>
+
+                {/* Row */}
+                <div onClick={() => setExpanded(isOpen ? null : t.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', cursor: 'pointer' }}>
+                  <div style={{ minWidth: 52, textAlign: 'center' }}>
+                    <div style={{ fontFamily: 'monospace', fontSize: 10, color: '#555566', letterSpacing: '0.04em' }}>{t.ticket_number}</div>
+                    <div style={{ display: 'inline-block', background: `${TICKET_PRIORITY_COLOR[t.priority]}22`, color: TICKET_PRIORITY_COLOR[t.priority], borderRadius: 4, padding: '2px 6px', fontSize: 9, fontWeight: 700, letterSpacing: '0.06em', marginTop: 2, textTransform: 'uppercase' }}>{t.priority}</div>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 13, color: '#e8e8ec', marginBottom: 2 }}>{t.subject}</div>
+                    <div style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#888899' }}>{t.name} · {t.email} · {TICKET_CAT_LABEL[t.category] ?? t.category}</div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+                    <span style={{ background: `${TICKET_STATUS_COLOR[t.status]}22`, color: TICKET_STATUS_COLOR[t.status], borderRadius: 4, padding: '2px 8px', fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{TICKET_STATUS_LABEL[t.status]}</span>
+                    <span style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#555566' }}>{date} {time}</span>
+                  </div>
+                  <span style={{ color: '#555566', fontSize: 12, marginLeft: 4 }}>{isOpen ? '▲' : '▼'}</span>
+                </div>
+
+                {/* Expanded */}
+                {isOpen && (
+                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '16px 18px 18px' }}>
+                    {/* Meta */}
+                    <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', marginBottom: 14 }}>
+                      <div><div style={labelStyle}>Email</div><a href={`mailto:${t.email}`} style={{ fontFamily: 'var(--font-inter)', fontSize: 13, color: '#D4AF37', textDecoration: 'none' }}>{t.email}</a></div>
+                      {t.phone && <div><div style={labelStyle}>Phone</div><span style={{ fontFamily: 'var(--font-inter)', fontSize: 13, color: '#e8e8ec' }}>{t.phone}</span></div>}
+                      <div><div style={labelStyle}>Category</div><span style={{ fontFamily: 'var(--font-inter)', fontSize: 13, color: '#e8e8ec' }}>{TICKET_CAT_LABEL[t.category]}</span></div>
+                      <div><div style={labelStyle}>Submitted</div><span style={{ fontFamily: 'var(--font-inter)', fontSize: 13, color: '#e8e8ec' }}>{date} {time}</span></div>
+                    </div>
+
+                    {/* Description */}
+                    <div style={{ background: 'rgba(0,0,0,0.25)', borderRadius: 8, padding: '14px 16px', fontFamily: 'var(--font-inter)', fontSize: 14, color: '#c9d2df', lineHeight: 1.75, whiteSpace: 'pre-wrap', marginBottom: 16 }}>
+                      {t.description}
+                    </div>
+
+                    {/* Admin notes */}
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={labelStyle}>Admin Notes (internal)</label>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <textarea
+                          value={notes[t.id] ?? ''}
+                          onChange={e => setNotes(n => ({ ...n, [t.id]: e.target.value }))}
+                          rows={3} placeholder="Internal notes visible only to admins…"
+                          style={{ ...inputStyle, flex: 1, resize: 'vertical', fontFamily: 'var(--font-inter)' }}
+                        />
+                        <button onClick={() => saveNotes(t.id)} disabled={savingNotes === t.id} style={{ ...goldBtn, alignSelf: 'flex-end', flexShrink: 0 }}>
+                          {savingNotes === t.id ? '…' : 'Save'}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Status + Actions */}
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                      <a href={`mailto:${t.email}?subject=Re: [${t.ticket_number}] ${t.subject}`} style={{ ...goldBtn, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                        ✉ Reply
+                      </a>
+                      {(['open','in_progress','resolved','closed'] as const).filter(s => s !== t.status).map(s => (
+                        <button key={s} onClick={() => updateStatus(t.id, s)} style={{ ...goldBtn, background: 'rgba(255,255,255,0.05)', color: '#888899', fontSize: 11 }}>
+                          → {TICKET_STATUS_LABEL[s]}
+                        </button>
+                      ))}
+                      <button onClick={() => remove(t.id)} style={{ ...dangerBtn, marginLeft: 'auto' }}>Delete</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── TAB 4: EVENTS ────────────────────────────────────────────────────────────
 
 function EventsModule() {
@@ -3940,7 +4153,7 @@ function SiteSettingsModule() {
   );
 }
 
-type TabKey = 'overview' | 'members' | 'registrations' | 'contacts' | 'events' | 'leaderboard' | 'announcements' | 'instagram' | 'spotlights' | 'partners' | 'chatlogs' | 'blog' | 'newsletter' | 'users' | 'aicontext' | 'settings';
+type TabKey = 'overview' | 'members' | 'registrations' | 'contacts' | 'support' | 'events' | 'leaderboard' | 'announcements' | 'instagram' | 'spotlights' | 'partners' | 'chatlogs' | 'blog' | 'newsletter' | 'users' | 'aicontext' | 'settings';
 
 type NavItem = {
   key: TabKey;
@@ -4021,6 +4234,7 @@ export default function BackendPage() {
         { key: 'members', label: 'Members', icon: '👥', badge: pendingCount > 0 ? pendingCount : undefined },
         { key: 'registrations', label: 'Registrations', icon: '📋' },
         { key: 'contacts', label: 'Contact Inbox', icon: '📩' },
+        { key: 'support',  label: 'Support Tickets', icon: '🎫' },
         { key: 'events', label: 'Events', icon: '📅' },
         { key: 'leaderboard', label: 'Leaderboard', icon: '🏆' },
       ],
@@ -4415,6 +4629,7 @@ export default function BackendPage() {
             {activeTab === 'members'       && <MembersModule />}
             {activeTab === 'registrations' && <RegistrationsModule />}
             {activeTab === 'contacts'      && <ContactsModule />}
+            {activeTab === 'support'       && <SupportTicketsModule />}
             {activeTab === 'events'        && <EventsModule />}
             {activeTab === 'leaderboard'   && <LeaderboardModule />}
             {activeTab === 'announcements' && <AnnouncementsModule />}
