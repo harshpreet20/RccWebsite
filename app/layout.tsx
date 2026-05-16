@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Montserrat, Inter, Bebas_Neue, Dancing_Script } from 'next/font/google';
 import './globals.css';
+import ShuttleCursor from '@/components/ui/ShuttleCursor';
 
 const montserrat = Montserrat({
   variable: '--font-montserrat',
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="antialiased bg-[#0a0a0f] text-[#e8e8ec] overflow-x-hidden">
         {children}
+        <ShuttleCursor />
       </body>
     </html>
   );
