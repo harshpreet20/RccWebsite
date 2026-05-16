@@ -128,6 +128,17 @@ type AdminUser = {
   created_at: string;
 };
 
+type AiKnowledgeEntry = {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  active: boolean;
+  priority: number;
+  created_at: string;
+  updated_at: string;
+};
+
 type SeoSuggestion = {
   priority: 'high' | 'medium' | 'low';
   category: string;
@@ -2886,7 +2897,324 @@ function NewsletterModule() {
   );
 }
 
-type TabKey = 'overview' | 'members' | 'registrations' | 'events' | 'leaderboard' | 'announcements' | 'instagram' | 'spotlights' | 'partners' | 'chatlogs' | 'blog' | 'newsletter' | 'users';
+// ─── TAB: AI KNOWLEDGE BASE ───────────────────────────────────────────────────
+
+function AiContextModule() {
+  const CATEGORIES = ['events', 'membership', 'courts', 'rules', 'faqs', 'announcements', 'general'];
+  const CAT_COLORS: Record<string, string> = {
+    events: '#8b5cf6',
+    membership: '#22c55e',
+    courts: '#3b82f6',
+    rules: '#f59e0b',
+    faqs: '#D4AF37',
+    announcements: '#C21818',
+    general: '#888899',
+  };
+
+  const [entries, setEntries] = useState<AiKnowledgeEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+  const [filterCat, setFilterCat] = useState<string>('all');
+  const [editId, setEditId] = useState<string | null>(null);
+
+  // Form state
+  const [fTitle, setFTitle] = useState('');
+  const [fContent, setFContent] = useState('');
+  const [fCategory, setFCategory] = useState('general');
+  const [fPriority, setFPriority] = useState(5);
+  const [fActive, setFActive] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  function showToast(msg: string, type: 'success' | 'error') {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  }
+
+  async function fetchEntries() {
+    setLoading(true);
+    const { data } = await supabase
+      .from('ai_knowledge_base')
+      .select('*')
+      .order('priority', { ascending: true })
+      .order('created_at', { ascending: false });
+    setEntries(data ?? []);
+    setLoading(false);
+  }
+
+  useEffect(() => { fetchEntries(); }, []);
+
+  function resetForm() {
+    setEditId(null);
+    setFTitle('');
+    setFContent('');
+    setFCategory('general');
+    setFPriority(5);
+    setFActive(true);
+  }
+
+  function startEdit(e: AiKnowledgeEntry) {
+    setEditId(e.id);
+    setFTitle(e.title);
+    setFContent(e.content);
+    setFCategory(e.category);
+    setFPriority(e.priority);
+    setFActive(e.active);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async function handleSave() {
+    if (!fTitle.trim() || !fContent.trim()) {
+      showToast('Title and content are required.', 'error');
+      return;
+    }
+    setSaving(true);
+    const payload = {
+      title: fTitle.trim(),
+      content: fContent.trim(),
+      category: fCategory,
+      priority: fPriority,
+      active: fActive,
+      updated_at: new Date().toISOString(),
+    };
+    if (editId) {
+      const { error } = await supabase.from('ai_knowledge_base').update(payload).eq('id', editId);
+      if (error) showToast('Failed to update entry.', 'error');
+      else { showToast('Entry updated!', 'success'); resetForm(); fetchEntries(); }
+    } else {
+      const { error } = await supabase.from('ai_knowledge_base').insert(payload);
+      if (error) showToast('Failed to add entry.', 'error');
+      else { showToast('Entry added to chatbot knowledge!', 'success'); resetForm(); fetchEntries(); }
+    }
+    setSaving(false);
+  }
+
+  async function toggleActive(id: string, current: boolean) {
+    await supabase.from('ai_knowledge_base').update({ active: !current, updated_at: new Date().toISOString() }).eq('id', id);
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, active: !current } : e));
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm('Delete this knowledge entry?')) return;
+    await supabase.from('ai_knowledge_base').delete().eq('id', id);
+    setEntries(prev => prev.filter(e => e.id !== id));
+    showToast('Entry deleted.', 'success');
+  }
+
+  const filtered = filterCat === 'all' ? entries : entries.filter(e => e.category === filterCat);
+  const activeCount = entries.filter(e => e.active).length;
+
+  return (
+    <div>
+      <style>{`
+        .ai-kb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        @media (max-width: 640px) { .ai-kb-grid { grid-template-columns: 1fr; } }
+      `}</style>
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+        <div>
+          <h2 style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 'clamp(20px,2.5vw,28px)', color: '#e8e8ec', margin: 0 }}>
+            AI Knowledge Base
+          </h2>
+          <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 12, color: '#888899', marginTop: 4 }}>
+            {activeCount} active entries feeding the chatbot · {entries.length} total
+          </div>
+        </div>
+        {editId && (
+          <button onClick={resetForm} style={{ ...goldBtn, padding: '8px 16px' }}>
+            ✕ Cancel Edit
+          </button>
+        )}
+      </div>
+
+      {toast && <Toast msg={toast.msg} type={toast.type} />}
+
+      {/* Add / Edit Form */}
+      <div style={{ ...glassCard, marginBottom: 28, border: editId ? '1px solid rgba(212,175,55,0.3)' : '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 15, color: editId ? '#D4AF37' : '#e8e8ec', marginBottom: 18 }}>
+          {editId ? '✏️ Editing Entry' : '➕ Add New Knowledge Entry'}
+        </div>
+
+        <div style={{ marginBottom: 14 }}>
+          <label style={labelStyle}>Title</label>
+          <input value={fTitle} onChange={e => setFTitle(e.target.value)} placeholder="e.g. Delhi Smash Open 2026" style={inputStyle} />
+        </div>
+
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <label style={{ ...labelStyle, marginBottom: 0 }}>Content</label>
+            <span style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: fContent.length > 1800 ? '#C21818' : '#888899' }}>
+              {fContent.length} / 2000
+            </span>
+          </div>
+          <textarea
+            value={fContent}
+            onChange={e => setFContent(e.target.value.slice(0, 2000))}
+            placeholder="Enter information the chatbot should know. Be specific — dates, fees, venue, rules, eligibility, etc."
+            rows={5}
+            style={{ ...inputStyle, resize: 'vertical', minHeight: 100 }}
+          />
+        </div>
+
+        <div className="ai-kb-grid" style={{ marginBottom: 14 }}>
+          <div>
+            <label style={labelStyle}>Category</label>
+            <select value={fCategory} onChange={e => setFCategory(e.target.value)} style={inputStyle}>
+              {CATEGORIES.map(c => (
+                <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label style={labelStyle}>Priority (1 = highest)</label>
+            <input type="number" min={1} max={10} value={fPriority} onChange={e => setFPriority(Number(e.target.value))} style={inputStyle} />
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
+          <button
+            onClick={() => setFActive(!fActive)}
+            style={{
+              background: fActive ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.05)',
+              border: `1px solid ${fActive ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.1)'}`,
+              color: fActive ? '#22c55e' : '#888899',
+              borderRadius: 6,
+              padding: '6px 14px',
+              fontFamily: 'var(--font-montserrat)',
+              fontWeight: 700,
+              fontSize: 12,
+              cursor: 'pointer',
+              letterSpacing: '0.04em',
+            }}
+          >
+            {fActive ? '● Active' : '○ Inactive'}
+          </button>
+          <span style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#888899' }}>
+            {fActive ? 'Chatbot will use this entry' : 'Entry will be ignored by chatbot'}
+          </span>
+        </div>
+
+        <button onClick={handleSave} disabled={saving} style={{ ...primaryBtn, opacity: saving ? 0.7 : 1 }}>
+          {saving ? 'Saving…' : editId ? 'Update Entry' : 'Add to Knowledge Base'}
+        </button>
+      </div>
+
+      {/* Filter tabs */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+        {['all', ...CATEGORIES].map(cat => (
+          <button
+            key={cat}
+            onClick={() => setFilterCat(cat)}
+            style={{
+              background: filterCat === cat ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.04)',
+              border: `1px solid ${filterCat === cat ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.08)'}`,
+              color: filterCat === cat ? '#D4AF37' : '#888899',
+              borderRadius: 20,
+              padding: '5px 14px',
+              fontFamily: 'var(--font-montserrat)',
+              fontWeight: 600,
+              fontSize: 11,
+              cursor: 'pointer',
+              letterSpacing: '0.04em',
+            }}
+          >
+            {cat === 'all' ? `All (${entries.length})` : `${cat.charAt(0).toUpperCase() + cat.slice(1)} (${entries.filter(e => e.category === cat).length})`}
+          </button>
+        ))}
+      </div>
+
+      {/* Preview strip — what the chatbot "knows" right now */}
+      {activeCount > 0 && (
+        <div style={{ ...glassCard, marginBottom: 24, background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.15)' }}>
+          <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 13, color: '#D4AF37', marginBottom: 10 }}>
+            🤖 Chatbot currently knows about:
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {entries.filter(e => e.active).map(e => (
+              <span key={e.id} style={{
+                background: `${CAT_COLORS[e.category] ?? '#888899'}18`,
+                border: `1px solid ${CAT_COLORS[e.category] ?? '#888899'}40`,
+                color: CAT_COLORS[e.category] ?? '#888899',
+                borderRadius: 20,
+                padding: '3px 10px',
+                fontFamily: 'var(--font-montserrat)',
+                fontSize: 11,
+                fontWeight: 600,
+              }}>
+                {e.title}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Entries list */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {loading ? (
+          <div style={{ textAlign: 'center', color: '#888899', padding: 32, fontFamily: 'var(--font-montserrat)', fontSize: 13 }}>Loading…</div>
+        ) : filtered.length === 0 ? (
+          <div style={{ textAlign: 'center', color: '#888899', padding: 40, fontFamily: 'var(--font-montserrat)', fontSize: 13 }}>
+            No entries yet. Add your first knowledge entry above!
+          </div>
+        ) : filtered.map(entry => (
+          <div key={entry.id} style={{
+            background: '#0d0d18',
+            border: `1px solid ${entry.active ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)'}`,
+            borderRadius: 12,
+            padding: '16px 18px',
+            opacity: entry.active ? 1 : 0.6,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+                  <span style={{
+                    background: `${CAT_COLORS[entry.category] ?? '#888899'}20`,
+                    color: CAT_COLORS[entry.category] ?? '#888899',
+                    borderRadius: 4,
+                    padding: '2px 8px',
+                    fontFamily: 'var(--font-montserrat)',
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
+                  }}>
+                    {entry.category}
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#555566' }}>
+                    Priority {entry.priority}
+                  </span>
+                  {!entry.active && (
+                    <span style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#C21818', fontWeight: 700 }}>
+                      INACTIVE
+                    </span>
+                  )}
+                </div>
+                <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 14, color: '#e8e8ec', marginBottom: 6 }}>
+                  {entry.title}
+                </div>
+                <div style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#888899', lineHeight: 1.5, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                  {entry.content.length > 200 ? entry.content.slice(0, 200) + '…' : entry.content}
+                </div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#444455', marginTop: 8 }}>
+                  {entry.content.length} chars · Updated {new Date(entry.updated_at).toLocaleDateString()}
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
+                <button onClick={() => toggleActive(entry.id, entry.active)} style={entry.active ? dangerBtn : successBtn}>
+                  {entry.active ? 'Deactivate' : 'Activate'}
+                </button>
+                <button onClick={() => startEdit(entry)} style={goldBtn}>Edit</button>
+                <button onClick={() => handleDelete(entry.id)} style={dangerBtn}>Delete</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+type TabKey = 'overview' | 'members' | 'registrations' | 'events' | 'leaderboard' | 'announcements' | 'instagram' | 'spotlights' | 'partners' | 'chatlogs' | 'blog' | 'newsletter' | 'users' | 'aicontext';
 
 type NavItem = {
   key: TabKey;
@@ -2982,6 +3310,7 @@ export default function BackendPage() {
     {
       label: 'Manage',
       items: [
+        { key: 'aicontext', label: 'AI Knowledge', icon: '🤖' },
         { key: 'partners', label: 'Partners', icon: '🤝' },
         { key: 'chatlogs', label: 'Chat Logs', icon: '💬' },
         { key: 'newsletter', label: 'Newsletter', icon: '📧' },
@@ -3367,6 +3696,7 @@ export default function BackendPage() {
             {activeTab === 'chatlogs'      && <ChatLogsModule />}
             {activeTab === 'blog'          && <BlogModule />}
             {activeTab === 'users'         && <UserManagementModule />}
+            {activeTab === 'aicontext'      && <AiContextModule />}
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
-const SYSTEM_PROMPT = `You are the RCC (Racquets Club Community) AI Assistant. RCC is Delhi's invite-only elite badminton community. You help members and prospects with questions about:
+const BASE_SYSTEM_PROMPT = `You are the RCC (Racquets Club Community) AI Assistant. RCC is Delhi's invite-only elite badminton community. You help members and prospects with questions about:
 - Membership (₹999/mo, ₹2499/quarter, ₹7999/year)
 - Events (Weekend Tournaments, Ladder Leagues, Smash Nights, Corporate Cups)
 - Court bookings at Siri Fort Sports Complex and DDA Vasant Kunj
@@ -18,6 +19,32 @@ STRICT RULES:
 interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
+}
+
+async function buildSystemPrompt(): Promise<string> {
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseKey) return BASE_SYSTEM_PROMPT;
+
+    const client = createClient(supabaseUrl, supabaseKey);
+    const { data } = await client
+      .from('ai_knowledge_base')
+      .select('title, content, category')
+      .eq('active', true)
+      .order('priority', { ascending: true })
+      .limit(30);
+
+    if (!data || data.length === 0) return BASE_SYSTEM_PROMPT;
+
+    const knowledgeBlock = data
+      .map(e => `[${e.category.toUpperCase()}] ${e.title}:\n${e.content}`)
+      .join('\n\n');
+
+    return `${BASE_SYSTEM_PROMPT}\n\n--- CURRENT RCC KNOWLEDGE BASE ---\nUse the following up-to-date information when answering questions:\n\n${knowledgeBlock}\n--- END KNOWLEDGE BASE ---`;
+  } catch {
+    return BASE_SYSTEM_PROMPT;
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -38,10 +65,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ reply });
   }
 
+  const systemPrompt = await buildSystemPrompt();
+
   const payload = {
     model: 'gpt-4o',
     messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: systemPrompt },
       ...messages.map((m) => ({ role: m.role, content: m.content })),
     ],
     max_tokens: 200,
