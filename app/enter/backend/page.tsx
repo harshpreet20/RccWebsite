@@ -35,9 +35,12 @@ type Event = {
 
 type EventRegistration = {
   id: string;
-  full_name: string;
-  email: string;
+  event_id: string;
+  member_name: string;
+  member_email: string;
+  phone?: string;
   skill_level?: string;
+  ticket_id?: string;
   registered_at: string;
   events: { title: string; event_date: string } | null;
 };
@@ -609,24 +612,38 @@ function RegistrationsModule() {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              {['Name', 'Email', 'Skill', 'Event', 'Event Date', 'Registered At', 'Actions'].map(h => (
+              {['Ticket ID', 'Name', 'Email', 'Phone', 'Skill', 'Event', 'Registered At', 'Actions'].map(h => (
                 <th key={h} style={thStyle}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {loading && <LoadingRow cols={7} />}
-            {!loading && regs.length === 0 && <EmptyRow cols={7} msg="No registrations found." />}
+            {loading && <LoadingRow cols={8} />}
+            {!loading && regs.length === 0 && <EmptyRow cols={8} msg="No registrations found." />}
             {regs.map(r => (
               <tr key={r.id}
                 onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                <td style={{ ...tdStyle, fontWeight: 600 }}>{r.full_name}</td>
-                <td style={{ ...tdStyle, color: '#888899' }}>{r.email}</td>
+                <td style={tdStyle}>
+                  {r.ticket_id ? (
+                    <span style={{ fontFamily: 'var(--font-bebas)', fontSize: 14, color: '#D4AF37', letterSpacing: '0.08em' }}>
+                      {r.ticket_id}
+                    </span>
+                  ) : <span style={{ color: '#555566' }}>—</span>}
+                </td>
+                <td style={{ ...tdStyle, fontWeight: 600 }}>{r.member_name}</td>
+                <td style={{ ...tdStyle, color: '#888899' }}>{r.member_email}</td>
+                <td style={{ ...tdStyle, color: '#888899' }}>{r.phone ?? '—'}</td>
                 <td style={tdStyle}>{r.skill_level ?? '—'}</td>
-                <td style={tdStyle}>{r.events?.title ?? '—'}</td>
-                <td style={{ ...tdStyle, color: '#888899' }}>{r.events?.event_date ? new Date(r.events.event_date).toLocaleDateString() : '—'}</td>
-                <td style={{ ...tdStyle, color: '#888899' }}>{new Date(r.registered_at).toLocaleString()}</td>
+                <td style={tdStyle}>
+                  <div style={{ fontWeight: 600, marginBottom: 2 }}>{r.events?.title ?? '—'}</div>
+                  {r.events?.event_date && (
+                    <div style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#555566' }}>
+                      {new Date(r.events.event_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </div>
+                  )}
+                </td>
+                <td style={{ ...tdStyle, color: '#888899' }}>{new Date(r.registered_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</td>
                 <td style={tdStyle}>
                   <button style={dangerBtn} onClick={() => deleteReg(r.id)}>Delete</button>
                 </td>

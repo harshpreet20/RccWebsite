@@ -16,7 +16,7 @@ interface Event {
   max_participants: number;
   current_participants: number;
   entry_fee: number;
-  prize_pool: number;
+  prize_pool: string | null;
   status: string;
   banner_url: string;
   format: string | null;
@@ -25,6 +25,14 @@ interface Event {
 type FilterTab = 'ALL' | 'TOURNAMENT' | 'LADDER' | 'SMASH NIGHT' | 'CORPORATE';
 
 const FILTER_TABS: FilterTab[] = ['ALL', 'TOURNAMENT', 'LADDER', 'SMASH NIGHT', 'CORPORATE'];
+
+const FILTER_TYPE_MAP: Record<FilterTab, string | null> = {
+  ALL: null,
+  TOURNAMENT: 'weekend_tournament',
+  LADDER: 'ladder_league',
+  'SMASH NIGHT': 'smash_night',
+  CORPORATE: 'corporate_cup',
+};
 
 const EVENT_TYPE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   tournament: { bg: 'rgba(194,24,24,0.15)', text: '#C21818', border: 'rgba(194,24,24,0.4)' },
@@ -260,9 +268,10 @@ function TicketCard({ ticket, onClose }: { ticket: Ticket; onClose: () => void }
 interface RegistrationModalProps {
   event: Event;
   onClose: () => void;
+  onRegistered?: (eventId: string) => void;
 }
 
-function RegistrationModal({ event, onClose }: RegistrationModalProps) {
+function RegistrationModal({ event, onClose, onRegistered }: RegistrationModalProps) {
   const [form, setForm] = useState({ name: '', email: '', phone: '', skill_level: 'intermediate' });
   const [loading, setLoading] = useState(false);
   const [ticket, setTicket] = useState<Ticket | null>(null);
@@ -310,6 +319,7 @@ function RegistrationModal({ event, onClose }: RegistrationModalProps) {
         venue: event.venue,
         format: event.format,
       });
+      onRegistered?.(event.id);
     }
     setLoading(false);
   }
@@ -574,13 +584,13 @@ function EventCard({ event, onRegister }: { event: Event; onRegister: (e: Event)
               </div>
             </div>
           )}
-          {event.prize_pool > 0 && (
+          {event.prize_pool && (
             <div>
               <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: '10px', color: '#888899', letterSpacing: '0.08em', marginBottom: '2px' }}>
                 PRIZE POOL
               </div>
               <div style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.2rem', color: '#D4AF37' }}>
-                ₹{event.prize_pool.toLocaleString()}
+                {event.prize_pool}
               </div>
             </div>
           )}
@@ -652,9 +662,9 @@ export default function EventsSection() {
   }, []);
 
   const filtered = events.filter((e) => {
-    if (activeTab === 'ALL') return true;
-    const normalized = activeTab.toLowerCase().replace(' ', '_');
-    return e.event_type?.toLowerCase().replace(' ', '_') === normalized;
+    const mapped = FILTER_TYPE_MAP[activeTab];
+    if (!mapped) return true;
+    return e.event_type === mapped;
   });
 
   return (
@@ -801,7 +811,15 @@ export default function EventsSection() {
 
       <AnimatePresence>
         {selectedEvent && (
-          <RegistrationModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
+          <RegistrationModal
+            event={selectedEvent}
+            onClose={() => setSelectedEvent(null)}
+            onRegistered={(eventId) => {
+              setEvents(prev => prev.map(e =>
+                e.id === eventId ? { ...e, current_participants: e.current_participants + 1 } : e
+              ));
+            }}
+          />
         )}
       </AnimatePresence>
     </section>
