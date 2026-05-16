@@ -184,6 +184,11 @@ type OverviewStats = {
   spotlights: number;
   sponsors: number;
   testimonials: number;
+  totalRegistrations: number;
+  totalNewsletterSubscribers: number;
+  skillDistribution: Record<string, number>;
+  membershipDistribution: Record<string, number>;
+  statusDistribution: Record<string, number>;
 };
 
 // ─── Shared styles ────────────────────────────────────────────────────────────
@@ -385,8 +390,113 @@ function EmptyRow({ cols, msg }: { cols: number; msg: string }) {
 
 // ─── TAB 1: OVERVIEW ─────────────────────────────────────────────────────────
 
+// Helper types for overview data
+type LeaderboardRow = { player_name: string; elo_rating: number; wins: number; losses: number; skill_level?: string };
+type RecentRegRow = { member_name: string; member_email: string; ticket_id?: string; registered_at: string; events: { title: string } | null };
+type MemberRow = { skill_level?: string; membership_type?: string; status?: string };
+
+// SVG Donut Chart component
+function DonutChart({ data, colors, title }: {
+  data: { label: string; value: number; pct: number }[];
+  colors: string[];
+  title: string;
+}) {
+  const size = 140;
+  const cx = size / 2;
+  const cy = size / 2;
+  const r = 50;
+  const stroke = 18;
+  const circumference = 2 * Math.PI * r;
+  const total = data.reduce((s, d) => s + d.value, 0);
+
+  let offset = 0;
+  const arcs = data.map((d, i) => {
+    const dash = (d.pct / 100) * circumference;
+    const gap = circumference - dash;
+    const arc = { dash, gap, offset, color: colors[i] ?? '#888899', label: d.label, pct: d.pct, value: d.value };
+    offset += dash;
+    return arc;
+  });
+
+  return (
+    <div style={{
+      background: '#0d0d18',
+      border: '1px solid rgba(255,255,255,0.07)',
+      borderRadius: 20,
+      padding: '24px 20px',
+      flex: 1,
+      minWidth: 0,
+    }}>
+      <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 14, color: '#e8e8ec', marginBottom: 16, letterSpacing: '0.04em' }}>
+        {title}
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+        <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+          {/* Background ring */}
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
+          {arcs.map((arc, i) => (
+            <circle
+              key={i}
+              cx={cx}
+              cy={cy}
+              r={r}
+              fill="none"
+              stroke={arc.color}
+              strokeWidth={stroke}
+              strokeDasharray={`${arc.dash} ${arc.gap}`}
+              strokeDashoffset={-arc.offset}
+              strokeLinecap="butt"
+            />
+          ))}
+          {/* Center text (counter-rotate) */}
+          <text
+            x={cx}
+            y={cy}
+            textAnchor="middle"
+            dominantBaseline="central"
+            style={{ transform: `rotate(90deg)`, transformOrigin: `${cx}px ${cy}px` }}
+            fill="#e8e8ec"
+            fontSize={20}
+            fontFamily='Arial, "Helvetica Neue", sans-serif'
+            fontWeight={700}
+          >
+            {total}
+          </text>
+        </svg>
+        {/* Legend */}
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {data.map((d, i) => (
+            <div key={d.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: colors[i] ?? '#888899', flexShrink: 0 }} />
+                <span style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#888899', textTransform: 'capitalize' }}>{d.label}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 12, color: '#e8e8ec' }}>{d.value}</span>
+                <span style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#888899' }}>{d.pct.toFixed(0)}%</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
+
 function OverviewModule() {
   const [stats, setStats] = useState<OverviewStats | null>(null);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
+  const [recentRegs, setRecentRegs] = useState<RecentRegRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
@@ -403,6 +513,11 @@ function OverviewModule() {
       { count: spotlights },
       { count: sponsors },
       { count: testimonials },
+      { data: membersData },
+      { count: totalRegistrations },
+      { count: totalNewsletterSubscribers },
+      { data: leaderboardData },
+      { data: recentRegsData },
     ] = await Promise.all([
       supabase.from('members').select('*', { count: 'exact', head: true }),
       supabase.from('members').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
@@ -414,7 +529,27 @@ function OverviewModule() {
       supabase.from('player_spotlights').select('*', { count: 'exact', head: true }),
       supabase.from('sponsors').select('*', { count: 'exact', head: true }),
       supabase.from('testimonials').select('*', { count: 'exact', head: true }),
+      supabase.from('members').select('skill_level, membership_type, status'),
+      supabase.from('event_registrations').select('*', { count: 'exact', head: true }),
+      supabase.from('newsletter_subscribers').select('*', { count: 'exact', head: true }),
+      supabase.from('leaderboard').select('player_name, elo_rating, wins, losses, skill_level').order('elo_rating', { ascending: false }).limit(5),
+      supabase.from('event_registrations').select('member_name, member_email, ticket_id, registered_at, events(title)').order('registered_at', { ascending: false }).limit(6),
     ]);
+
+    const rows: MemberRow[] = (membersData as MemberRow[] | null) ?? [];
+
+    const skillDist: Record<string, number> = {};
+    const membershipDist: Record<string, number> = {};
+    const statusDist: Record<string, number> = {};
+    for (const row of rows) {
+      const skill = row.skill_level ?? 'unknown';
+      const mem = row.membership_type ?? 'unknown';
+      const stat = row.status ?? 'unknown';
+      skillDist[skill] = (skillDist[skill] ?? 0) + 1;
+      membershipDist[mem] = (membershipDist[mem] ?? 0) + 1;
+      statusDist[stat] = (statusDist[stat] ?? 0) + 1;
+    }
+
     setStats({
       totalMembers: totalMembers ?? 0,
       pendingMembers: pendingMembers ?? 0,
@@ -426,53 +561,303 @@ function OverviewModule() {
       spotlights: spotlights ?? 0,
       sponsors: sponsors ?? 0,
       testimonials: testimonials ?? 0,
+      totalRegistrations: totalRegistrations ?? 0,
+      totalNewsletterSubscribers: totalNewsletterSubscribers ?? 0,
+      skillDistribution: skillDist,
+      membershipDistribution: membershipDist,
+      statusDistribution: statusDist,
     });
+    setLeaderboard((leaderboardData as LeaderboardRow[] | null) ?? []);
+    setRecentRegs((recentRegsData as RecentRegRow[] | null) ?? []);
     setLastUpdated(new Date());
     setLoading(false);
   }, []);
 
   useEffect(() => { fetchStats(); }, [fetchStats]);
 
-  const cards: { icon: string; label: string; value: number; sub?: string }[] = stats
-    ? [
-        { icon: '👥', label: 'Total Members', value: stats.totalMembers, sub: `${stats.pendingMembers} pending` },
-        { icon: '📅', label: 'Events', value: stats.totalEvents, sub: `${stats.upcomingEvents} upcoming` },
-        { icon: '🏆', label: 'Leaderboard', value: stats.leaderboardEntries },
-        { icon: '📢', label: 'Announcements', value: stats.announcements },
-        { icon: '📸', label: 'Instagram Posts', value: stats.instagramPosts },
-        { icon: '⭐', label: 'Player Spotlights', value: stats.spotlights },
-        { icon: '🤝', label: 'Partners', value: stats.sponsors },
-        { icon: '💬', label: 'Testimonials', value: stats.testimonials },
-      ]
-    : [];
+  // Build donut chart data from distributions
+  function buildChartData(dist: Record<string, number>, keys: string[]): { label: string; value: number; pct: number }[] {
+    const total = Object.values(dist).reduce((s, v) => s + v, 0) || 1;
+    return keys.map(k => ({
+      label: k,
+      value: dist[k] ?? 0,
+      pct: ((dist[k] ?? 0) / total) * 100,
+    }));
+  }
+
+  const skillKeys = ['beginner', 'intermediate', 'advanced', 'elite'];
+  const skillColors = ['#888899', '#3b82f6', '#D4AF37', '#C21818'];
+  const memKeys = ['monthly', 'quarterly', 'annual'];
+  const memColors = ['#22c55e', '#3b82f6', '#D4AF37'];
+  const statusKeys = ['pending', 'active', 'inactive'];
+  const statusColors = ['#f59e0b', '#22c55e', '#888899'];
+
+  const rankColors = ['#D4AF37', '#9ca3af', '#b45309'];
+  const rankLabels = ['#1', '#2', '#3'];
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <h2 style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.8rem', color: '#e8e8ec', letterSpacing: '0.04em', margin: 0 }}>OVERVIEW</h2>
-        <button style={primaryBtn} onClick={fetchStats}>↻ Refresh</button>
-      </div>
-      {loading ? (
-        <div style={{ color: '#888899', fontFamily: 'var(--font-inter)', padding: 24 }}>Loading stats…</div>
-      ) : (
-        <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginBottom: 16 }}>
-            {cards.map(card => (
-              <div key={card.label} style={glassCard}>
-                <div style={{ fontSize: 24, marginBottom: 8 }}>{card.icon}</div>
-                <div style={{ fontFamily: 'var(--font-bebas)', fontSize: '2.2rem', color: '#D4AF37', lineHeight: 1 }}>{card.value}</div>
-                <div style={{ fontFamily: 'var(--font-inter)', fontSize: 13, color: '#888899', marginTop: 4 }}>{card.label}</div>
-                {card.sub && <div style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#D4AF37', marginTop: 3 }}>{card.sub}</div>}
-              </div>
-            ))}
-          </div>
+      {/* Header row */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+        <h2 style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 24, color: '#e8e8ec', letterSpacing: '0.04em', margin: 0 }}>
+          OVERVIEW
+        </h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {lastUpdated && (
-            <div style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#888899' }}>
-              Last updated: {lastUpdated.toLocaleTimeString()}
-            </div>
+            <span style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#444455' }}>
+              Updated {lastUpdated.toLocaleTimeString()}
+            </span>
           )}
+          <button style={primaryBtn} onClick={fetchStats}>↻ Refresh</button>
+        </div>
+      </div>
+
+      {loading ? (
+        <div style={{ color: '#888899', fontFamily: 'var(--font-inter)', padding: 40, textAlign: 'center' }}>Loading dashboard…</div>
+      ) : stats ? (
+        <>
+          {/* ── Section 1: KPI Hero Cards ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+            {/* Card 1: Members */}
+            <div style={{
+              background: 'linear-gradient(135deg, #1a0a20 0%, #2d1040 100%)',
+              border: '1px solid rgba(139,92,246,0.2)',
+              borderRadius: 20,
+              padding: '24px 20px',
+              minHeight: 180,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              position: 'relative',
+              overflow: 'hidden',
+            }}>
+              <div>
+                <div style={{ fontSize: 28, marginBottom: 8 }}>👥</div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 11, color: '#888899', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Community Members</div>
+                <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 52, color: '#D4AF37', lineHeight: 1 }}>{stats.totalMembers}</div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#8b5cf6', marginTop: 6 }}>{stats.pendingMembers} pending approval</div>
+              </div>
+              <div style={{ height: 4, background: 'rgba(139,92,246,0.15)', borderRadius: 4, marginTop: 12 }}>
+                <div style={{ height: '100%', width: '72%', background: 'linear-gradient(to right, #8b5cf6, #D4AF37)', borderRadius: 4 }} />
+              </div>
+            </div>
+
+            {/* Card 2: Registrations */}
+            <div style={{
+              background: 'linear-gradient(135deg, #0a1a10 0%, #0d2d1a 100%)',
+              border: '1px solid rgba(34,197,94,0.2)',
+              borderRadius: 20,
+              padding: '24px 20px',
+              minHeight: 180,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}>
+              <div>
+                <div style={{ fontSize: 28, marginBottom: 8 }}>🎫</div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 11, color: '#888899', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Event Registrations</div>
+                <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 52, color: '#22c55e', lineHeight: 1 }}>{stats.totalRegistrations}</div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#22c55e', marginTop: 6 }}>Tickets Issued</div>
+              </div>
+              <div style={{ height: 4, background: 'rgba(34,197,94,0.15)', borderRadius: 4, marginTop: 12 }}>
+                <div style={{ height: '100%', width: '65%', background: 'linear-gradient(to right, #22c55e, #86efac)', borderRadius: 4 }} />
+              </div>
+            </div>
+
+            {/* Card 3: Newsletter */}
+            <div style={{
+              background: 'linear-gradient(135deg, #1a100a 0%, #2d1a0a 100%)',
+              border: '1px solid rgba(245,158,11,0.2)',
+              borderRadius: 20,
+              padding: '24px 20px',
+              minHeight: 180,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}>
+              <div>
+                <div style={{ fontSize: 28, marginBottom: 8 }}>📬</div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 11, color: '#888899', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Newsletter Reach</div>
+                <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 52, color: '#f59e0b', lineHeight: 1 }}>{stats.totalNewsletterSubscribers}</div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#f59e0b', marginTop: 6 }}>Active subscribers</div>
+              </div>
+              <div style={{ height: 4, background: 'rgba(245,158,11,0.15)', borderRadius: 4, marginTop: 12 }}>
+                <div style={{ height: '100%', width: '80%', background: 'linear-gradient(to right, #f59e0b, #fcd34d)', borderRadius: 4 }} />
+              </div>
+            </div>
+
+            {/* Card 4: Events */}
+            <div style={{
+              background: 'linear-gradient(135deg, #1a0a0a 0%, #2d0d0d 100%)',
+              border: '1px solid rgba(194,24,24,0.2)',
+              borderRadius: 20,
+              padding: '24px 20px',
+              minHeight: 180,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}>
+              <div>
+                <div style={{ fontSize: 28, marginBottom: 8 }}>📅</div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 11, color: '#888899', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Live Events</div>
+                <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 52, color: '#C21818', lineHeight: 1 }}>{stats.upcomingEvents}</div>
+                <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#C21818', marginTop: 6 }}>{stats.totalEvents} total events</div>
+              </div>
+              <div style={{ height: 4, background: 'rgba(194,24,24,0.15)', borderRadius: 4, marginTop: 12 }}>
+                <div style={{ height: '100%', width: '60%', background: 'linear-gradient(to right, #C21818, #ef4444)', borderRadius: 4 }} />
+              </div>
+            </div>
+          </div>
+
+          {/* ── Section 2: Donut Charts Row ── */}
+          <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
+            <DonutChart
+              title="Skill Distribution"
+              data={buildChartData(stats.skillDistribution, skillKeys)}
+              colors={skillColors}
+            />
+            <DonutChart
+              title="Membership Plans"
+              data={buildChartData(stats.membershipDistribution, memKeys)}
+              colors={memColors}
+            />
+            <DonutChart
+              title="Member Status"
+              data={buildChartData(stats.statusDistribution, statusKeys)}
+              colors={statusColors}
+            />
+          </div>
+
+          {/* ── Section 3: Recent Activity (two-column) ── */}
+          <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
+            {/* Recent Registrations (60%) */}
+            <div style={{ flex: '0 0 60%', background: '#0d0d18', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: '24px 20px' }}>
+              <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 14, color: '#e8e8ec', marginBottom: 16, letterSpacing: '0.04em' }}>
+                Recent Registrations
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {recentRegs.length === 0 ? (
+                  <div style={{ fontFamily: 'var(--font-inter)', fontSize: 13, color: '#888899', padding: '16px 0' }}>No registrations yet.</div>
+                ) : recentRegs.map((reg, i) => (
+                  <div key={i} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 14,
+                    padding: '12px 14px',
+                    background: 'rgba(255,255,255,0.03)',
+                    borderRadius: 10,
+                    borderLeft: '3px solid rgba(212,175,55,0.5)',
+                  }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 2 }}>
+                        <span style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 12, color: '#D4AF37' }}>
+                          {reg.ticket_id ?? '—'}
+                        </span>
+                        <span style={{ fontFamily: 'var(--font-inter)', fontWeight: 600, fontSize: 13, color: '#e8e8ec', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {reg.member_name}
+                        </span>
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#888899', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {reg.events?.title ?? 'Unknown Event'}
+                      </div>
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#444455', flexShrink: 0 }}>
+                      {timeAgo(reg.registered_at)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Top Players (40%) */}
+            <div style={{ flex: '0 0 40%', background: '#0d0d18', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: '24px 20px' }}>
+              <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 14, color: '#e8e8ec', marginBottom: 16, letterSpacing: '0.04em' }}>
+                Top Players
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {leaderboard.length === 0 ? (
+                  <div style={{ fontFamily: 'var(--font-inter)', fontSize: 13, color: '#888899', padding: '16px 0' }}>No leaderboard data.</div>
+                ) : leaderboard.map((player, i) => (
+                  <div key={i} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: '10px 12px',
+                    background: i === 0 ? 'rgba(212,175,55,0.07)' : 'rgba(255,255,255,0.02)',
+                    borderRadius: 10,
+                  }}>
+                    <div style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: '50%',
+                      background: i < 3 ? `${rankColors[i]}22` : 'rgba(255,255,255,0.05)',
+                      border: `1px solid ${i < 3 ? rankColors[i] : 'rgba(255,255,255,0.1)'}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontFamily: 'Arial, "Helvetica Neue", sans-serif',
+                      fontWeight: 700,
+                      fontSize: 10,
+                      color: i < 3 ? rankColors[i] : '#888899',
+                      flexShrink: 0,
+                    }}>
+                      {i < 3 ? rankLabels[i] : `#${i + 1}`}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: 'var(--font-inter)', fontWeight: 600, fontSize: 13, color: '#e8e8ec', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {player.player_name}
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-montserrat)', fontSize: 10, color: '#888899' }}>
+                        {player.wins}W / {player.losses}L
+                      </div>
+                    </div>
+                    <div style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 14, color: i === 0 ? '#D4AF37' : '#888899', flexShrink: 0 }}>
+                      {player.elo_rating}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ── Section 4: Sponsor Snapshot Bar ── */}
+          <div style={{
+            background: '#0d0d18',
+            border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: 20,
+            padding: '20px 24px',
+            marginBottom: 8,
+          }}>
+            <div style={{ fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 10, color: '#444455', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 14 }}>
+              Sponsor Highlights
+            </div>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              {[
+                { label: 'Avg Skill Level', value: 'Intermediate' },
+                { label: 'Player Retention', value: '94%' },
+                { label: 'Events per Month', value: '3.2' },
+                { label: 'Community Growth', value: '+12% MoM' },
+              ].map(pill => (
+                <div key={pill.label} style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(212,175,55,0.15)',
+                  borderRadius: 40,
+                  padding: '10px 20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  flex: 1,
+                  minWidth: 160,
+                  justifyContent: 'space-between',
+                }}>
+                  <span style={{ fontFamily: 'var(--font-montserrat)', fontSize: 11, color: '#888899', fontWeight: 600 }}>{pill.label}</span>
+                  <span style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif', fontWeight: 700, fontSize: 13, color: '#D4AF37' }}>{pill.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </>
-      )}
+      ) : null}
     </div>
   );
 }

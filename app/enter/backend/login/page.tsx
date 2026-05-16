@@ -11,6 +11,9 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
+  const [btnHover, setBtnHover] = useState(false);
+  const [emailFocus, setEmailFocus] = useState(false);
+  const [passFocus, setPassFocus] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -34,147 +37,343 @@ export default function AdminLoginPage() {
 
   if (checkingSession) {
     return (
-      <div style={{ background: '#0a0a0f', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ fontFamily: 'var(--font-montserrat)', color: '#888899', fontSize: 13, letterSpacing: '0.1em' }}>CHECKING SESSION...</div>
+      <div style={{ background: '#080810', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ fontFamily: 'var(--font-montserrat)', color: '#888899', fontSize: 13, letterSpacing: '0.12em' }}>CHECKING SESSION…</div>
       </div>
     );
   }
 
   return (
-    <div style={{
-      background: '#0a0a0f',
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '24px',
-    }}>
-      {/* Background grid */}
-      <div style={{
-        position: 'fixed', inset: 0, pointerEvents: 'none',
-        backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
-        backgroundSize: '48px 48px',
-      }} />
+    <>
+      <style>{`
+        @keyframes floatA {
+          0%, 100% { transform: translateY(0px) scale(1); }
+          50% { transform: translateY(-30px) scale(1.05); }
+        }
+        @keyframes floatB {
+          0%, 100% { transform: translateY(0px) scale(1); }
+          50% { transform: translateY(24px) scale(0.95); }
+        }
+        @keyframes floatC {
+          0%, 100% { transform: translateY(0px) translateX(0px); }
+          33% { transform: translateY(-18px) translateX(10px); }
+          66% { transform: translateY(12px) translateX(-8px); }
+        }
+      `}</style>
+      <div style={{ display: 'flex', minHeight: '100vh', background: '#080810', fontFamily: 'var(--font-inter)' }}>
 
-      <div style={{
-        background: 'rgba(17,17,24,0.9)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: 16,
-        padding: '40px 36px',
-        width: '100%',
-        maxWidth: 400,
-        position: 'relative',
-        backdropFilter: 'blur(12px)',
-      }}>
-        {/* Logo + title */}
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/rcc-logo.png" alt="RCC" style={{ height: 48, marginBottom: 16 }} />
-          <div style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.6rem', color: '#D4AF37', letterSpacing: '0.1em' }}>
-            ADMIN PANEL
-          </div>
-          <div style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#555566', marginTop: 4, letterSpacing: '0.08em' }}>
-            RACQUETS CLUB COMMUNITY
-          </div>
-        </div>
+        {/* ── LEFT PANEL ── */}
+        <div style={{
+          flex: '0 0 60%',
+          position: 'relative',
+          overflow: 'hidden',
+          background: '#080810',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+          className="rcc-left-panel"
+        >
+          {/* Radial gradient glows */}
+          <div style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            background: 'radial-gradient(ellipse 70% 60% at 20% 20%, rgba(212,175,55,0.13) 0%, transparent 70%), radial-gradient(ellipse 60% 50% at 80% 85%, rgba(194,24,24,0.12) 0%, transparent 70%)',
+          }} />
 
-        {/* Gold accent line */}
-        <div style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)', marginBottom: 28 }} />
+          {/* Animated floating circles */}
+          <div style={{
+            position: 'absolute', width: 340, height: 340, borderRadius: '50%',
+            border: '1px solid rgba(212,175,55,0.08)',
+            top: '-60px', left: '-80px',
+            animation: 'floatA 9s ease-in-out infinite',
+            pointerEvents: 'none',
+          }} />
+          <div style={{
+            position: 'absolute', width: 220, height: 220, borderRadius: '50%',
+            border: '1px solid rgba(194,24,24,0.07)',
+            bottom: '80px', right: '-50px',
+            animation: 'floatB 11s ease-in-out infinite',
+            pointerEvents: 'none',
+          }} />
+          <div style={{
+            position: 'absolute', width: 160, height: 160, borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(212,175,55,0.05) 0%, transparent 70%)',
+            top: '40%', left: '10%',
+            animation: 'floatC 13s ease-in-out infinite',
+            pointerEvents: 'none',
+          }} />
+          <div style={{
+            position: 'absolute', width: 90, height: 90, borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(194,24,24,0.08) 0%, transparent 70%)',
+            top: '15%', right: '15%',
+            animation: 'floatB 7s ease-in-out infinite',
+            pointerEvents: 'none',
+          }} />
 
-        <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', color: '#888899', textTransform: 'uppercase', marginBottom: 6 }}>
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              placeholder="admin@example.com"
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 8,
-                color: '#e8e8ec',
-                padding: '11px 14px',
-                width: '100%',
-                fontFamily: 'var(--font-inter)',
-                fontSize: 14,
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
+          {/* Subtle grid overlay */}
+          <div style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            backgroundImage: 'linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px)',
+            backgroundSize: '56px 56px',
+          }} />
 
-          <div style={{ marginBottom: 24 }}>
-            <label style={{ display: 'block', fontFamily: 'var(--font-montserrat)', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', color: '#888899', textTransform: 'uppercase', marginBottom: 6 }}>
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-              placeholder="••••••••"
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 8,
-                color: '#e8e8ec',
-                padding: '11px 14px',
-                width: '100%',
-                fontFamily: 'var(--font-inter)',
-                fontSize: 14,
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
+          {/* Content */}
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, padding: '0 48px', textAlign: 'center' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/rcc-logo.png" alt="RCC Logo" style={{ height: 100, width: 'auto', marginBottom: 24, filter: 'drop-shadow(0 0 24px rgba(212,175,55,0.25))' }} />
 
-          {error && (
             <div style={{
-              background: 'rgba(194,24,24,0.1)',
-              border: '1px solid rgba(194,24,24,0.3)',
-              borderRadius: 8,
-              padding: '10px 14px',
-              marginBottom: 16,
-              fontFamily: 'var(--font-inter)',
-              fontSize: 13,
-              color: '#ff6b6b',
-            }}>
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              background: loading ? 'rgba(194,24,24,0.5)' : '#C21818',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              padding: '12px 20px',
-              width: '100%',
-              fontFamily: 'var(--font-montserrat)',
+              fontFamily: 'Arial, "Helvetica Neue", sans-serif',
               fontWeight: 700,
-              fontSize: 13,
+              fontSize: 32,
+              color: '#D4AF37',
               letterSpacing: '0.06em',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'background 0.2s',
-            }}
-          >
-            {loading ? 'SIGNING IN...' : 'SIGN IN'}
-          </button>
-        </form>
+              lineHeight: 1.1,
+              marginBottom: 8,
+            }}>
+              RACQUETS CLUB<br />COMMUNITY
+            </div>
 
-        <div style={{ marginTop: 20, textAlign: 'center', fontFamily: 'var(--font-inter)', fontSize: 11, color: '#444455', letterSpacing: '0.05em' }}>
-          Authorised personnel only
+            <div style={{
+              fontFamily: 'var(--font-montserrat)',
+              fontSize: 14,
+              color: '#888899',
+              letterSpacing: '0.08em',
+              marginBottom: 40,
+            }}>
+              Delhi&apos;s Elite Badminton Network
+            </div>
+
+            {/* Stat pills */}
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 56 }}>
+              {[
+                { label: '500+ Members' },
+                { label: '50+ Events' },
+                { label: '₹5L+ Prize Pool' },
+              ].map(pill => (
+                <div key={pill.label} style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(212,175,55,0.2)',
+                  borderRadius: 20,
+                  padding: '7px 16px',
+                  fontFamily: 'var(--font-montserrat)',
+                  fontWeight: 600,
+                  fontSize: 12,
+                  color: '#D4AF37',
+                  letterSpacing: '0.04em',
+                  backdropFilter: 'blur(8px)',
+                }}>
+                  {pill.label}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom left footer */}
+          <div style={{
+            position: 'absolute', bottom: 24, left: 36,
+            fontFamily: 'var(--font-montserrat)',
+            fontSize: 11,
+            color: '#444455',
+            letterSpacing: '0.06em',
+          }}>
+            Authorised access only · Admin Portal
+          </div>
         </div>
+
+        {/* ── RIGHT PANEL ── */}
+        <div style={{
+          flex: '0 0 40%',
+          background: '#0d0d14',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          padding: '48px 40px',
+        }}>
+          {/* Subtle top border accent */}
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+            background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), rgba(194,24,24,0.3), transparent)',
+          }} />
+
+          <div style={{ width: '100%', maxWidth: 360 }}>
+            {/* Heading */}
+            <div style={{
+              fontFamily: 'Arial, "Helvetica Neue", sans-serif',
+              fontWeight: 700,
+              fontSize: 28,
+              color: '#e8e8ec',
+              marginBottom: 6,
+              lineHeight: 1.2,
+            }}>
+              Welcome Back
+            </div>
+            <div style={{
+              fontFamily: 'var(--font-montserrat)',
+              fontSize: 13,
+              color: '#888899',
+              marginBottom: 36,
+              letterSpacing: '0.03em',
+            }}>
+              Sign in to your admin account
+            </div>
+
+            <form onSubmit={handleLogin}>
+              {/* Email */}
+              <div style={{ marginBottom: 20 }}>
+                <label style={{
+                  display: 'block',
+                  fontFamily: 'var(--font-montserrat)',
+                  fontWeight: 700,
+                  fontSize: 11,
+                  letterSpacing: '0.1em',
+                  color: '#888899',
+                  textTransform: 'uppercase',
+                  marginBottom: 8,
+                }}>
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  onFocus={() => setEmailFocus(true)}
+                  onBlur={() => setEmailFocus(false)}
+                  required
+                  autoComplete="email"
+                  placeholder="admin@example.com"
+                  style={{
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.09)',
+                    borderRadius: 10,
+                    color: '#e8e8ec',
+                    padding: '13px 16px',
+                    width: '100%',
+                    fontFamily: 'var(--font-inter)',
+                    fontSize: 14,
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    transition: 'box-shadow 0.2s, border-color 0.2s',
+                    boxShadow: emailFocus ? '0 0 0 2px rgba(212,175,55,0.25), inset 0 0 0 1px rgba(212,175,55,0.2)' : 'none',
+                  }}
+                />
+              </div>
+
+              {/* Password */}
+              <div style={{ marginBottom: 28 }}>
+                <label style={{
+                  display: 'block',
+                  fontFamily: 'var(--font-montserrat)',
+                  fontWeight: 700,
+                  fontSize: 11,
+                  letterSpacing: '0.1em',
+                  color: '#888899',
+                  textTransform: 'uppercase',
+                  marginBottom: 8,
+                }}>
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  onFocus={() => setPassFocus(true)}
+                  onBlur={() => setPassFocus(false)}
+                  required
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                  style={{
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.09)',
+                    borderRadius: 10,
+                    color: '#e8e8ec',
+                    padding: '13px 16px',
+                    width: '100%',
+                    fontFamily: 'var(--font-inter)',
+                    fontSize: 14,
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    transition: 'box-shadow 0.2s, border-color 0.2s',
+                    boxShadow: passFocus ? '0 0 0 2px rgba(212,175,55,0.25), inset 0 0 0 1px rgba(212,175,55,0.2)' : 'none',
+                  }}
+                />
+              </div>
+
+              {/* Error banner */}
+              {error && (
+                <div style={{
+                  background: 'rgba(194,24,24,0.1)',
+                  border: '1px solid rgba(194,24,24,0.3)',
+                  borderRadius: 20,
+                  padding: '10px 18px',
+                  marginBottom: 20,
+                  fontFamily: 'var(--font-inter)',
+                  fontSize: 13,
+                  color: '#ff6b6b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}>
+                  <span style={{ fontSize: 15 }}>⚠</span>
+                  {error}
+                </div>
+              )}
+
+              {/* Submit button */}
+              <button
+                type="submit"
+                disabled={loading}
+                onMouseEnter={() => setBtnHover(true)}
+                onMouseLeave={() => setBtnHover(false)}
+                style={{
+                  background: loading
+                    ? 'rgba(100,10,10,0.5)'
+                    : btnHover
+                      ? 'linear-gradient(135deg, #D4AF37 0%, #b8962e 100%)'
+                      : 'linear-gradient(135deg, #C21818 0%, #8b0f0f 100%)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 10,
+                  padding: '14px 20px',
+                  width: '100%',
+                  fontFamily: 'Arial, "Helvetica Neue", sans-serif',
+                  fontWeight: 700,
+                  fontSize: 14,
+                  letterSpacing: '0.08em',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'background 0.25s, box-shadow 0.25s',
+                  boxShadow: btnHover && !loading ? '0 4px 20px rgba(212,175,55,0.3)' : '0 4px 16px rgba(194,24,24,0.3)',
+                }}
+              >
+                {loading ? 'SIGNING IN…' : 'SIGN IN'}
+              </button>
+            </form>
+
+            {/* Footer text */}
+            <div style={{
+              marginTop: 32,
+              textAlign: 'center',
+              fontFamily: 'var(--font-montserrat)',
+              fontSize: 11,
+              color: '#333344',
+              letterSpacing: '0.06em',
+            }}>
+              Secure admin portal · RCC
+            </div>
+          </div>
+        </div>
+
+        {/* Hide left panel on mobile via inline media-query hack */}
+        <style>{`
+          @media (max-width: 768px) {
+            .rcc-left-panel { display: none !important; }
+            .rcc-right-panel-inner { flex: 0 0 100% !important; }
+          }
+        `}</style>
       </div>
-    </div>
+    </>
   );
 }
