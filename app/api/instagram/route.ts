@@ -36,6 +36,21 @@ async function getSettings(): Promise<{ accessToken: string; accountId: string }
   };
 }
 
+// Silently refresh a long-lived token (valid for 60 days, refreshable after 24h)
+async function maybeRefreshToken(token: string): Promise<string> {
+  try {
+    const res = await fetch(
+      `https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=${token}`,
+      { next: { revalidate: 86400 } } // only actually call once per day
+    );
+    if (res.ok) {
+      const json = (await res.json()) as { access_token?: string };
+      if (json.access_token) return json.access_token;
+    }
+  } catch { /* ignore */ }
+  return token;
+}
+
 export async function GET() {
   const { accessToken, accountId } = await getSettings();
 
@@ -43,12 +58,15 @@ export async function GET() {
     return NextResponse.json({ posts: [], source: 'unconfigured' });
   }
 
+  // For personal tokens, refresh silently in the background
+  const token = accountId ? accessToken : await maybeRefreshToken(accessToken);
+
   try {
-    // Support both Personal (Basic Display API) and Business (Graph API)
     const fields = 'id,caption,media_url,thumbnail_url,permalink,like_count,timestamp,media_type';
+    // Business/Creator accounts use Facebook Graph API; personal uses Instagram Basic Display
     const endpoint = accountId
-      ? `https://graph.facebook.com/v19.0/${accountId}/media?fields=${fields}&limit=9&access_token=${accessToken}`
-      : `https://graph.instagram.com/me/media?fields=${fields}&limit=9&access_token=${accessToken}`;
+      ? `https://graph.facebook.com/v21.0/${accountId}/media?fields=${fields}&limit=9&access_token=${token}`
+      : `https://graph.instagram.com/me/media?fields=${fields}&limit=9&access_token=${token}`;
 
     const res = await fetch(endpoint, { next: { revalidate: 300 } }); // cache 5 min
     if (!res.ok) {

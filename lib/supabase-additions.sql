@@ -33,6 +33,31 @@ alter table rcc_forms enable row level security;
 create policy "Public read active forms" on rcc_forms for select using (active = true);
 create policy "Authenticated manage forms" on rcc_forms for all using (auth.uid() is not null);
 
+-- Instagram posts (manual fallback when API is unconfigured)
+create table if not exists instagram_posts (
+  id uuid primary key default gen_random_uuid(),
+  caption text not null default '',
+  image_url text not null,
+  post_url text not null default 'https://www.instagram.com/racquetsclubcommunity/',
+  likes integer not null default 0,
+  posted_at timestamptz not null default now(),
+  created_at timestamptz default now()
+);
+alter table instagram_posts enable row level security;
+create policy "Public read instagram posts" on instagram_posts for select using (true);
+create policy "Authenticated manage instagram posts" on instagram_posts for all using (auth.uid() is not null);
+
+-- Site settings (for Instagram token, etc stored via admin panel)
+create table if not exists site_settings (
+  id uuid primary key default gen_random_uuid(),
+  key text unique not null,
+  value text,
+  updated_at timestamptz default now()
+);
+alter table site_settings enable row level security;
+create policy "Public read site settings" on site_settings for select using (true);
+create policy "Authenticated manage site settings" on site_settings for all using (auth.uid() is not null);
+
 -- Form responses
 create table if not exists rcc_form_responses (
   id uuid primary key default gen_random_uuid(),
