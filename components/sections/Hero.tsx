@@ -1,6 +1,7 @@
 'use client';
 
 import { Users, ArrowRight } from 'lucide-react';
+import Counter from '@/components/ui/Counter';
 
 /**
  * Hero — video/gif background (smooth, no per-frame canvas work). Drop the real
@@ -17,7 +18,7 @@ const STATS = [
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen w-full overflow-hidden bg-[#0a0a0f]">
+    <section className="relative min-h-screen w-full overflow-hidden bg-[#050505]">
       {/* Video / gif background (placeholder-safe) */}
       <video
         className="absolute inset-0 h-full w-full object-cover opacity-70"
@@ -31,19 +32,27 @@ export default function Hero() {
       </video>
 
       {/* Legibility overlays */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0f] via-[#0a0a0f]/85 to-[#0a0a0f]/30" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-transparent to-[#0a0a0f]/60" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/85 to-[#050505]/30" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505]/60" />
+      {/* Soft teal volumetric lighting + gold highlight */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse 70% 90% at 78% 45%, rgba(194,24,24,0.28) 0%, transparent 60%)',
+            'radial-gradient(ellipse 70% 90% at 78% 40%, rgba(0,183,168,0.22) 0%, transparent 60%)',
+        }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(ellipse 40% 60% at 15% 75%, rgba(212,175,55,0.10) 0%, transparent 55%)',
         }}
       />
 
       {/* Content */}
       <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 pb-40 pt-32 sm:px-10">
-        <p className="text-xs font-bold uppercase tracking-[0.35em] text-[var(--color-gold)]">
+        <p className="text-xs font-bold uppercase tracking-[0.35em] text-[var(--color-teal)]">
           Racquets Club Community
         </p>
         <h1 className="mt-5 font-[var(--font-montserrat)] text-5xl font-extrabold uppercase leading-[0.95] tracking-tight text-white sm:text-6xl lg:text-7xl">
@@ -51,7 +60,7 @@ export default function Hero() {
           <br />
           One Passion.
           <br />
-          <span className="text-[var(--color-gold)]">Racquets Forever.</span>
+          Racquets <span className="text-[var(--color-teal)]">Forever.</span>
         </h1>
         <p className="mt-6 max-w-md text-sm leading-relaxed text-white/70">
           RCC is more than a badminton community. It&apos;s a movement of players,
@@ -83,9 +92,7 @@ export default function Hero() {
                 i < STATS.length - 1 ? 'md:border-r border-white/10' : ''
               }`}
             >
-              <span className="font-[var(--font-montserrat)] text-2xl font-extrabold text-[var(--color-gold)]">
-                {s.value}
-              </span>
+              <Counter value={s.value} className="font-[var(--font-montserrat)] text-2xl font-extrabold text-[var(--color-teal)]" />
               <span className="text-[11px] font-semibold uppercase leading-tight tracking-wide text-white/70">
                 {s.label}
                 {s.sub && <span className="block text-white/40">{s.sub}</span>}

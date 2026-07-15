@@ -1,404 +1,175 @@
 'use client';
 
-import { useState } from 'react';
-import { Mail, Phone } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
+/* ── Social icons ─────────────────────────────────────────────────── */
 function InstagramIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
     </svg>
   );
 }
-
 function YouTubeIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/>
       <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" stroke="none"/>
     </svg>
   );
 }
-
 function FacebookIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
     </svg>
   );
 }
-
-function SendIcon() {
+function WhatsAppIcon({ size = 18 }: { size?: number }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.6 6.32A7.85 7.85 0 0 0 12.05 4C7.7 4 4.15 7.55 4.15 11.9c0 1.4.37 2.76 1.06 3.96L4 20l4.25-1.12a7.9 7.9 0 0 0 3.8.97h.01c4.35 0 7.9-3.55 7.9-7.9a7.85 7.85 0 0 0-2.36-5.63ZM12.05 18.5a6.56 6.56 0 0 1-3.35-.92l-.24-.14-2.5.66.67-2.44-.16-.25a6.55 6.55 0 0 1-1-3.5c0-3.62 2.95-6.56 6.58-6.56a6.53 6.53 0 0 1 6.56 6.57c0 3.62-2.94 6.57-6.56 6.57Zm3.6-4.92c-.2-.1-1.17-.58-1.35-.64-.18-.07-.31-.1-.44.1-.13.2-.5.64-.62.77-.11.13-.23.15-.43.05a5.4 5.4 0 0 1-1.58-.98 6 6 0 0 1-1.1-1.36c-.11-.2-.01-.3.09-.4.09-.09.2-.23.3-.35.1-.12.13-.2.2-.34.06-.13.03-.25-.02-.35-.05-.1-.44-1.07-.6-1.46-.16-.38-.32-.33-.44-.34l-.38-.01a.72.72 0 0 0-.52.24c-.18.2-.68.67-.68 1.63 0 .96.7 1.89.8 2.02.1.13 1.38 2.1 3.34 2.95.47.2.83.32 1.11.41.47.15.9.13 1.23.08.38-.06 1.17-.48 1.33-.94.17-.46.17-.85.12-.94-.05-.08-.18-.13-.38-.23Z"/>
     </svg>
   );
 }
 
+/* ── Config (swap placeholders with real links when ready) ────────── */
+const WHATSAPP_URL = 'https://chat.whatsapp.com/';
+
 const QUICK_LINKS = [
   { label: 'Home', href: '/' },
-  { label: 'About Us', href: '/about' },
-  { label: 'Events', href: '#events' },
-  { label: 'Membership', href: '#membership' },
-  { label: 'Leaderboard', href: '#leaderboard' },
-  { label: 'Shop', href: '/shop' },
+  { label: 'About RCC', href: '/about' },
+  { label: 'Play', href: '#play' },
+  { label: 'Events', href: '/events' },
+  { label: 'Membership', href: '/membership' },
+  { label: 'Shop', href: 'https://store.racquetsclubcommunity.com' },
+  { label: 'Gallery', href: '#gallery' },
   { label: 'Contact', href: '/contact' },
 ];
 
-const COMMUNITY_LINKS = [
-  { label: 'Member Login', href: '/login' },
-  { label: 'Submit Match Result', href: '/submit-result' },
-  { label: 'Book a Court', href: '/book' },
-  { label: 'Partner With Us', href: '/partner' },
-  { label: 'Media Kit', href: '/media-kit' },
+const PLAY_LINKS = [
+  { label: 'Venues', href: '#play' },
+  { label: 'Book a Court', href: 'https://hudle.in/' },
+  { label: 'Match Play', href: '#play' },
+  { label: 'Rules & Guidelines', href: '/about' },
+  { label: 'Player Levels', href: '/membership' },
 ];
 
-export default function Footer() {
-  const [subEmail, setSubEmail] = useState('');
-  const [subStatus, setSubStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+const SUPPORT_LINKS = [
+  { label: 'Help & FAQs', href: '/contact' },
+  { label: 'Community Rules', href: '/about' },
+  { label: 'Terms & Conditions', href: '/terms' },
+  { label: 'Privacy Policy', href: '/privacy' },
+];
 
-  async function handleSubscribe(e?: React.FormEvent) {
-    e?.preventDefault();
-    const email = subEmail.trim();
-    if (!email || subStatus === 'loading') return;
-    setSubStatus('loading');
-    try {
-      const { error } = await supabase.from('newsletter_subscribers').insert({ email, source: 'footer' });
-      if (error) {
-        setSubStatus(error.code === '23505' ? 'done' : 'error');
-      } else {
-        setSubStatus('done');
-      }
-    } catch {
-      setSubStatus('error');
-    }
-  }
+function LinkCol({ title, links }: { title: string; links: { label: string; href: string }[] }) {
   return (
-    <footer
-      style={{
-        background: '#080810',
-        borderTop: '1px solid rgba(255,255,255,0.06)',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
+    <div>
+      <h4 className="mb-5 text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--color-gold)]">{title}</h4>
+      <ul className="flex flex-col gap-2.5">
+        {links.map((l) => (
+          <li key={l.label}>
+            <a href={l.href} className="footer-link text-[13px]">{l.label}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default function Footer() {
+  return (
+    <footer className="relative overflow-hidden border-t border-white/10 bg-[#050505]">
       <style>{`
-        .footer-link {
-          font-family: var(--font-inter);
-          font-size: 14px;
-          color: #888899;
-          text-decoration: none;
-          transition: color 0.2s;
-        }
+        .footer-link { font-family: var(--font-inter); color: #8a8a99; text-decoration: none; transition: color .2s; }
         .footer-link:hover { color: #D4AF37; }
-        .footer-social-icon {
-          width: 38px;
-          height: 38px;
-          border-radius: 8px;
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.08);
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          color: #888899;
-          text-decoration: none;
-          transition: all 0.2s;
+        .footer-social {
+          width: 38px; height: 38px; border-radius: 9px;
+          background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+          display: inline-flex; align-items: center; justify-content: center;
+          color: #8a8a99; text-decoration: none; transition: all .2s;
         }
-        .footer-social-icon:hover {
-          color: #D4AF37;
-          border-color: rgba(212,175,55,0.3);
-          background: rgba(212,175,55,0.08);
-        }
-        .footer-subscribe-btn {
-          padding: 10px 14px;
-          min-height: 44px;
-          background: #C21818;
-          border: none;
-          border-radius: 6px;
-          color: #fff;
-          cursor: pointer;
-          transition: background 0.2s;
-          display: flex;
-          align-items: center;
-        }
-        .footer-subscribe-btn:hover { background: #D4AF37; }
-        .footer-contact-link {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-family: var(--font-inter);
-          font-size: 13px;
-          color: #888899;
-          text-decoration: none;
-          transition: color 0.2s;
-        }
-        .footer-contact-link:hover { color: #D4AF37; }
-        .footer-legal-link {
-          font-family: var(--font-inter);
-          font-size: 12px;
-          color: #888899;
-          text-decoration: none;
-          transition: color 0.2s;
-        }
-        .footer-legal-link:hover { color: #e8e8ec; }
-        .footer-hotbot-link {
-          font-family: var(--font-inter);
-          font-size: 12px;
-          color: #888899;
-          text-decoration: none;
-          transition: color 0.2s;
-          letter-spacing: 0.04em;
-        }
-        .footer-hotbot-link:hover { color: #D4AF37; }
-        @media (max-width: 900px) {
-          .footer-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        }
-        @media (max-width: 520px) {
-          .footer-grid { grid-template-columns: 1fr !important; }
-        }
-        @media (max-width: 480px) {
-          .footer-grid { grid-template-columns: 1fr !important; }
-          .footer-newsletter-row { flex-wrap: wrap !important; }
-          .footer-newsletter-row .footer-subscribe-btn { width: 100%; justify-content: center; }
-        }
+        .footer-social:hover { color: #D4AF37; border-color: rgba(212,175,55,0.3); background: rgba(212,175,55,0.08); }
+        .footer-contact { display: flex; align-items: flex-start; gap: 9px; font-family: var(--font-inter); font-size: 13px; color: #8a8a99; text-decoration: none; transition: color .2s; }
+        .footer-contact:hover { color: #D4AF37; }
+        @media (max-width: 1024px) { .footer-cols { grid-template-columns: repeat(3, 1fr) !important; } }
+        @media (max-width: 640px) { .footer-cols { grid-template-columns: repeat(2, 1fr) !important; } }
+        @media (max-width: 420px) { .footer-cols { grid-template-columns: 1fr !important; } }
       `}</style>
 
       <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '800px',
-          height: '300px',
-          background: 'radial-gradient(ellipse, rgba(212,175,55,0.04) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
+        className="pointer-events-none absolute left-1/2 top-0 h-72 w-[800px] -translate-x-1/2"
+        style={{ background: 'radial-gradient(ellipse, rgba(212,175,55,0.05) 0%, transparent 70%)' }}
       />
 
       <div
-        style={{
-          padding: '64px clamp(16px, 5vw, 120px) 40px',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '40px',
-          position: 'relative',
-        }}
-        className="footer-grid"
+        className="footer-cols relative mx-auto grid max-w-7xl gap-10 px-6 py-16 sm:px-10"
+        style={{ gridTemplateColumns: '1.6fr 1fr 1fr 1fr 1.4fr' }}
       >
+        {/* Brand */}
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-            <img
-              src="/rcc-logo.png"
-              alt="RCC"
-              style={{ height: '40px', width: 'auto' }}
-            />
-            <div>
-              <div
-                style={{
-                  fontFamily: 'var(--font-bebas)',
-                  fontSize: '1.3rem',
-                  color: '#D4AF37',
-                  lineHeight: 1,
-                  letterSpacing: '0.05em',
-                }}
-              >
-                RACQUETS CLUB
-              </div>
-              <div
-                style={{
-                  fontFamily: 'var(--font-bebas)',
-                  fontSize: '1rem',
-                  color: '#e8e8ec',
-                  lineHeight: 1,
-                  letterSpacing: '0.08em',
-                }}
-              >
-                COMMUNITY
-              </div>
+          <div className="mb-4 flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/rcc-crest.webp" alt="RCC" className="h-11 w-11 object-contain" />
+            <div className="leading-tight">
+              <div className="font-[var(--font-montserrat)] text-sm font-black tracking-[0.08em] text-white">RACQUETS</div>
+              <div className="font-[var(--font-montserrat)] text-[9px] font-semibold tracking-[0.15em] text-[var(--color-gold)]">CLUB COMMUNITY</div>
             </div>
           </div>
-          <p
-            style={{
-              fontFamily: 'var(--font-inter)',
-              fontSize: '13px',
-              color: '#888899',
-              lineHeight: 1.7,
-              marginBottom: '24px',
-            }}
-          >
-            Delhi's elite invite-only badminton community. Where passion meets competition.
+          <p className="mb-6 max-w-xs text-[13px] leading-relaxed text-white/45">
+            A community of badminton lovers united by passion, respect and the love for the game.
           </p>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <a href="https://www.instagram.com/racquetsclubcommunity/" target="_blank" rel="noopener noreferrer" className="footer-social-icon" aria-label="Instagram">
-              <InstagramIcon />
-            </a>
-            <a href="https://youtube.com/@rccdelhi" target="_blank" rel="noopener noreferrer" className="footer-social-icon" aria-label="YouTube">
-              <YouTubeIcon />
-            </a>
-            <a href="https://facebook.com/rccdelhi" target="_blank" rel="noopener noreferrer" className="footer-social-icon" aria-label="Facebook">
-              <FacebookIcon />
-            </a>
+          <div className="flex gap-3">
+            <a href="https://www.instagram.com/racquetsclubcommunity/" target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="Instagram"><InstagramIcon /></a>
+            <a href="https://facebook.com/rccdelhi" target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="Facebook"><FacebookIcon /></a>
+            <a href="https://youtube.com/@rccdelhi" target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="YouTube"><YouTubeIcon /></a>
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="WhatsApp"><WhatsAppIcon /></a>
           </div>
         </div>
 
-        <div>
-          <h4
-            style={{
-              fontFamily: 'var(--font-montserrat)',
-              fontSize: '11px',
-              fontWeight: 700,
-              letterSpacing: '0.18em',
-              color: '#888899',
-              textTransform: 'uppercase',
-              marginBottom: '20px',
-            }}
-          >
-            Quick Links
-          </h4>
-          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {QUICK_LINKS.map((link) => (
-              <li key={link.label}>
-                <a href={link.href} className="footer-link">{link.label}</a>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <LinkCol title="Quick Links" links={QUICK_LINKS} />
+        <LinkCol title="Play" links={PLAY_LINKS} />
+        <LinkCol title="Support" links={SUPPORT_LINKS} />
 
+        {/* Contact + WhatsApp community */}
         <div>
-          <h4
-            style={{
-              fontFamily: 'var(--font-montserrat)',
-              fontSize: '11px',
-              fontWeight: 700,
-              letterSpacing: '0.18em',
-              color: '#888899',
-              textTransform: 'uppercase',
-              marginBottom: '20px',
-            }}
-          >
-            Community
-          </h4>
-          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {COMMUNITY_LINKS.map((link) => (
-              <li key={link.label}>
-                <a href={link.href} className="footer-link">{link.label}</a>
-              </li>
-            ))}
-          </ul>
-        </div>
+          <h4 className="mb-5 text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--color-gold)]">Contact Us</h4>
+          <div className="flex flex-col gap-3">
+            <a href="mailto:hello@racquetsclubcommunity.com" className="footer-contact">
+              <Mail size={15} className="mt-0.5 shrink-0 text-[var(--color-gold)]" /> hello@racquetsclubcommunity.com
+            </a>
+            <a href="tel:+919876543210" className="footer-contact">
+              <Phone size={15} className="mt-0.5 shrink-0 text-[var(--color-gold)]" /> +91 98765 43210
+            </a>
+            <p className="footer-contact">
+              <MapPin size={15} className="mt-0.5 shrink-0 text-[var(--color-gold)]" /> Paschim Vihar, New Delhi
+            </p>
+          </div>
 
-        <div>
-          <h4
-            style={{
-              fontFamily: 'var(--font-montserrat)',
-              fontSize: '11px',
-              fontWeight: 700,
-              letterSpacing: '0.18em',
-              color: '#888899',
-              textTransform: 'uppercase',
-              marginBottom: '20px',
-            }}
-          >
-            Connect
-          </h4>
-
-          <div style={{ marginBottom: '20px' }}>
-            <div
-              style={{
-                fontFamily: 'var(--font-montserrat)',
-                fontSize: '11px',
-                color: '#888899',
-                marginBottom: '10px',
-                letterSpacing: '0.06em',
-              }}
+          <div className="mt-6 rounded-2xl border border-[var(--color-gold)]/20 bg-white/[0.03] p-4">
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--color-gold)]">Join WhatsApp Community</p>
+            <p className="mt-1.5 text-[12px] leading-relaxed text-white/45">Stay updated with games, events &amp; more!</p>
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-2 rounded-md bg-[#25D366] px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide text-black transition hover:brightness-110"
             >
-              Stay in the loop
-            </div>
-            {subStatus === 'done' ? (
-              <div style={{ fontFamily: 'var(--font-inter)', fontSize: 13, color: '#22c55e', padding: '10px 0' }}>
-                ✓ You&apos;re subscribed!
-              </div>
-            ) : (
-              <form onSubmit={handleSubscribe} noValidate={false}>
-                <div className="footer-newsletter-row" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  <input
-                    type="email"
-                    placeholder="your@email.com"
-                    value={subEmail}
-                    onChange={e => { setSubEmail(e.target.value); if (subStatus === 'error') setSubStatus('idle'); }}
-                    required
-                    style={{
-                      flex: 1, padding: '10px 14px',
-                      background: 'rgba(255,255,255,0.05)',
-                      border: `1px solid ${subStatus === 'error' ? 'rgba(194,24,24,0.6)' : 'rgba(255,255,255,0.1)'}`,
-                      borderRadius: '6px', color: '#e8e8ec',
-                      fontFamily: 'var(--font-inter)', fontSize: '13px',
-                      outline: 'none', minWidth: 0,
-                    }}
-                  />
-                  <button className="footer-subscribe-btn" type="submit" aria-label="Subscribe" disabled={subStatus === 'loading'}>
-                    {subStatus === 'loading' ? (
-                      <span style={{ fontSize: 11 }}>…</span>
-                    ) : (
-                      <SendIcon />
-                    )}
-                  </button>
-                </div>
-                {subStatus === 'error' && (
-                  <div style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#ff6b6b', marginTop: 6 }}>
-                    Something went wrong — please try again.
-                  </div>
-                )}
-              </form>
-            )}
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <a href="mailto:rcc@rccdelhi.com" className="footer-contact-link">
-              <Mail size={14} />
-              rcc@rccdelhi.com
-            </a>
-            <a href="tel:+919876543210" className="footer-contact-link">
-              <Phone size={14} />
-              +91 98765 43210
+              <WhatsAppIcon size={15} /> Join Now
             </a>
           </div>
         </div>
       </div>
 
-      <div style={{ padding: '0 clamp(16px, 5vw, 120px) 32px' }}>
-        <div className="divider" style={{ marginBottom: '24px' }} />
-
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '12px',
-          }}
-        >
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center' }}>
-            <span style={{ fontFamily: 'var(--font-inter)', fontSize: '12px', color: '#888899' }}>
-              © 2026 Racquets Club Community
-            </span>
-            <span style={{ color: 'rgba(255,255,255,0.2)', margin: '0 4px' }}>|</span>
-            <a href="/privacy" className="footer-legal-link">Privacy Policy</a>
-            <span style={{ color: 'rgba(255,255,255,0.2)', margin: '0 4px' }}>|</span>
-            <a href="/terms" className="footer-legal-link">Terms of Service</a>
-          </div>
-
-          <a
-            href="https://www.hotbotstudios.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="footer-hotbot-link"
-          >
-            Developed &amp; Marketed by HotBot Studios
-          </a>
+      {/* Bottom bar */}
+      <div className="border-t border-white/[0.06] px-6 py-6 sm:px-10">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
+          <span className="font-[var(--font-inter)] text-xs text-white/40">
+            © 2024 Racquets Club Community. All rights reserved.
+          </span>
+          <span className="font-[var(--font-inter)] text-xs text-white/40">
+            Made with <span className="text-[#C21818]">♥</span> for the community
+          </span>
         </div>
       </div>
     </footer>

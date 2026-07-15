@@ -141,7 +141,7 @@ export default function AdminLoginPage() {
           {/* Content */}
           <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, padding: '0 48px', textAlign: 'center' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/rcc-logo.png" alt="RCC Logo" style={{ height: 100, width: 'auto', marginBottom: 24, filter: 'drop-shadow(0 0 24px rgba(212,175,55,0.25))' }} />
+            <img src="/rcc-crest.webp" alt="RCC Logo" style={{ height: 100, width: 'auto', marginBottom: 24, filter: 'drop-shadow(0 0 24px rgba(212,175,55,0.25))' }} />
 
             <div style={{
               fontFamily: 'Arial, "Helvetica Neue", sans-serif',

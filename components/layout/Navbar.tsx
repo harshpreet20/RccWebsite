@@ -9,7 +9,7 @@ function RccBadge({ size = 70 }: { size?: number }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/rcc-logo.png"
+      src="/rcc-crest.webp"
       alt="Racquets Club Community"
       width={size}
       height={size}

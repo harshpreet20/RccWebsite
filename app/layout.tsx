@@ -34,6 +34,11 @@ export const metadata: Metadata = {
   description:
     "RCC is Delhi's invite-only badminton community for serious players. Regular games, skill-based matches, tournaments, and real connections.",
   keywords: 'badminton, Delhi, invite-only, community, RCC, Racquets Club, tournaments, sports',
+  icons: {
+    icon: '/rcc-crest.webp',
+    shortcut: '/rcc-crest.webp',
+    apple: '/rcc-crest.webp',
+  },
   openGraph: {
     title: 'Racquets Club Community (RCC)',
     description: "Delhi's invite-only badminton community. Smash. Connect. Compete.",
@@ -50,7 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="preload" href="/athlete.png" as="image" />
       </head>
-      <body className="antialiased bg-[#0a0a0f] text-[#e8e8ec] overflow-x-hidden">
+      <body className="antialiased bg-[#050505] text-[#e8e8ec] overflow-x-hidden">
         {children}
       </body>
     </html>

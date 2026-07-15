@@ -4328,7 +4328,7 @@ export default function BackendPage() {
       <div style={{ padding: '20px 16px 18px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/rcc-logo.png" alt="RCC" style={{ height: 36, width: 36, objectFit: 'contain', flexShrink: 0 }} />
+          <img src="/rcc-crest.webp" alt="RCC" style={{ height: 36, width: 36, objectFit: 'contain', flexShrink: 0 }} />
           <div>
             <div style={{ fontFamily: 'var(--font-bebas)', fontSize: '1.15rem', color: '#D4AF37', letterSpacing: '0.08em', lineHeight: 1 }}>
               ADMIN PANEL
