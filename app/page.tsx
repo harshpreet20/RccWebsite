@@ -6,6 +6,7 @@ import MembershipSection from '@/components/sections/MembershipSection';
 import PlayerSpotlight from '@/components/sections/PlayerSpotlight';
 import LeaderboardSection from '@/components/sections/LeaderboardSection';
 import CommunityFeed from '@/components/sections/CommunityFeed';
+import RCCShopSection from '@/components/sections/RCCShopSection';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
 import Footer from '@/components/layout/Footer';
 import ChatBot from '@/components/ui/ChatBot';
@@ -22,6 +23,7 @@ export default function Home() {
       <PlayerSpotlight />
       <LeaderboardSection />
       <CommunityFeed limit={4} />
+      <RCCShopSection />
       <TestimonialsSection />
       <Footer />
       <ChatBot />
