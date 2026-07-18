@@ -1,7 +1,8 @@
 'use client';
 
 import { useRef } from 'react';
-import { MapPin, LayoutGrid, ArrowRight, ChevronLeft, ChevronRight, Grid2x2 } from 'lucide-react';
+import { MapPin, ArrowRight, ChevronLeft, ChevronRight, Grid2x2 } from 'lucide-react';
+import Placeholder from '@/components/ui/Placeholder';
 
 /**
  * Venues — "Book Now" deep-links to Hudle (RCC's booking partner). Replace
@@ -83,12 +84,7 @@ export default function VenuesSection() {
                   key={v.name}
                   className="flex w-[220px] flex-none snap-start flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#111111]"
                 >
-                  {/* Banner placeholder */}
-                  <div className="relative aspect-[4/3] bg-gradient-to-br from-[#101f1c] to-[#070d0c]">
-                    <div className="absolute inset-0 grid place-items-center text-white/15">
-                      <LayoutGrid size={34} />
-                    </div>
-                  </div>
+                  <Placeholder className="aspect-[4/3]" />
                   <div className="flex flex-1 flex-col p-4">
                     <h3 className="text-sm font-bold leading-tight text-white">{v.name}</h3>
                     <p className="mt-0.5 flex items-center gap-1 text-[11px] text-white/40">

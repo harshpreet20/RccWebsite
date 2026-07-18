@@ -1,6 +1,7 @@
 'use client';
 
-import { Users, ShieldCheck, TrendingUp, ArrowRight, ImageIcon } from 'lucide-react';
+import { Users, ShieldCheck, TrendingUp, ArrowRight } from 'lucide-react';
+import Placeholder from '@/components/ui/Placeholder';
 
 const VALUES = [
   { icon: Users, title: 'Community First', text: "We're a family of players who respect the game and each other." },
@@ -38,9 +39,7 @@ export default function OurStorySection() {
 
         {/* Team-photo banner (placeholder) with value cards overlaid at the bottom */}
         <div className="relative overflow-hidden rounded-3xl border border-white/10">
-          <div className="grid aspect-[4/3] place-items-center bg-gradient-to-br from-[#101f1c] via-[#0a1210] to-[#070d0c] text-white/10 sm:aspect-[16/10]">
-            <ImageIcon size={46} />
-          </div>
+          <Placeholder className="aspect-[4/3] sm:aspect-[16/10]" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/50 to-transparent" />
           <div className="absolute inset-x-3 bottom-3 grid grid-cols-3 gap-2 sm:inset-x-4 sm:bottom-4 sm:gap-3">
             {VALUES.map((v) => (
