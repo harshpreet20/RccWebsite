@@ -2,6 +2,7 @@
 
 import { Users, ShieldCheck, TrendingUp, ArrowRight } from 'lucide-react';
 import Placeholder from '@/components/ui/Placeholder';
+import { StaggerGroup, StaggerItem } from '@/components/ui/StaggerGroup';
 
 const VALUES = [
   { icon: Users, title: 'Community First', text: "We're a family of players who respect the game and each other." },
@@ -41,17 +42,17 @@ export default function OurStorySection() {
         <div className="relative overflow-hidden rounded-3xl border border-white/10">
           <Placeholder className="aspect-[4/3] sm:aspect-[16/10]" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/50 to-transparent" />
-          <div className="absolute inset-x-3 bottom-3 grid grid-cols-3 gap-2 sm:inset-x-4 sm:bottom-4 sm:gap-3">
+          <StaggerGroup className="absolute inset-x-3 bottom-3 grid grid-cols-3 gap-2 sm:inset-x-4 sm:bottom-4 sm:gap-3">
             {VALUES.map((v) => (
-              <div key={v.title} className="rounded-xl border border-white/10 bg-black/50 p-3 text-center backdrop-blur sm:p-4">
+              <StaggerItem key={v.title} className="rounded-xl border border-white/10 bg-black/50 p-3 text-center backdrop-blur sm:p-4">
                 <div className="mx-auto grid h-9 w-9 place-items-center rounded-lg border border-[var(--color-teal)]/30 text-[var(--color-teal)] sm:h-10 sm:w-10">
                   <v.icon size={18} />
                 </div>
                 <h3 className="mt-2.5 text-[10px] font-bold uppercase tracking-wide text-[var(--color-teal)] sm:text-[11px]">{v.title}</h3>
                 <p className="mt-1 hidden text-[10px] leading-relaxed text-white/55 sm:block">{v.text}</p>
-              </div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerGroup>
         </div>
       </div>
     </section>

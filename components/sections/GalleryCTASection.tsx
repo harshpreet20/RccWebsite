@@ -2,6 +2,7 @@
 
 import { Quote, ArrowRight } from 'lucide-react';
 import Placeholder from '@/components/ui/Placeholder';
+import { StaggerGroup, StaggerItem } from '@/components/ui/StaggerGroup';
 
 /** Gallery uses banner placeholders (swap for real photos) + a member quote,
  *  followed by the closing call-to-action. */
@@ -17,11 +18,13 @@ export default function GalleryCTASection() {
               <br />
               Bring Us Together.
             </h2>
-            <div className="mt-6 grid grid-cols-3 gap-2">
+            <StaggerGroup className="mt-6 grid grid-cols-3 gap-2">
               {Array.from({ length: 6 }).map((_, i) => (
-                <Placeholder key={i} className="aspect-[4/3] rounded-lg border border-white/10" />
+                <StaggerItem key={i} className="aspect-[4/3] overflow-hidden rounded-lg border border-white/10">
+                  <Placeholder className="h-full w-full" />
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerGroup>
             <a href="/community" className="mt-6 inline-flex items-center gap-2 rounded-md border border-[var(--color-teal)]/50 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--color-teal)] transition hover:bg-[var(--color-teal)]/10">
               View Gallery <ArrowRight size={15} />
             </a>

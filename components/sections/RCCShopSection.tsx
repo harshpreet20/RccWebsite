@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { ArrowRight, ShoppingCart } from 'lucide-react';
+import { StaggerGroup, StaggerItem } from '@/components/ui/StaggerGroup';
 import {
   fetchStoreProducts,
   storeProductUrl,
@@ -52,11 +53,12 @@ export default function RCCShopSection() {
           </a>
         </div>
 
-        <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <StaggerGroup className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {(loaded ? products : Array.from({ length: 5 })).map((p, i) => {
             const product = p as StoreProduct;
             return (
-              <a
+              <StaggerItem
+                as="a"
                 key={loaded ? product.slug : i}
                 href={loaded ? storeProductUrl(product.slug) : STORE_ORIGIN}
                 className="group flex flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[#111111] transition hover:border-[var(--color-gold)]/40"
@@ -102,10 +104,10 @@ export default function RCCShopSection() {
                     )}
                   </div>
                 </div>
-              </a>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerGroup>
 
         <div className="mt-8 text-center">
           <a

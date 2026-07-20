@@ -1,6 +1,7 @@
 'use client';
 
 import { Calendar, MapPin, Check, ArrowRight, Trophy, Gift, Zap } from 'lucide-react';
+import { StaggerGroup, StaggerItem } from '@/components/ui/StaggerGroup';
 
 const BENEFITS = [
   'Priority court bookings',
@@ -46,14 +47,14 @@ export default function EventMembershipSection() {
           </h3>
 
           <div className="mt-5 grid gap-6 sm:grid-cols-[1.2fr_1fr] sm:items-center">
-            <ul className="space-y-2.5">
+            <StaggerGroup as="ul" className="space-y-2.5">
               {BENEFITS.map((b) => (
-                <li key={b} className="flex items-center gap-2.5 text-sm text-white/70">
+                <StaggerItem as="li" key={b} className="flex items-center gap-2.5 text-sm text-white/70">
                   <span className="grid h-5 w-5 place-items-center rounded-full bg-[var(--color-teal)]/15 text-[var(--color-teal)]"><Check size={12} /></span>
                   {b}
-                </li>
+                </StaggerItem>
               ))}
-            </ul>
+            </StaggerGroup>
 
             {/* Membership card visual */}
             <div className="relative aspect-[1.6/1] overflow-hidden rounded-2xl border border-[var(--color-gold)]/40 bg-gradient-to-br from-[#1a1a12] via-[#12120c] to-[#0b0b08] p-4 shadow-[0_0_30px_rgba(212,175,55,0.12)]">

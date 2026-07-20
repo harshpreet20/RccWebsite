@@ -4,6 +4,8 @@ import { useEffect, useRef } from 'react';
 import { Users, ArrowRight } from 'lucide-react';
 import Counter from '@/components/ui/Counter';
 import Magnetic from '@/components/ui/Magnetic';
+import HeroParticles from '@/components/ui/HeroParticles';
+import FloatingMerch from '@/components/ui/FloatingMerch';
 
 /**
  * Hero — video/gif background (smooth, no per-frame canvas work). Drop the real
@@ -41,6 +43,9 @@ export default function Hero() {
 
   return (
     <section className="relative min-h-screen w-full overflow-hidden bg-[#050505]">
+      {/* Animated fallback: drifting teal shuttlecock-feather particles (behind video) */}
+      <HeroParticles />
+
       {/* Video / gif background (placeholder-safe) */}
       <video
         className="absolute inset-0 h-full w-full object-cover opacity-70"
@@ -75,6 +80,9 @@ export default function Hero() {
             'radial-gradient(ellipse 40% 60% at 15% 75%, rgba(212,175,55,0.10) 0%, transparent 55%)',
         }}
       />
+
+      {/* Floating RCC merch (desktop only, right ~40%, behind the headline) */}
+      <FloatingMerch />
 
       {/* Content */}
       <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 pb-40 pt-32 sm:px-10">

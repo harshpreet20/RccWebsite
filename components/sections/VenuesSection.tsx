@@ -3,6 +3,7 @@
 import { useRef } from 'react';
 import { MapPin, ArrowRight, ChevronLeft, ChevronRight, Grid2x2 } from 'lucide-react';
 import Placeholder from '@/components/ui/Placeholder';
+import { StaggerGroup, StaggerItem } from '@/components/ui/StaggerGroup';
 
 /**
  * Venues — "Book Now" deep-links to Hudle (RCC's booking partner). Replace
@@ -75,12 +76,12 @@ export default function VenuesSection() {
               </button>
             </div>
 
-            <div
-              ref={scroller}
+            <StaggerGroup
+              containerRef={scroller}
               className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {VENUES.map((v) => (
-                <div
+                <StaggerItem
                   key={v.name}
                   className="flex w-[220px] flex-none snap-start flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#111111]"
                 >
@@ -104,9 +105,9 @@ export default function VenuesSection() {
                       Book Now <ArrowRight size={12} />
                     </a>
                   </div>
-                </div>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerGroup>
           </div>
         </div>
       </div>

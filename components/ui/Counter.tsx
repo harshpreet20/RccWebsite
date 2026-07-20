@@ -24,10 +24,14 @@ export default function Counter({
   const prefix = match?.[1] ?? '';
   const suffix = match?.[3] ?? '';
 
-  const [n, setN] = useState(reduce || target === null ? target ?? 0 : 0);
+  // Deterministic initial value (0) so server and client first render match —
+  // branching this on `reduce` would hydration-mismatch for reduced-motion users.
+  const [n, setN] = useState(0);
 
   useEffect(() => {
-    if (target === null || reduce || !inView) return;
+    if (target === null) return;
+    if (reduce) { setN(target); return; }
+    if (!inView) return;
     let raf = 0;
     const start = performance.now();
     const dur = 1400;
