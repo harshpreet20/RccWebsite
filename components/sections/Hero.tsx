@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { Users, ArrowRight } from 'lucide-react';
 import Counter from '@/components/ui/Counter';
+import Magnetic from '@/components/ui/Magnetic';
 
 /**
  * Hero — video/gif background (smooth, no per-frame canvas work). Drop the real
@@ -17,6 +19,26 @@ const STATS = [
 ];
 
 export default function Hero() {
+  const tealRef = useRef<HTMLDivElement>(null);
+  const goldRef = useRef<HTMLDivElement>(null);
+
+  // Soft mouse parallax on the volumetric light layers.
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let raf = 0;
+    const onMove = (e: MouseEvent) => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const dx = (e.clientX / window.innerWidth - 0.5) * 2;
+        const dy = (e.clientY / window.innerHeight - 0.5) * 2;
+        if (tealRef.current) tealRef.current.style.transform = `translate(${dx * 26}px, ${dy * 26}px)`;
+        if (goldRef.current) goldRef.current.style.transform = `translate(${dx * -18}px, ${dy * -18}px)`;
+      });
+    };
+    window.addEventListener('mousemove', onMove);
+    return () => { window.removeEventListener('mousemove', onMove); cancelAnimationFrame(raf); };
+  }, []);
+
   return (
     <section className="relative min-h-screen w-full overflow-hidden bg-[#050505]">
       {/* Video / gif background (placeholder-safe) */}
@@ -34,17 +56,21 @@ export default function Hero() {
       {/* Legibility overlays */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/85 to-[#050505]/30" />
       <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505]/60" />
-      {/* Soft teal volumetric lighting + gold highlight */}
+      {/* Soft teal volumetric lighting + gold highlight (mouse parallax) */}
       <div
-        className="absolute inset-0"
+        ref={tealRef}
+        className="absolute inset-0 will-change-transform"
         style={{
+          transition: 'transform 0.5s cubic-bezier(0.22,1,0.36,1)',
           background:
             'radial-gradient(ellipse 70% 90% at 78% 40%, rgba(0,183,168,0.22) 0%, transparent 60%)',
         }}
       />
       <div
-        className="absolute inset-0"
+        ref={goldRef}
+        className="absolute inset-0 will-change-transform"
         style={{
+          transition: 'transform 0.5s cubic-bezier(0.22,1,0.36,1)',
           background:
             'radial-gradient(ellipse 40% 60% at 15% 75%, rgba(212,175,55,0.10) 0%, transparent 55%)',
         }}
@@ -67,18 +93,22 @@ export default function Hero() {
           by players — united by passion, respect &amp; the love for the game.
         </p>
         <div className="mt-8 flex flex-wrap gap-4">
-          <a
-            href="/membership"
-            className="inline-flex items-center gap-2 rounded-md bg-[var(--color-gold)] px-6 py-3.5 text-[11px] font-bold uppercase tracking-[0.18em] text-black transition hover:brightness-110"
-          >
-            <Users size={15} /> Join the Community <ArrowRight size={15} />
-          </a>
-          <a
-            href="/about"
-            className="inline-flex items-center gap-2 rounded-md border border-white/20 px-6 py-3.5 text-[11px] font-bold uppercase tracking-[0.18em] text-white/80 transition hover:border-white/40 hover:text-white"
-          >
-            Explore RCC <ArrowRight size={15} />
-          </a>
+          <Magnetic>
+            <a
+              href="/membership"
+              className="inline-flex items-center gap-2 rounded-md bg-[var(--color-gold)] px-6 py-3.5 text-[11px] font-bold uppercase tracking-[0.18em] text-black transition hover:brightness-110"
+            >
+              <Users size={15} /> Join the Community <ArrowRight size={15} />
+            </a>
+          </Magnetic>
+          <Magnetic>
+            <a
+              href="/about"
+              className="inline-flex items-center gap-2 rounded-md border border-white/20 px-6 py-3.5 text-[11px] font-bold uppercase tracking-[0.18em] text-white/80 transition hover:border-white/40 hover:text-white"
+            >
+              Explore RCC <ArrowRight size={15} />
+            </a>
+          </Magnetic>
         </div>
       </div>
 
