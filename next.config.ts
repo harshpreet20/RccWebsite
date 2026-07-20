@@ -5,26 +5,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'res.cloudinary.com',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.supabase.co',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.cdninstagram.com',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.fbcdn.net',
+        hostname: 'store.racquetsclubcommunity.com',
       },
     ],
   },
   poweredByHeader: false,
-  experimental: {
-    optimizeCss: false,
-  },
 };
 
 export default nextConfig;
