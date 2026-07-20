@@ -1,6 +1,6 @@
 'use client';
 
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, MapPin } from 'lucide-react';
 
 /* ── Social icons ─────────────────────────────────────────────────── */
 function InstagramIcon() {
@@ -123,7 +123,7 @@ export default function Footer() {
           <div className="flex gap-3">
             <a href="https://www.instagram.com/racquetsclubcommunity/" target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="Instagram"><InstagramIcon /></a>
             <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="Facebook"><FacebookIcon /></a>
-            <a href="https://youtube.com/@racquetsclubcommunity" target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="YouTube"><YouTubeIcon /></a>
+            <a href="https://youtube.com/@rccdelhi" target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="YouTube"><YouTubeIcon /></a>
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="WhatsApp"><WhatsAppIcon /></a>
           </div>
         </div>
@@ -138,9 +138,6 @@ export default function Footer() {
           <div className="flex flex-col gap-3">
             <a href="mailto:info@racquetsclubcommunity.com" className="footer-contact">
               <Mail size={15} className="mt-0.5 shrink-0 text-[var(--color-gold)]" /> info@racquetsclubcommunity.com
-            </a>
-            <a href="tel:+919876543210" className="footer-contact">
-              <Phone size={15} className="mt-0.5 shrink-0 text-[var(--color-gold)]" /> +91 98765 43210
             </a>
             <p className="footer-contact">
               <MapPin size={15} className="mt-0.5 shrink-0 text-[var(--color-gold)]" /> Paschim Vihar, New Delhi

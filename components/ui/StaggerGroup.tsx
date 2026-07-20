@@ -79,7 +79,7 @@ export function StaggerGroup<T extends MotionTagName = 'div'>({
       variants={containerVariants}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: '-60px' }}
+      viewport={{ once: true, margin: '0px 0px 400px 0px' }}
       {...(rest as Record<string, unknown>)}
     >
       {children}
