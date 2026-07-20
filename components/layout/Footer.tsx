@@ -33,33 +33,34 @@ function WhatsAppIcon({ size = 18 }: { size?: number }) {
   );
 }
 
-/* ── Config (swap placeholders with real links when ready) ────────── */
-const WHATSAPP_URL = 'https://chat.whatsapp.com/';
+/* ── Config (real RCC contact + community links) ─────────────────── */
+const WHATSAPP_URL = 'https://chat.whatsapp.com/KeznsK95pHK1JKT4nqpcsv';
+const FACEBOOK_URL = 'https://www.facebook.com/share/1CP9eke83b/?mibextid=wwXIfr';
 
 const QUICK_LINKS = [
   { label: 'Home', href: '/' },
-  { label: 'About RCC', href: '/about' },
+  { label: 'About RCC', href: '#about' },
   { label: 'Play', href: '#play' },
-  { label: 'Events', href: '/events' },
-  { label: 'Membership', href: '/membership' },
+  { label: 'Events', href: '#events' },
+  { label: 'Membership', href: '#membership' },
   { label: 'Shop', href: 'https://store.racquetsclubcommunity.com' },
   { label: 'Gallery', href: '#gallery' },
-  { label: 'Contact', href: '/contact' },
+  { label: 'Contact', href: '#contact' },
 ];
 
 const PLAY_LINKS = [
   { label: 'Venues', href: '#play' },
   { label: 'Book a Court', href: 'https://hudle.in/' },
   { label: 'Match Play', href: '#play' },
-  { label: 'Rules & Guidelines', href: '/about' },
-  { label: 'Player Levels', href: '/membership' },
+  { label: 'Rules & Guidelines', href: '#about' },
+  { label: 'Player Levels', href: '#membership' },
 ];
 
 const SUPPORT_LINKS = [
-  { label: 'Help & FAQs', href: '/contact' },
-  { label: 'Community Rules', href: '/about' },
-  { label: 'Terms & Conditions', href: '/terms' },
-  { label: 'Privacy Policy', href: '/privacy' },
+  { label: 'Help & FAQs', href: '#contact' },
+  { label: 'Community Rules', href: '#about' },
+  { label: 'Terms & Conditions', href: '#contact' },
+  { label: 'Privacy Policy', href: '#contact' },
 ];
 
 function LinkCol({ title, links }: { title: string; links: { label: string; href: string }[] }) {
@@ -121,8 +122,8 @@ export default function Footer() {
           </p>
           <div className="flex gap-3">
             <a href="https://www.instagram.com/racquetsclubcommunity/" target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="Instagram"><InstagramIcon /></a>
-            <a href="https://facebook.com/rccdelhi" target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="Facebook"><FacebookIcon /></a>
-            <a href="https://youtube.com/@rccdelhi" target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="YouTube"><YouTubeIcon /></a>
+            <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="Facebook"><FacebookIcon /></a>
+            <a href="https://youtube.com/@racquetsclubcommunity" target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="YouTube"><YouTubeIcon /></a>
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="WhatsApp"><WhatsAppIcon /></a>
           </div>
         </div>
@@ -132,11 +133,11 @@ export default function Footer() {
         <LinkCol title="Support" links={SUPPORT_LINKS} />
 
         {/* Contact + WhatsApp community */}
-        <div>
+        <div id="contact">
           <h4 className="mb-5 text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--color-gold)]">Contact Us</h4>
           <div className="flex flex-col gap-3">
-            <a href="mailto:hello@racquetsclubcommunity.com" className="footer-contact">
-              <Mail size={15} className="mt-0.5 shrink-0 text-[var(--color-gold)]" /> hello@racquetsclubcommunity.com
+            <a href="mailto:info@racquetsclubcommunity.com" className="footer-contact">
+              <Mail size={15} className="mt-0.5 shrink-0 text-[var(--color-gold)]" /> info@racquetsclubcommunity.com
             </a>
             <a href="tel:+919876543210" className="footer-contact">
               <Phone size={15} className="mt-0.5 shrink-0 text-[var(--color-gold)]" /> +91 98765 43210

@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { Search, User, Menu, X } from 'lucide-react';
+import { ArrowRight, Menu, X } from 'lucide-react';
 
-/* ─── RCC Badge (real logo image) ───────────────────────────────── */
-function RccBadge({ size = 70 }: { size?: number }) {
+function RccBadge({ size = 44 }: { size?: number }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
@@ -18,17 +17,17 @@ function RccBadge({ size = 70 }: { size?: number }) {
   );
 }
 
-/* ─── Nav links ──────────────────────────────────────────────────── */
 const NAV_LINKS = [
   { label: 'HOME', href: '/' },
-  { label: 'ABOUT US', href: '/about' },
-  { label: 'EVENTS', href: '/events' },
-  { label: 'MEMBERSHIP', href: '/membership' },
-  { label: 'CONTACT', href: '/contact' },
-  { label: 'ADMIN', href: '/admin' },
+  { label: 'ABOUT', href: '#about' },
+  { label: 'PLAY', href: '#play' },
+  { label: 'EVENTS', href: '#events' },
+  { label: 'MEMBERSHIP', href: '#membership' },
+  { label: 'SHOP', href: 'https://store.racquetsclubcommunity.com' },
+  { label: 'GALLERY', href: '#gallery' },
+  { label: 'CONTACT', href: '#contact' },
 ];
 
-/* ─── Navbar ─────────────────────────────────────────────────────── */
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -40,7 +39,6 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -61,27 +59,26 @@ export default function Navbar() {
           justifyContent: 'space-between',
           padding: '0 clamp(16px, 3vw, 48px)',
           transition: 'background 0.35s ease, box-shadow 0.35s ease',
-          background: scrolled ? 'rgba(10,10,15,0.90)' : 'transparent',
+          background: scrolled ? 'rgba(5,5,5,0.90)' : 'transparent',
           backdropFilter: scrolled ? 'blur(24px)' : 'none',
           WebkitBackdropFilter: scrolled ? 'blur(24px)' : 'none',
           borderBottom: scrolled ? '1px solid rgba(255,255,255,0.06)' : 'none',
         }}
       >
         {/* ── LEFT: Logo ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <RccBadge size={62} />
-          {/* Brand text: hidden on small screens via media query inline workaround */}
+        <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
+          <RccBadge size={44} />
           <div className="hidden sm:block" style={{ lineHeight: 1.1 }}>
             <div
               style={{
                 fontFamily: 'var(--font-montserrat)',
                 fontWeight: 900,
-                fontSize: '15px',
+                fontSize: '13px',
                 color: '#ffffff',
                 letterSpacing: '0.08em',
               }}
             >
-              RACQUETS
+              RACQUETS CLUB COMMUNITY
             </div>
             <div
               style={{
@@ -89,19 +86,16 @@ export default function Navbar() {
                 fontWeight: 600,
                 fontSize: '9px',
                 color: '#D4AF37',
-                letterSpacing: '0.15em',
+                letterSpacing: '0.18em',
               }}
             >
-              CLUB COMMUNITY
+              DELHI · ESTD 2024
             </div>
           </div>
-        </div>
+        </a>
 
         {/* ── CENTER: Nav links (desktop) ── */}
-        <div
-          className="hidden lg:flex"
-          style={{ gap: '28px', alignItems: 'center' }}
-        >
+        <div className="hidden lg:flex" style={{ gap: '26px', alignItems: 'center' }}>
           {NAV_LINKS.map((link) => (
             <a
               key={link.label}
@@ -110,7 +104,7 @@ export default function Navbar() {
                 fontFamily: 'var(--font-montserrat)',
                 fontWeight: 700,
                 fontSize: '11px',
-                letterSpacing: '0.14em',
+                letterSpacing: '0.12em',
                 color: pathname === link.href ? '#D4AF37' : 'rgba(255,255,255,0.6)',
                 textDecoration: 'none',
                 position: 'relative',
@@ -136,42 +130,31 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* ── RIGHT: Icon row ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button
-            className="hidden lg:inline-flex"
-            onClick={() => window.dispatchEvent(new CustomEvent('open-support-modal'))}
+        {/* ── RIGHT: Join RCC + menu ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <a
+            href="#membership"
+            className="hidden sm:inline-flex"
             style={{
+              alignItems: 'center',
+              gap: '6px',
               fontFamily: 'var(--font-montserrat)',
               fontWeight: 700,
               fontSize: '11px',
               letterSpacing: '0.12em',
-              color: '#fff',
-              background: '#C21818',
-              padding: '8px 16px',
+              color: '#000',
+              background: '#D4AF37',
+              padding: '9px 18px',
               borderRadius: '6px',
               whiteSpace: 'nowrap',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'background 0.2s',
+              textDecoration: 'none',
+              transition: 'filter 0.2s',
             }}
-            onMouseOver={e => (e.currentTarget.style.background = '#a81414')}
-            onMouseOut={e => (e.currentTarget.style.background = '#C21818')}
+            onMouseOver={(e) => (e.currentTarget.style.filter = 'brightness(1.1)')}
+            onMouseOut={(e) => (e.currentTarget.style.filter = 'brightness(1)')}
           >
-            RAISE A TICKET
-          </button>
-          <button
-            aria-label="Search"
-            style={{ background: 'none', border: 'none', padding: '4px', color: 'rgba(255,255,255,0.5)', display: 'flex' }}
-          >
-            <Search size={18} />
-          </button>
-          <button
-            aria-label="Account"
-            style={{ background: 'none', border: 'none', padding: '4px', color: 'rgba(255,255,255,0.7)', display: 'flex' }}
-          >
-            <User size={18} />
-          </button>
+            JOIN RCC <ArrowRight size={13} />
+          </a>
           <button
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             onClick={() => setMenuOpen((o) => !o)}
@@ -191,7 +174,7 @@ export default function Navbar() {
           bottom: 0,
           zIndex: 200,
           width: 'min(320px, 85vw)',
-          background: 'rgba(10,10,15,0.97)',
+          background: 'rgba(5,5,5,0.97)',
           backdropFilter: 'blur(30px)',
           WebkitBackdropFilter: 'blur(30px)',
           borderLeft: '1px solid rgba(212,175,55,0.12)',
@@ -230,7 +213,7 @@ export default function Navbar() {
               fontFamily: 'var(--font-montserrat)',
               fontWeight: 700,
               fontSize: '13px',
-              letterSpacing: '0.16em',
+              letterSpacing: '0.14em',
               color: pathname === link.href ? '#D4AF37' : 'rgba(255,255,255,0.65)',
               textDecoration: 'none',
               padding: '14px 0',
@@ -241,40 +224,35 @@ export default function Navbar() {
             {link.label}
           </a>
         ))}
-        <button
-          onClick={() => { setMenuOpen(false); window.dispatchEvent(new CustomEvent('open-support-modal')); }}
+        <a
+          href="#membership"
+          onClick={() => setMenuOpen(false)}
           style={{
             marginTop: '16px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            gap: '8px',
             fontFamily: 'var(--font-montserrat)',
             fontWeight: 700,
             fontSize: '12px',
             letterSpacing: '0.12em',
-            color: '#fff',
-            background: '#C21818',
+            color: '#000',
+            background: '#D4AF37',
             padding: '14px 20px',
             borderRadius: '8px',
-            border: 'none',
-            cursor: 'pointer',
+            textDecoration: 'none',
             width: '100%',
           }}
         >
-          🎫 RAISE A TICKET
-        </button>
+          JOIN RCC <ArrowRight size={14} />
+        </a>
       </div>
 
-      {/* Overlay when drawer open */}
       {menuOpen && (
         <div
           onClick={() => setMenuOpen(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 150,
-            background: 'rgba(0,0,0,0.5)',
-          }}
+          style={{ position: 'fixed', inset: 0, zIndex: 150, background: 'rgba(0,0,0,0.5)' }}
         />
       )}
     </>

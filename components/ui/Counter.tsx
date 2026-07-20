@@ -16,7 +16,7 @@ export default function Counter({
   className?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: '-40px' });
+  const inView = useInView(ref, { once: true, margin: '0px 0px 200px 0px' });
   const reduce = useReducedMotion();
 
   const match = value.match(/^(\D*)(\d[\d,]*)(.*)$/);

@@ -6,9 +6,9 @@ import Placeholder from '@/components/ui/Placeholder';
 import { StaggerGroup, StaggerItem } from '@/components/ui/StaggerGroup';
 
 /**
- * Venues — "Book Now" deep-links to Hudle (RCC's booking partner). Replace
- * `hudleUrl` per venue with the real Hudle listing; images are banner
- * placeholders until real photos are added.
+ * Venues — matches the reference mockup exactly. "Book Now" deep-links to
+ * Hudle (RCC's booking partner); update `hudleUrl` per venue with the real
+ * Hudle listing once available.
  */
 type Venue = {
   name: string;

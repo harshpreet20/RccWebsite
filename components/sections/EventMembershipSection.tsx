@@ -38,7 +38,7 @@ export default function EventMembershipSection() {
         </div>
 
         {/* Become a member */}
-        <div className="rounded-3xl border border-white/10 bg-[#111111] p-8">
+        <div id="membership" className="rounded-3xl border border-white/10 bg-[#111111] p-8">
           <p className="text-xs font-bold uppercase tracking-[0.3em] text-[var(--color-teal)]">Become a Member</p>
           <h3 className="mt-3 font-[var(--font-montserrat)] text-3xl font-extrabold uppercase leading-tight text-white">
             One Membership.
