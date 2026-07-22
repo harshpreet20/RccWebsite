@@ -1,6 +1,8 @@
 'use client';
 
-import { Mail, MapPin } from 'lucide-react';
+import { useState } from 'react';
+import { Mail, MapPin, Loader2, Check } from 'lucide-react';
+import { rccadminFetch } from '@/lib/rccadmin-api';
 
 /* ── Social icons ─────────────────────────────────────────────────── */
 function InstagramIcon() {
@@ -45,7 +47,7 @@ const QUICK_LINKS = [
   { label: 'Membership', href: '#membership' },
   { label: 'Shop', href: 'https://store.racquetsclubcommunity.com' },
   { label: 'Gallery', href: '#gallery' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Contact', href: '/contact' },
 ];
 
 const PLAY_LINKS = [
@@ -75,6 +77,52 @@ function LinkCol({ title, links }: { title: string; links: { label: string; href
         ))}
       </ul>
     </div>
+  );
+}
+
+function NewsletterForm() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setStatus('loading');
+    try {
+      await rccadminFetch('/api/public/newsletter', { method: 'POST', body: JSON.stringify({ email: email.trim(), source: 'rcc-website-footer' }) });
+      setStatus('done');
+      setEmail('');
+    } catch {
+      setStatus('error');
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-6">
+      <p className="mb-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--color-gold)]">Newsletter</p>
+      {status === 'done' ? (
+        <p className="flex items-center gap-2 text-[13px] text-[var(--color-teal)]"><Check size={14} /> Subscribed!</p>
+      ) : (
+        <div className="flex gap-2">
+          <input
+            type="email"
+            required
+            placeholder="Your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2.5 text-[13px] text-white outline-none focus:border-[var(--color-gold)]/50"
+          />
+          <button
+            type="submit"
+            disabled={status === 'loading'}
+            className="flex shrink-0 items-center gap-1.5 rounded-md bg-[var(--color-gold)] px-3.5 py-2.5 text-[11px] font-bold uppercase tracking-wide text-black transition hover:brightness-110 disabled:opacity-60"
+          >
+            {status === 'loading' ? <Loader2 size={13} className="animate-spin" /> : 'Join'}
+          </button>
+        </div>
+      )}
+      {status === 'error' && <p className="mt-1.5 text-[12px] text-red-400">Something went wrong, try again.</p>}
+    </form>
   );
 }
 
@@ -126,6 +174,7 @@ export default function Footer() {
             <a href="https://youtube.com/@rccdelhi" target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="YouTube"><YouTubeIcon /></a>
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="WhatsApp"><WhatsAppIcon /></a>
           </div>
+          <NewsletterForm />
         </div>
 
         <LinkCol title="Quick Links" links={QUICK_LINKS} />
