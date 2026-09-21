@@ -1,12 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, X } from 'lucide-react';
 import PlaceholderPanel from '@/components/ui/PlaceholderPanel';
 import { GALLERY_PHOTOS } from '@/lib/gallery';
 
+const PREVIEW_COUNT = 16;
+
 export default function GalleryGrid() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [expanded, setExpanded] = useState(false);
+  const visiblePhotos = expanded ? GALLERY_PHOTOS : GALLERY_PHOTOS.slice(0, PREVIEW_COUNT);
 
   useEffect(() => {
     if (openIndex === null) return;
@@ -31,8 +35,8 @@ export default function GalleryGrid() {
 
   return (
     <>
-      <div className="mt-10 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
-        {GALLERY_PHOTOS.map((photo, i) => (
+      <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {visiblePhotos.map((photo, i) => (
           <button
             key={i}
             type="button"
@@ -44,6 +48,26 @@ export default function GalleryGrid() {
           </button>
         ))}
       </div>
+
+      {GALLERY_PHOTOS.length > PREVIEW_COUNT && (
+        <div className="mt-8 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setExpanded((e) => !e)}
+            className="inline-flex items-center gap-2 rounded-full border border-border-white px-6 py-3 font-body text-sm font-semibold uppercase tracking-wide text-fg transition-colors hover:border-teal hover:text-teal"
+          >
+            {expanded ? (
+              <>
+                Show Less <ChevronUp className="h-4 w-4" aria-hidden="true" />
+              </>
+            ) : (
+              <>
+                View All Photos <ChevronDown className="h-4 w-4" aria-hidden="true" />
+              </>
+            )}
+          </button>
+        </div>
+      )}
 
       {openIndex !== null && (
         <div
