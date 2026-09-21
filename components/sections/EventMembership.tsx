@@ -125,11 +125,11 @@ export default async function EventMembership() {
 
             <div className="mt-4 flex w-56 items-center gap-3 rounded-xl border border-gold/50 bg-bg-alt/80 p-4 shadow-lg backdrop-blur-sm sm:absolute sm:right-8 sm:bottom-8 sm:mt-0">
               <Image
-                src="/rcc-crest.webp"
-                alt="RCC crest"
+                src="/rcc-logo.webp"
+                alt="RCC logo"
                 width={40}
                 height={40}
-                className="h-10 w-10 shrink-0 rounded-full"
+                className="h-10 w-10 shrink-0 object-contain"
               />
               <div className="flex flex-col leading-tight">
                 <span className="font-display text-lg uppercase tracking-wide text-gold-bright">

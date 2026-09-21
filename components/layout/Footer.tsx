@@ -48,11 +48,11 @@ export default function Footer() {
           <div className="lg:col-span-1 sm:col-span-2">
             <div className="flex items-center gap-3">
               <Image
-                src="/rcc-crest.webp"
-                alt="RCC crest"
+                src="/rcc-logo.webp"
+                alt="RCC logo"
                 width={40}
                 height={40}
-                className="h-10 w-10 rounded-full"
+                className="h-10 w-10 object-contain"
               />
               <span className="font-body text-sm font-bold uppercase tracking-wide text-fg">
                 Racquets Club Community

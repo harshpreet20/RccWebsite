@@ -18,9 +18,9 @@ export const metadata: Metadata = {
   description:
     "RCC is a community of badminton lovers, united by passion and the love for the game.",
   icons: {
-    icon: '/rcc-crest.webp',
-    shortcut: '/rcc-crest.webp',
-    apple: '/rcc-crest.webp',
+    icon: '/rcc-logo.webp',
+    shortcut: '/rcc-logo.webp',
+    apple: '/rcc-logo.webp',
   },
 };
 
