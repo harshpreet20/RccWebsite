@@ -19,13 +19,13 @@ const QUICK_LINKS = [
 const PLAY_LINKS = [
   { label: 'Our Own Venue', href: '#own-venue' },
   { label: 'Book a Court', href: HUDLE_VENUE_URL, external: true },
-  { label: 'Rules & Guidelines', href: '#' },
+  { label: 'Rules & Guidelines', href: '/community-rules' },
   { label: 'Player Levels', href: '#' },
 ];
 
 const SUPPORT_LINKS = [
-  { label: 'Help & FAQs', href: '#' },
-  { label: 'Community Rules', href: '#' },
+  { label: 'Help & FAQs', href: '/community-rules' },
+  { label: 'Community Rules', href: '/community-rules' },
   { label: 'Terms & Conditions', href: '#' },
   { label: 'Privacy Policy', href: '#' },
 ];
