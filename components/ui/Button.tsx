@@ -9,7 +9,7 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
     'inline-flex items-center justify-center gap-2 rounded-full bg-gold-bright px-6 py-3 font-body text-sm font-semibold uppercase tracking-wide text-black transition-colors hover:bg-gold',
   secondary:
     'inline-flex items-center justify-center gap-2 rounded-full border border-fg/20 bg-transparent px-6 py-3 font-body text-sm font-semibold uppercase tracking-wide text-fg transition-colors hover:border-teal hover:text-teal',
-  text: 'inline-flex items-center gap-1 font-body text-sm font-semibold uppercase tracking-wide text-teal transition-all hover:gap-2',
+  text: 'inline-flex items-center gap-1 -my-1 py-1 font-body text-sm font-semibold uppercase tracking-wide text-teal transition-all hover:gap-2',
 };
 
 function ArrowIcon({ variant }: { variant: ButtonVariant }) {

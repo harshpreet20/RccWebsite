@@ -51,7 +51,12 @@ export default function QueryForm() {
         placeholder="Phone Number (optional)"
         className={`${inputClass} sm:col-span-1`}
       />
-      <select name="interest" defaultValue="general" className={`${inputClass} sm:col-span-1`}>
+      <select
+        name="interest"
+        aria-label="What are you enquiring about?"
+        defaultValue="general"
+        className={`${inputClass} sm:col-span-1`}
+      >
         {INTEREST_OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}

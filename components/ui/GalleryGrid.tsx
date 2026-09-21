@@ -50,7 +50,7 @@ export default function GalleryGrid() {
       <button
         type="button"
         onClick={() => setOpenIndex(0)}
-        className="mt-4 inline-flex items-center gap-2 font-body text-sm font-semibold uppercase tracking-wide text-teal transition-all hover:gap-3"
+        className="-my-1 mt-3 inline-flex items-center gap-2 py-1 font-body text-sm font-semibold uppercase tracking-wide text-teal transition-all hover:gap-3"
       >
         <Images className="h-4 w-4" aria-hidden="true" />
         View All {GALLERY_PHOTOS.length} Photos
