@@ -34,13 +34,6 @@ export default function Hero() {
         />
         <StarField />
 
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute left-4 top-1/2 hidden -translate-y-1/2 -rotate-90 font-body text-xs uppercase tracking-[0.3em] text-muted md:block"
-        >
-          0 &mdash; Scroll to explore
-        </span>
-
         <div className="relative mx-auto flex min-h-[90vh] w-full max-w-7xl items-center px-6 py-32 md:px-10">
           <div className="flex max-w-xl flex-col items-start gap-6">
             <p className="font-body text-xs font-semibold uppercase tracking-[0.2em] text-teal">

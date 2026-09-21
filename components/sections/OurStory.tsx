@@ -48,7 +48,7 @@ export default function OurStory() {
           <PlaceholderPanel
             imageSrc="/about-photo.webp"
             alt="Racquets Club Community"
-            className="aspect-[3/4] w-full rounded-2xl border border-border-white"
+            className="mx-auto aspect-[3/4] w-full max-w-xs rounded-2xl border border-border-white sm:max-w-sm"
           />
         </div>
 
