@@ -46,9 +46,9 @@ export default function OurStory() {
           </div>
 
           <PlaceholderPanel
-            alt="RCC players group photo"
-            watermark
-            className="aspect-[4/3] w-full rounded-2xl border border-border-white"
+            imageSrc="/about-photo.webp"
+            alt="Racquets Club Community"
+            className="aspect-[3/4] w-full rounded-2xl border border-border-white"
           />
         </div>
 

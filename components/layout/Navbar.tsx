@@ -13,7 +13,7 @@ const NAV_LINKS = [
   { label: 'PLAY', href: '#own-venue' },
   { label: 'EVENTS', href: '#event' },
   { label: 'MEMBERSHIP', href: '#membership' },
-  { label: 'SHOP', href: '#shop' },
+  { label: 'PARTNERS', href: '#partners' },
   { label: 'GALLERY', href: '#gallery' },
   { label: 'CONTACT', href: '#footer' },
 ];

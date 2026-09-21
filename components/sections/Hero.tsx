@@ -1,6 +1,5 @@
 import { Users, Building2, Calendar } from 'lucide-react';
 import { LinkButton } from '@/components/ui/Button';
-import PlaceholderPanel from '@/components/ui/PlaceholderPanel';
 import IconStat from '@/components/ui/IconStat';
 import StarField from '@/components/ui/StarField';
 
@@ -42,7 +41,7 @@ export default function Hero() {
           0 &mdash; Scroll to explore
         </span>
 
-        <div className="relative mx-auto flex min-h-[90vh] w-full max-w-7xl flex-col items-center gap-12 px-6 py-32 md:flex-row md:items-center md:justify-between md:px-10">
+        <div className="relative mx-auto flex min-h-[90vh] w-full max-w-7xl items-center px-6 py-32 md:px-10">
           <div className="flex max-w-xl flex-col items-start gap-6">
             <p className="font-body text-xs font-semibold uppercase tracking-[0.2em] text-teal">
               Racquets Club Community
@@ -67,13 +66,6 @@ export default function Hero() {
                 Explore RCC
               </LinkButton>
             </div>
-          </div>
-
-          <div className="relative w-full max-w-md">
-            <PlaceholderPanel
-              alt="RCC athlete in action"
-              className="aspect-[4/5] w-full rounded-2xl border border-border-white shadow-2xl"
-            />
           </div>
         </div>
       </div>

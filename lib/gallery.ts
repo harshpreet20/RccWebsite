@@ -3,11 +3,9 @@ export type GalleryPhoto = {
   alt: string;
 };
 
-// 34 community-vibe photos (tournaments, hangouts, team moments — not court
-// action shots). Real files haven't landed in the repo yet — drop them into
-// public/gallery/ and swap `image: null` for the real path here.
+// 34 real community-vibe photos (hangouts, team moments, community spirit).
 export const GALLERY_PHOTOS: GalleryPhoto[] = Array.from({ length: 34 }, (_, i) => ({
-  image: null,
+  image: `/gallery/g${String(i + 1).padStart(2, '0')}.webp`,
   alt: `RCC community moment ${i + 1}`,
 }));
 

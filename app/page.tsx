@@ -3,8 +3,8 @@ import Footer from '@/components/layout/Footer';
 import Hero from '@/components/sections/Hero';
 import OurStory from '@/components/sections/OurStory';
 import OwnVenue from '@/components/sections/OwnVenue';
+import Partners from '@/components/sections/Partners';
 import EventMembership from '@/components/sections/EventMembership';
-import Shop from '@/components/sections/Shop';
 import GalleryTestimonial from '@/components/sections/GalleryTestimonial';
 import CTA from '@/components/sections/CTA';
 
@@ -16,8 +16,8 @@ export default function Home() {
         <Hero />
         <OurStory />
         <OwnVenue />
+        <Partners />
         <EventMembership />
-        <Shop />
         <GalleryTestimonial />
         <CTA />
       </main>

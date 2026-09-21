@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Share2, Camera, Video, MessageCircle, Mail, MapPin } from 'lucide-react';
+import { Share2, Camera, Video, MessageCircle, Mail, MapPin, Globe, Phone } from 'lucide-react';
+
+const HUDLE_VENUE_URL = 'https://hudle.in/venues/the-sports-store-badminton-arena/862035';
 
 const QUICK_LINKS = [
   { label: 'Home', href: '#hero' },
@@ -8,14 +10,14 @@ const QUICK_LINKS = [
   { label: 'Play', href: '#own-venue' },
   { label: 'Events', href: '#event' },
   { label: 'Membership', href: '#membership' },
-  { label: 'Shop', href: '#shop' },
+  { label: 'Partners', href: '#partners' },
   { label: 'Gallery', href: '#gallery' },
   { label: 'Contact', href: '#footer' },
 ];
 
 const PLAY_LINKS = [
   { label: 'Our Own Venue', href: '#own-venue' },
-  { label: 'Book a Court', href: 'https://hudle.in/', external: true },
+  { label: 'Book a Court', href: HUDLE_VENUE_URL, external: true },
   { label: 'Rules & Guidelines', href: '#' },
   { label: 'Player Levels', href: '#' },
 ];
@@ -173,7 +175,41 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border-white pt-8 sm:flex-row">
+        <div className="mt-12 flex flex-col gap-4 rounded-2xl border border-border-white bg-panel/60 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-body text-sm text-muted">
+            RCC is a product owned and managed by{' '}
+            <span className="font-semibold text-fg">HOTBOT STUDIOS LLP</span>.
+          </p>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-body text-sm text-muted">
+            <a
+              href="mailto:hotbotstudios@gmail.com"
+              className="flex items-center gap-2 hover:text-teal"
+            >
+              <Mail className="h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
+              hotbotstudios@gmail.com
+            </a>
+            <a
+              href="https://wa.me/919700001534"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 hover:text-teal"
+            >
+              <Phone className="h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
+              +91 97000 01534
+            </a>
+            <a
+              href="https://www.hotbotstudios.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 hover:text-teal"
+            >
+              <Globe className="h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
+              hotbotstudios.com
+            </a>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-col items-center justify-between gap-4 border-t border-border-white pt-8 sm:flex-row">
           <p className="font-body text-xs text-muted">
             &copy; 2024 Racquets Club Community. All rights reserved.
           </p>
