@@ -1,6 +1,5 @@
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import SectionEyebrow from '@/components/ui/SectionEyebrow';
-import { LinkButton } from '@/components/ui/Button';
 import PlaceholderPanel from '@/components/ui/PlaceholderPanel';
 import GalleryGrid from '@/components/ui/GalleryGrid';
 
@@ -15,12 +14,6 @@ export default function GalleryTestimonial() {
           </h2>
 
           <GalleryGrid />
-
-          <div className="mt-8">
-            <LinkButton href="#gallery" variant="secondary">
-              View Gallery
-            </LinkButton>
-          </div>
         </div>
 
         <div className="flex flex-col">

@@ -1,13 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Camera, ChevronLeft, ChevronRight, Trophy, Users, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Images, X } from 'lucide-react';
 import PlaceholderPanel from '@/components/ui/PlaceholderPanel';
+import { GALLERY_PHOTOS, GALLERY_PREVIEW_COUNT } from '@/lib/gallery';
 
-const items = [Camera, Users, Trophy, Camera, Users, Trophy].map((icon, i) => ({
-  icon,
-  alt: `RCC gallery photo ${i + 1}`,
-}));
+const preview = GALLERY_PHOTOS.slice(0, GALLERY_PREVIEW_COUNT);
 
 export default function GalleryGrid() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -17,9 +15,11 @@ export default function GalleryGrid() {
 
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') setOpenIndex(null);
-      if (e.key === 'ArrowRight') setOpenIndex((i) => (i === null ? i : (i + 1) % items.length));
+      if (e.key === 'ArrowRight') {
+        setOpenIndex((i) => (i === null ? i : (i + 1) % GALLERY_PHOTOS.length));
+      }
       if (e.key === 'ArrowLeft') {
-        setOpenIndex((i) => (i === null ? i : (i - 1 + items.length) % items.length));
+        setOpenIndex((i) => (i === null ? i : (i - 1 + GALLERY_PHOTOS.length) % GALLERY_PHOTOS.length));
       }
     }
 
@@ -33,19 +33,28 @@ export default function GalleryGrid() {
 
   return (
     <>
-      <div className="mt-8 grid grid-cols-3 grid-rows-2 gap-3">
-        {items.map((item, i) => (
+      <div className="mt-8 grid grid-cols-2 gap-3">
+        {preview.map((photo, i) => (
           <button
             key={i}
             type="button"
             onClick={() => setOpenIndex(i)}
-            aria-label={`Expand ${item.alt}`}
+            aria-label={`Expand ${photo.alt}`}
             className="group relative aspect-square overflow-hidden rounded-xl transition-transform hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
-            <PlaceholderPanel alt={item.alt} icon={item.icon} className="h-full w-full" />
+            <PlaceholderPanel imageSrc={photo.image ?? undefined} alt={photo.alt} className="h-full w-full" />
           </button>
         ))}
       </div>
+
+      <button
+        type="button"
+        onClick={() => setOpenIndex(0)}
+        className="mt-4 inline-flex items-center gap-2 font-body text-sm font-semibold uppercase tracking-wide text-teal transition-all hover:gap-3"
+      >
+        <Images className="h-4 w-4" aria-hidden="true" />
+        View All {GALLERY_PHOTOS.length} Photos
+      </button>
 
       {openIndex !== null && (
         <div
@@ -68,7 +77,7 @@ export default function GalleryGrid() {
             aria-label="Previous photo"
             onClick={(e) => {
               e.stopPropagation();
-              setOpenIndex((i) => (i === null ? i : (i - 1 + items.length) % items.length));
+              setOpenIndex((i) => (i === null ? i : (i - 1 + GALLERY_PHOTOS.length) % GALLERY_PHOTOS.length));
             }}
             className="absolute left-4 flex h-10 w-10 items-center justify-center rounded-full border border-border-white text-white transition-colors hover:border-teal hover:text-teal sm:left-8"
           >
@@ -80,8 +89,8 @@ export default function GalleryGrid() {
             onClick={(e) => e.stopPropagation()}
           >
             <PlaceholderPanel
-              alt={items[openIndex].alt}
-              icon={items[openIndex].icon}
+              imageSrc={GALLERY_PHOTOS[openIndex].image ?? undefined}
+              alt={GALLERY_PHOTOS[openIndex].alt}
               className="h-full w-full"
             />
           </div>
@@ -91,7 +100,7 @@ export default function GalleryGrid() {
             aria-label="Next photo"
             onClick={(e) => {
               e.stopPropagation();
-              setOpenIndex((i) => (i === null ? i : (i + 1) % items.length));
+              setOpenIndex((i) => (i === null ? i : (i + 1) % GALLERY_PHOTOS.length));
             }}
             className="absolute right-4 flex h-10 w-10 items-center justify-center rounded-full border border-border-white text-white transition-colors hover:border-teal hover:text-teal sm:right-8"
           >
@@ -99,7 +108,7 @@ export default function GalleryGrid() {
           </button>
 
           <span className="absolute bottom-6 font-body text-xs uppercase tracking-wide text-muted">
-            {openIndex + 1} / {items.length}
+            {openIndex + 1} / {GALLERY_PHOTOS.length}
           </span>
         </div>
       )}
