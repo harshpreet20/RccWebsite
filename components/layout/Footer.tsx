@@ -148,8 +148,8 @@ export default function Footer() {
             <ul className="mt-4 flex flex-col gap-3 font-body text-sm text-muted">
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
-                <a href="mailto:info@racquetsclubcommunity.com" className="hover:text-teal">
-                  info@racquetsclubcommunity.com
+                <a href="mailto:hello@racquetsclubcommunity.com" className="hover:text-teal">
+                  hello@racquetsclubcommunity.com
                 </a>
               </li>
               <li className="flex items-center gap-2">
