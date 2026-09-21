@@ -41,7 +41,7 @@ export default function OwnVenue() {
             The Sports Store Badminton Arena
           </h2>
           <p className="font-body text-sm text-muted sm:text-base">
-            This is RCC&apos;s home ground — where our regular sessions, practice and
+            This is RCC&apos;s home ground, where our regular sessions, practice and
             matchplay happen. It&apos;s officially listed on Hudle, so you can book a slot
             anytime.
           </p>

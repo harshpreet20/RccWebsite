@@ -10,8 +10,8 @@ export default function Enquire() {
           Have A Question?
         </h2>
         <p className="mt-4 font-body text-sm text-muted sm:text-base">
-          Whether it&apos;s about membership, a corporate event, or just curiosity &mdash;
-          drop us a line and we&apos;ll get back to you.
+          Whether it&apos;s about membership, a corporate event, or just curiosity, drop
+          us a line and we&apos;ll get back to you.
         </p>
       </div>
 

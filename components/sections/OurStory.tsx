@@ -32,7 +32,7 @@ export default function OurStory() {
               Built For Players. By Players.
             </h2>
             <p className="font-body text-base text-muted-alt sm:text-lg">
-              Racquets Club Community (RCC) was founded with a simple goal &mdash; create a
+              Racquets Club Community (RCC) was founded with a simple goal: create a
               space where badminton lovers of all levels can play, connect, compete and
               grow together.
             </p>
