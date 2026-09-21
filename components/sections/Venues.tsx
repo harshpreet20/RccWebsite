@@ -23,7 +23,7 @@ export default function Venues() {
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-2xl">
           <SectionEyebrow>Play With RCC</SectionEyebrow>
-          <h2 className="mt-3 font-display text-4xl uppercase tracking-wide text-white sm:text-5xl">
+          <h2 className="mt-3 font-display text-4xl uppercase tracking-wide text-fg sm:text-5xl">
             Great Venues. Everyday Play.
           </h2>
           <p className="mt-4 font-body text-sm text-muted sm:text-base">
@@ -74,7 +74,7 @@ export default function Venues() {
             />
             <div className="flex flex-1 flex-col gap-3 p-5">
               <div>
-                <p className="font-body text-base font-bold text-white">{venue.name}</p>
+                <p className="font-body text-base font-bold text-fg">{venue.name}</p>
                 <p className="font-body text-sm text-muted">{venue.area}</p>
               </div>
               <div className="flex items-center gap-4 font-body text-xs text-muted">

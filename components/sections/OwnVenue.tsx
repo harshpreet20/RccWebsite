@@ -21,17 +21,17 @@ export default function OwnVenue() {
         />
         <div className="flex flex-col justify-center gap-5 p-8 sm:p-10">
           <SectionEyebrow>Our Own Venue</SectionEyebrow>
-          <h2 className="font-display text-4xl uppercase tracking-wide text-white sm:text-5xl">
+          <h2 className="font-display text-4xl uppercase tracking-wide text-fg sm:text-5xl">
             The RCC Home Court
           </h2>
           <p className="font-body text-sm text-muted sm:text-base">
-            Beyond our partner venues across Delhi, RCC now runs its own dedicated home
-            court — built for the community, by the community. It&apos;s also listed on
-            Hudle and other booking platforms, so you can book a session anytime.
+            RCC runs its own dedicated home court — built for the community, by the
+            community. It&apos;s also listed on Hudle and other booking platforms, so you
+            can book a session anytime.
           </p>
           <ul className="flex flex-col gap-3">
             {FEATURES.map((feature) => (
-              <li key={feature} className="flex items-center gap-2 font-body text-sm text-white">
+              <li key={feature} className="flex items-center gap-2 font-body text-sm text-fg">
                 <CheckCircle2 className="h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
                 {feature}
               </li>
@@ -45,9 +45,6 @@ export default function OwnVenue() {
               rel="noopener noreferrer"
             >
               Book On Hudle
-            </LinkButton>
-            <LinkButton href="#venues" variant="secondary">
-              View All Venues
             </LinkButton>
           </div>
         </div>

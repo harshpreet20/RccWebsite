@@ -25,14 +25,14 @@ export default function EventMembership() {
           </div>
           <div className="relative flex flex-col gap-5 bg-bg/60 p-8 sm:p-10">
             <SectionEyebrow>Upcoming Event</SectionEyebrow>
-            <h3 className="font-display text-4xl uppercase tracking-wide text-white sm:text-5xl">
+            <h3 className="font-display text-4xl uppercase tracking-wide text-fg sm:text-5xl">
               RCC Cup 2024
             </h3>
             <p className="flex items-center gap-2 font-body text-sm text-muted">
               <Play className="h-3.5 w-3.5 text-teal" aria-hidden="true" />
               Mix Skill Doubles Tournament
             </p>
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-body text-sm text-white">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-body text-sm text-fg">
               <span className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-teal" aria-hidden="true" />
                 25th Aug 2024
@@ -44,7 +44,7 @@ export default function EventMembership() {
             </div>
             <ul className="flex flex-col gap-2">
               {EVENT_FEATURES.map((feature) => (
-                <li key={feature} className="flex items-center gap-2 font-body text-sm text-white">
+                <li key={feature} className="flex items-center gap-2 font-body text-sm text-fg">
                   <Check className="h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
                   {feature}
                 </li>
@@ -68,12 +68,12 @@ export default function EventMembership() {
           </div>
           <div className="relative flex flex-col gap-5 bg-bg/60 p-8 sm:p-10">
             <SectionEyebrow>Become a Member</SectionEyebrow>
-            <h2 className="font-display text-4xl uppercase tracking-wide text-white sm:text-5xl">
+            <h2 className="font-display text-4xl uppercase tracking-wide text-fg sm:text-5xl">
               One Membership. Endless Benefits.
             </h2>
             <ul className="flex flex-col gap-2">
               {MEMBER_BENEFITS.map((benefit) => (
-                <li key={benefit} className="flex items-center gap-2 font-body text-sm text-white">
+                <li key={benefit} className="flex items-center gap-2 font-body text-sm text-fg">
                   <Check className="h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
                   {benefit}
                 </li>

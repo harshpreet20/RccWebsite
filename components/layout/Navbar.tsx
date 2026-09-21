@@ -3,13 +3,14 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Menu, Moon, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { LinkButton } from '@/components/ui/Button';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 const NAV_LINKS = [
   { label: 'HOME', href: '#hero' },
   { label: 'ABOUT', href: '#our-story' },
-  { label: 'PLAY', href: '#venues' },
+  { label: 'PLAY', href: '#own-venue' },
   { label: 'EVENTS', href: '#event' },
   { label: 'MEMBERSHIP', href: '#membership' },
   { label: 'SHOP', href: '#shop' },
@@ -32,7 +33,7 @@ export default function Navbar() {
             className="h-10 w-10 rounded-full"
           />
           <span className="flex flex-col leading-tight">
-            <span className="font-body text-xs font-bold uppercase tracking-wide text-white sm:text-sm">
+            <span className="font-body text-xs font-bold uppercase tracking-wide text-fg sm:text-sm">
               Racquets Club Community
             </span>
             <span className="font-body text-[10px] uppercase tracking-[0.2em] text-muted">
@@ -54,13 +55,7 @@ export default function Navbar() {
         </div>
 
         <div className="hidden items-center gap-4 lg:flex">
-          <button
-            type="button"
-            aria-label="Toggle theme"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-border-white text-muted transition-colors hover:border-teal hover:text-teal"
-          >
-            <Moon className="h-4 w-4" aria-hidden="true" />
-          </button>
+          <ThemeToggle />
           <LinkButton href="#hero" variant="primary" className="text-xs">
             JOIN RCC
           </LinkButton>
@@ -71,7 +66,7 @@ export default function Navbar() {
           aria-label="Toggle navigation menu"
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-border-white text-white lg:hidden"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-border-white text-fg lg:hidden"
         >
           {open ? <X className="h-4 w-4" aria-hidden="true" /> : <Menu className="h-4 w-4" aria-hidden="true" />}
         </button>
@@ -90,9 +85,12 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <LinkButton href="#hero" variant="primary" className="mt-2 w-fit text-xs">
-              JOIN RCC
-            </LinkButton>
+            <div className="mt-2 flex items-center gap-4">
+              <ThemeToggle />
+              <LinkButton href="#hero" variant="primary" className="w-fit text-xs">
+                JOIN RCC
+              </LinkButton>
+            </div>
           </div>
         </div>
       )}

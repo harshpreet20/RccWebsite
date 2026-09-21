@@ -1,6 +1,5 @@
 import Hero from '@/components/sections/Hero';
 import OurStory from '@/components/sections/OurStory';
-import Venues from '@/components/sections/Venues';
 import OwnVenue from '@/components/sections/OwnVenue';
 import EventMembership from '@/components/sections/EventMembership';
 import Shop from '@/components/sections/Shop';
@@ -12,7 +11,6 @@ export default function Home() {
     <main className="bg-bg">
       <Hero />
       <OurStory />
-      <Venues />
       <OwnVenue />
       <EventMembership />
       <Shop />

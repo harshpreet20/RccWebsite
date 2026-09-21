@@ -19,7 +19,7 @@ export default function CTA() {
 
       <div className="relative mx-auto flex max-w-3xl flex-col items-center text-center">
         <SectionEyebrow>Ready To Be Part Of RCC?</SectionEyebrow>
-        <h2 className="font-display mt-4 text-5xl uppercase leading-tight tracking-wide text-white sm:text-6xl lg:text-7xl">
+        <h2 className="font-display mt-4 text-5xl uppercase leading-tight tracking-wide text-fg sm:text-6xl lg:text-7xl">
           Let&rsquo;s Play. Let&rsquo;s Grow. Together.
         </h2>
         <div className="mt-10">

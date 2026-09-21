@@ -36,7 +36,7 @@ export default function PlaceholderPanel({
           {Array.from({ length: 9 }).map((_, i) => (
             <span
               key={i}
-              className="font-display whitespace-nowrap text-4xl tracking-widest text-white"
+              className="font-display whitespace-nowrap text-4xl tracking-widest text-fg"
             >
               RCC
             </span>

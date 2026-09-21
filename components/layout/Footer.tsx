@@ -5,7 +5,7 @@ import { Share2, Camera, Video, MessageCircle, Mail, MapPin } from 'lucide-react
 const QUICK_LINKS = [
   { label: 'Home', href: '#hero' },
   { label: 'About RCC', href: '#our-story' },
-  { label: 'Play', href: '#venues' },
+  { label: 'Play', href: '#own-venue' },
   { label: 'Events', href: '#event' },
   { label: 'Membership', href: '#membership' },
   { label: 'Shop', href: '#shop' },
@@ -14,10 +14,8 @@ const QUICK_LINKS = [
 ];
 
 const PLAY_LINKS = [
-  { label: 'Venues', href: '#venues' },
   { label: 'Our Own Venue', href: '#own-venue' },
   { label: 'Book a Court', href: 'https://hudle.in/', external: true },
-  { label: 'Match Play', href: '#venues' },
   { label: 'Rules & Guidelines', href: '#' },
   { label: 'Player Levels', href: '#' },
 ];
@@ -54,7 +52,7 @@ export default function Footer() {
                 height={40}
                 className="h-10 w-10 rounded-full"
               />
-              <span className="font-body text-sm font-bold uppercase tracking-wide text-white">
+              <span className="font-body text-sm font-bold uppercase tracking-wide text-fg">
                 Racquets Club Community
               </span>
             </div>
@@ -78,7 +76,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-display text-lg uppercase tracking-wide text-white">
+            <h3 className="font-display text-lg uppercase tracking-wide text-fg">
               Quick Links
             </h3>
             <ul className="mt-4 flex flex-col gap-3">
@@ -96,7 +94,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-display text-lg uppercase tracking-wide text-white">Play</h3>
+            <h3 className="font-display text-lg uppercase tracking-wide text-fg">Play</h3>
             <ul className="mt-4 flex flex-col gap-3">
               {PLAY_LINKS.map((link) =>
                 link.external ? (
@@ -125,7 +123,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-display text-lg uppercase tracking-wide text-white">Support</h3>
+            <h3 className="font-display text-lg uppercase tracking-wide text-fg">Support</h3>
             <ul className="mt-4 flex flex-col gap-3">
               {SUPPORT_LINKS.map((link) => (
                 <li key={link.label}>
@@ -141,7 +139,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-display text-lg uppercase tracking-wide text-white">
+            <h3 className="font-display text-lg uppercase tracking-wide text-fg">
               Contact Us
             </h3>
             <ul className="mt-4 flex flex-col gap-3 font-body text-sm text-muted">

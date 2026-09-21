@@ -28,7 +28,7 @@ export default function OurStory() {
         <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2 md:gap-16">
           <div className="flex flex-col items-start gap-6">
             <SectionEyebrow>Our Story</SectionEyebrow>
-            <h2 className="font-display text-4xl uppercase leading-[0.95] tracking-tight text-white sm:text-5xl">
+            <h2 className="font-display text-4xl uppercase leading-[0.95] tracking-tight text-fg sm:text-5xl">
               Built For Players. By Players.
             </h2>
             <p className="font-body text-base text-muted-alt sm:text-lg">
@@ -59,7 +59,7 @@ export default function OurStory() {
               className="flex flex-col items-start gap-4 rounded-2xl border border-border-white bg-panel/60 p-6"
             >
               <pillar.icon className="h-8 w-8 text-teal" aria-hidden="true" />
-              <h3 className="font-display text-2xl uppercase tracking-wide text-white">
+              <h3 className="font-display text-2xl uppercase tracking-wide text-fg">
                 {pillar.title}
               </h3>
               <p className="font-body text-sm text-muted">{pillar.copy}</p>

@@ -14,7 +14,7 @@ export default function Shop() {
         <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-xl">
             <SectionEyebrow>RCC Shop</SectionEyebrow>
-            <h2 className="font-display mt-3 text-4xl uppercase tracking-wide text-white sm:text-5xl">
+            <h2 className="font-display mt-3 text-4xl uppercase tracking-wide text-fg sm:text-5xl">
               Gear Up. Show Up.
             </h2>
             <p className="font-body mt-4 text-sm text-muted sm:text-base">
@@ -32,7 +32,7 @@ export default function Shop() {
           </LinkButton>
         </div>
 
-        <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-5">
+        <div className="mx-auto mt-12 grid max-w-xl grid-cols-2 gap-4 sm:gap-6">
           {PRODUCTS.map((product) => (
             <a
               key={product.url}
@@ -47,7 +47,7 @@ export default function Shop() {
                     src={product.image}
                     alt={product.name}
                     fill
-                    sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 50vw"
+                    sizes="(min-width: 640px) 300px, 45vw"
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 ) : (
@@ -59,13 +59,13 @@ export default function Shop() {
                 )}
                 <span
                   aria-hidden="true"
-                  className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm transition-colors group-hover:bg-teal group-hover:text-black"
+                  className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-fg backdrop-blur-sm transition-colors group-hover:bg-teal group-hover:text-black"
                 >
                   <ShoppingCart className="h-4 w-4" />
                 </span>
               </div>
               <div className="flex flex-col gap-1 px-3 py-4">
-                <span className="font-body text-xs font-semibold uppercase tracking-wide text-white">
+                <span className="font-body text-xs font-semibold uppercase tracking-wide text-fg">
                   {product.name}
                 </span>
                 <span className="font-body text-sm font-semibold text-gold">

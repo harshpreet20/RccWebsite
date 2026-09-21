@@ -1,6 +1,12 @@
 @import "tailwindcss";
 
-@theme inline {
+/* Plain (non-inline) @theme: Tailwind emits these as real CSS variables and
+   generates utilities that reference var(--color-x), which is required for
+   the light/dark toggle below to work at runtime. `@theme inline` instead
+   bakes the literal value into each utility at build time — fine for the
+   next/font variables (which must resolve per-render), wrong for colors
+   that need to change after a page has already rendered. */
+@theme {
   --color-bg: #050505;
   --color-bg-alt: #0a0a0a;
   --color-panel: #0d0b12;
@@ -13,8 +19,48 @@
   --color-muted: #9ca3a3;
   --color-muted-alt: #a7a7a7;
   --color-border-white: rgba(255, 255, 255, 0.08);
+  --color-fg: #ffffff;
+}
+
+@theme inline {
   --font-display: var(--font-bebas), sans-serif;
   --font-body: var(--font-inter), sans-serif;
+}
+
+:root[data-theme='light'] {
+  --color-bg: #ffffff;
+  --color-bg-alt: #f5f5f7;
+  --color-panel: #f5f5f7;
+  --color-panel-alt: #ececf0;
+  --color-teal: #7e22ce;
+  --color-teal-primary: #6d28d9;
+  --color-teal-dark: #ede9fe;
+  --color-gold: #a8791f;
+  --color-gold-bright: #92650a;
+  --color-muted: #52525b;
+  --color-muted-alt: #3f3f46;
+  --color-border-white: rgba(0, 0, 0, 0.1);
+  --color-fg: #0a0a0a;
+}
+
+/* Forces a "dark island" for sections that must stay cinematic regardless
+   of the site-wide theme (e.g. the video hero) — apply data-theme="dark"
+   directly on that element and every token below it resolves to these
+   values via normal CSS custom-property inheritance. */
+[data-theme='dark'] {
+  --color-bg: #050505;
+  --color-bg-alt: #0a0a0a;
+  --color-panel: #0d0b12;
+  --color-panel-alt: #151220;
+  --color-teal: #a855f7;
+  --color-teal-primary: #9333ea;
+  --color-teal-dark: #4c1d95;
+  --color-gold: #d4af37;
+  --color-gold-bright: #e8b94b;
+  --color-muted: #9ca3a3;
+  --color-muted-alt: #a7a7a7;
+  --color-border-white: rgba(255, 255, 255, 0.08);
+  --color-fg: #ffffff;
 }
 
 html {
@@ -24,6 +70,7 @@ html {
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 *, *::before, *::after {
