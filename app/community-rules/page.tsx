@@ -32,7 +32,7 @@ const LINKS = [
   {
     icon: MapPin,
     label: 'Review us on Google My Business',
-    href: 'https://maps.app.goo.gl/Y9B5uBoUWi7pjo5k7?g_st=ic',
+    href: 'https://maps.app.goo.gl/P9xKMFVvL1CkHGN56',
   },
 ];
 

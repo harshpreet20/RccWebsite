@@ -36,7 +36,7 @@ const WHATSAPP_URL = 'https://chat.whatsapp.com/FHYw4wbNQDbJfJjDMGZr96?s=cl&p=i&
 const SOCIALS = [
   { label: 'Facebook', icon: Share2, href: 'https://facebook.com/share/1CP9eke83b/' },
   { label: 'Instagram', icon: Camera, href: 'https://instagram.com/racquetsclubcommunity' },
-  { label: 'YouTube', icon: Video, href: 'https://youtube.com/@rccdelhi' },
+  { label: 'YouTube', icon: Video, href: 'https://www.youtube.com/@RacquetsClub' },
   { label: 'WhatsApp', icon: MessageCircle, href: WHATSAPP_URL },
 ];
 

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Mail, MapPin, MessageCircle, Camera } from 'lucide-react';
+import { Mail, MapPin, MessageCircle, Camera, Video } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import SectionEyebrow from '@/components/ui/SectionEyebrow';
@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 
 const ADDRESS = 'A-2B, A 2B Block, Paschim Vihar, New Delhi, Delhi, 110063';
 const MAP_EMBED_SRC = `https://www.google.com/maps?q=${encodeURIComponent(ADDRESS)}&output=embed`;
+const MAP_LINK = 'https://maps.app.goo.gl/P9xKMFVvL1CkHGN56';
 const WHATSAPP_URL = 'https://chat.whatsapp.com/FHYw4wbNQDbJfJjDMGZr96?s=cl&p=i&mlu=4&ilr=4';
 
 const CONTACT_CARDS = [
@@ -34,6 +35,12 @@ const CONTACT_CARDS = [
     value: '@racquetsclubcommunity',
     href: 'https://www.instagram.com/racquetsclubcommunity/',
   },
+  {
+    icon: Video,
+    label: 'YouTube',
+    value: '@RacquetsClub',
+    href: 'https://www.youtube.com/@RacquetsClub',
+  },
 ];
 
 export default function ContactPage() {
@@ -53,7 +60,7 @@ export default function ContactPage() {
             </p>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {CONTACT_CARDS.map((card) => (
               <a
                 key={card.label}
@@ -99,6 +106,14 @@ export default function ContactPage() {
                   referrerPolicy="no-referrer-when-downgrade"
                 />
               </div>
+              <a
+                href={MAP_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-fit items-center gap-2 font-body text-sm font-semibold uppercase tracking-wide text-teal transition-all hover:gap-3"
+              >
+                Open In Google Maps →
+              </a>
             </div>
 
             <div className="rounded-2xl border border-border-white bg-panel/60 p-6 sm:p-8">
