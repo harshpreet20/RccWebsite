@@ -1,3 +1,5 @@
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import Hero from '@/components/sections/Hero';
 import OurStory from '@/components/sections/OurStory';
 import OwnVenue from '@/components/sections/OwnVenue';
@@ -8,14 +10,18 @@ import CTA from '@/components/sections/CTA';
 
 export default function Home() {
   return (
-    <main className="bg-bg">
-      <Hero />
-      <OurStory />
-      <OwnVenue />
-      <EventMembership />
-      <Shop />
-      <GalleryTestimonial />
-      <CTA />
-    </main>
+    <>
+      <Navbar />
+      <main className="bg-bg">
+        <Hero />
+        <OurStory />
+        <OwnVenue />
+        <EventMembership />
+        <Shop />
+        <GalleryTestimonial />
+        <CTA />
+      </main>
+      <Footer />
+    </>
   );
 }

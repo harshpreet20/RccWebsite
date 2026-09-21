@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
 import { Bebas_Neue, Inter } from 'next/font/google';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
 import './globals.css';
 
 const bebasNeue = Bebas_Neue({
@@ -42,11 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
-      <body className="bg-bg text-fg font-body overflow-x-hidden antialiased">
-        <Navbar />
-        {children}
-        <Footer />
-      </body>
+      <body className="bg-bg text-fg font-body overflow-x-hidden antialiased">{children}</body>
     </html>
   );
 }
