@@ -9,25 +9,25 @@ export const PRODUCTS: Product[] = [
   {
     name: 'RCC Performance T-Shirt',
     price: '₹899',
-    image: 'https://store.racquetsclubcommunity.com/products/tshirt.png',
+    image: '/products/tshirt.png',
     url: 'https://store.racquetsclubcommunity.com/product/rcc-performance-tshirt',
   },
   {
     name: 'RCC Performance Shorts',
     price: '₹699',
-    image: 'https://store.racquetsclubcommunity.com/products/shorts.png',
+    image: '/products/shorts.png',
     url: 'https://store.racquetsclubcommunity.com/product/rcc-performance-shorts',
   },
   {
     name: 'RCC Court Cap',
     price: '₹499',
-    image: 'https://store.racquetsclubcommunity.com/products/cap.jpeg',
+    image: '/products/cap.jpeg',
     url: 'https://store.racquetsclubcommunity.com/product/rcc-court-cap',
   },
   {
     name: 'RCC Wristband',
     price: '₹299',
-    image: 'https://store.racquetsclubcommunity.com/products/wristband.jpeg',
+    image: '/products/wristband.jpeg',
     url: 'https://store.racquetsclubcommunity.com/product/rcc-wristbands',
   },
   {

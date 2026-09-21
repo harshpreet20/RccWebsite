@@ -30,7 +30,13 @@ export default function Venues() {
             Access to 20+ premium venues across Delhi. Book, play and connect with players at
             your level, anytime.
           </p>
-          <LinkButton href="#venues" variant="secondary" className="mt-6">
+          <LinkButton
+            href="https://hudle.in/"
+            variant="secondary"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6"
+          >
             Explore Venues
           </LinkButton>
         </div>
@@ -81,7 +87,13 @@ export default function Venues() {
                   {venue.surface}
                 </span>
               </div>
-              <LinkButton href="#venues" variant="text" className="mt-auto w-fit">
+              <LinkButton
+                href="https://hudle.in/"
+                variant="text"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-auto w-fit"
+              >
                 Book Now
               </LinkButton>
             </div>

@@ -1,6 +1,7 @@
 import Hero from '@/components/sections/Hero';
 import OurStory from '@/components/sections/OurStory';
 import Venues from '@/components/sections/Venues';
+import OwnVenue from '@/components/sections/OwnVenue';
 import EventMembership from '@/components/sections/EventMembership';
 import Shop from '@/components/sections/Shop';
 import GalleryTestimonial from '@/components/sections/GalleryTestimonial';
@@ -12,6 +13,7 @@ export default function Home() {
       <Hero />
       <OurStory />
       <Venues />
+      <OwnVenue />
       <EventMembership />
       <Shop />
       <GalleryTestimonial />
