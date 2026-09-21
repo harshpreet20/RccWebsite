@@ -55,7 +55,7 @@ export default function Hero() {
               <LinkButton href="#membership" variant="primary">
                 Join The Community
               </LinkButton>
-              <LinkButton href="#our-story" variant="secondary">
+              <LinkButton href="#enquire" variant="secondary">
                 Explore RCC
               </LinkButton>
             </div>

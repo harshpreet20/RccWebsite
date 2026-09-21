@@ -14,8 +14,9 @@ const NAV_LINKS = [
   { label: 'EVENTS', href: '#event' },
   { label: 'MEMBERSHIP', href: '#membership' },
   { label: 'PARTNERS', href: '#partners' },
+  { label: 'CORPORATE', href: '#corporate' },
   { label: 'GALLERY', href: '#gallery' },
-  { label: 'CONTACT', href: '#footer' },
+  { label: 'CONTACT', href: '#enquire' },
 ];
 
 export default function Navbar() {

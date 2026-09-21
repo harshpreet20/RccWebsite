@@ -11,8 +11,9 @@ const QUICK_LINKS = [
   { label: 'Events', href: '#event' },
   { label: 'Membership', href: '#membership' },
   { label: 'Partners', href: '#partners' },
+  { label: 'Corporate Events', href: '#corporate' },
   { label: 'Gallery', href: '#gallery' },
-  { label: 'Contact', href: '#footer' },
+  { label: 'Contact', href: '#enquire' },
 ];
 
 const PLAY_LINKS = [
@@ -29,7 +30,7 @@ const SUPPORT_LINKS = [
   { label: 'Privacy Policy', href: '#' },
 ];
 
-const WHATSAPP_URL = 'https://chat.whatsapp.com/KeznsK95pHK1JKT4nqpcsv';
+const WHATSAPP_URL = 'https://chat.whatsapp.com/FHYw4wbNQDbJfJjDMGZr96?s=cl&p=i&mlu=4&ilr=4';
 
 // lucide-react no longer ships brand/trademarked icons (Facebook, Instagram,
 // YouTube) in this version — using closest generic equivalents instead.
