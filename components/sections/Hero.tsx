@@ -52,7 +52,7 @@ export default function Hero() {
               players, united by passion, respect &amp; the love for the game.
             </p>
             <div className="flex flex-col gap-4 sm:flex-row">
-              <LinkButton href="#membership" variant="primary">
+              <LinkButton href="#enquire" variant="primary">
                 Join The Community
               </LinkButton>
               <LinkButton href="#enquire" variant="secondary">

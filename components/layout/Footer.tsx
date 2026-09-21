@@ -9,11 +9,10 @@ const QUICK_LINKS = [
   { label: 'About RCC', href: '#our-story' },
   { label: 'Play', href: '#own-venue' },
   { label: 'Events', href: '#event' },
-  { label: 'Membership', href: '#membership' },
   { label: 'Partners', href: '#partners' },
   { label: 'Corporate Events', href: '#corporate' },
   { label: 'Gallery', href: '#gallery' },
-  { label: 'Contact', href: '#enquire' },
+  { label: 'Contact', href: '/contact' },
 ];
 
 const PLAY_LINKS = [

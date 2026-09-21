@@ -5,7 +5,6 @@ import { submitInquiry, type InquiryFormState } from '@/app/actions/inquiries';
 
 const INTEREST_OPTIONS = [
   { value: 'general', label: 'General Enquiry' },
-  { value: 'membership', label: 'Membership' },
   { value: 'corporate', label: 'Corporate Event / Industry Tournament' },
   { value: 'partnership', label: 'Partnership' },
 ];

@@ -1,11 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Images, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import PlaceholderPanel from '@/components/ui/PlaceholderPanel';
-import { GALLERY_PHOTOS, GALLERY_PREVIEW_COUNT } from '@/lib/gallery';
-
-const preview = GALLERY_PHOTOS.slice(0, GALLERY_PREVIEW_COUNT);
+import { GALLERY_PHOTOS } from '@/lib/gallery';
 
 export default function GalleryGrid() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -33,8 +31,8 @@ export default function GalleryGrid() {
 
   return (
     <>
-      <div className="mt-8 grid grid-cols-2 gap-3">
-        {preview.map((photo, i) => (
+      <div className="mt-10 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
+        {GALLERY_PHOTOS.map((photo, i) => (
           <button
             key={i}
             type="button"
@@ -46,15 +44,6 @@ export default function GalleryGrid() {
           </button>
         ))}
       </div>
-
-      <button
-        type="button"
-        onClick={() => setOpenIndex(0)}
-        className="-my-1 mt-3 inline-flex items-center gap-2 py-1 font-body text-sm font-semibold uppercase tracking-wide text-teal transition-all hover:gap-3"
-      >
-        <Images className="h-4 w-4" aria-hidden="true" />
-        View All {GALLERY_PHOTOS.length} Photos
-      </button>
 
       {openIndex !== null && (
         <div

@@ -3,10 +3,10 @@ import Footer from '@/components/layout/Footer';
 import Hero from '@/components/sections/Hero';
 import OurStory from '@/components/sections/OurStory';
 import OwnVenue from '@/components/sections/OwnVenue';
+import Event from '@/components/sections/Event';
 import Partners from '@/components/sections/Partners';
 import CorporateEvents from '@/components/sections/CorporateEvents';
-import EventMembership from '@/components/sections/EventMembership';
-import GalleryTestimonial from '@/components/sections/GalleryTestimonial';
+import Gallery from '@/components/sections/Gallery';
 import Enquire from '@/components/sections/Enquire';
 import CTA from '@/components/sections/CTA';
 
@@ -18,10 +18,10 @@ export default function Home() {
         <Hero />
         <OurStory />
         <OwnVenue />
+        <Event />
         <Partners />
         <CorporateEvents />
-        <EventMembership />
-        <GalleryTestimonial />
+        <Gallery />
         <Enquire />
         <CTA />
       </main>

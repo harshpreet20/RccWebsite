@@ -12,11 +12,10 @@ const NAV_LINKS = [
   { label: 'ABOUT', href: '#our-story' },
   { label: 'PLAY', href: '#own-venue' },
   { label: 'EVENTS', href: '#event' },
-  { label: 'MEMBERSHIP', href: '#membership' },
   { label: 'PARTNERS', href: '#partners' },
   { label: 'CORPORATE', href: '#corporate' },
   { label: 'GALLERY', href: '#gallery' },
-  { label: 'CONTACT', href: '#enquire' },
+  { label: 'CONTACT', href: '/contact' },
 ];
 
 export default function Navbar() {
