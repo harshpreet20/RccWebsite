@@ -1,10 +1,9 @@
 import { createAdminClient } from "@/lib/studio/supabase-server";
 
-// Trustpilot and Google review scraping no longer happens in this app --
-// it's done by scripts/sync_trustpilot_reviews.py and
+// Google review scraping no longer happens in this app -- it's done by
 // scripts/sync_google_reviews.py, run on a schedule by GitHub Actions
 // (see .github/workflows/sync-studio-reviews.yml), the same crawl4ai +
-// Playwright approach as Dr. Kaul's project. Both scripts write straight
+// Playwright approach as Dr. Kaul's project. That script writes straight
 // into the `reviews` table below with the service role key; this app only
 // reads it back.
 

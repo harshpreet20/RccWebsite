@@ -9,10 +9,10 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     # Same shape as Dr. Kaul's project: a handful of sequential scrape
-    # attempts per site, cooling down between each, since a single attempt
-    # can get capped to a tiny preview by bot detection. Both scripts upsert
-    # into the shared `reviews` table keyed on (source, source_review_id),
-    # so repeated finds just overwrite harmlessly.
+    # attempts, cooling down between each, since a single attempt can get
+    # capped to a tiny preview by bot detection. Upserts into the shared
+    # `reviews` table keyed on (source, source_review_id), so repeated
+    # finds just overwrite harmlessly.
     steps:
       - uses: actions/checkout@v5
 
@@ -38,19 +38,5 @@ jobs:
             if [ "$attempt" -lt 5 ]; then
               echo "Waiting for the rate-limit signal to reset before the next attempt..."
               sleep 300
-            fi
-          done
-
-      - name: Sync Trustpilot reviews (3 attempts, cooling down between each)
-        env:
-          TRUSTPILOT_URL: ${{ secrets.TRUSTPILOT_URL }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: |
-          for attempt in 1 2 3; do
-            echo "=== Trustpilot attempt $attempt of 3 ==="
-            python scripts/sync_trustpilot_reviews.py
-            if [ "$attempt" -lt 3 ]; then
-              sleep 120
             fi
           done

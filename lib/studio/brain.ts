@@ -31,7 +31,7 @@ Analyze the data and produce a structured brief covering:
 1. CURRENT POSITION - Where does the account stand? Strengths, weaknesses in plain language with specific numbers.
 2. COMPETITIVE LANDSCAPE - How do we compare to competitors? Who's winning and why? What content formats/topics work for them?
 3. CONTENT PATTERNS - What types of our content perform best? What topics get engagement? What falls flat?
-4. AUDIENCE SENTIMENT - Analyze Trustpilot and Google Business reviews in detail. What do customers praise? What do they complain about? Extract recurring themes, specific pain points, and positive highlights. Use exact quotes where impactful. This feedback should directly inform content strategy.
+4. AUDIENCE SENTIMENT - Analyze Google Business reviews in detail. What do customers praise? What do they complain about? Extract recurring themes, specific pain points, and positive highlights. Use exact quotes where impactful. This feedback should directly inform content strategy.
 5. STRATEGIC PRIORITIES - The top 3 things to focus on right now, based on all the data.
 6. OPPORTUNITIES - Gaps competitors aren't covering, trending formats to try, untapped topics.
 
@@ -84,7 +84,7 @@ ${competitors.map((c) => {
   Top posts: ${topPosts.map((p) => `"${p.caption?.slice(0, 80)}" (${p.likes} likes)`).join(" | ")}`;
 }).join("\n")}
 
-=== REVIEWS (Trustpilot & Google) ===
+=== REVIEWS (Google) ===
 ${reviewsSummary}
 
 === RECENT AGENT INSIGHTS ===
@@ -155,13 +155,6 @@ async function getReviewsSummary(): Promise<string> {
   try {
     const supabase = createAdminClient();
 
-    const { data: trustpilotData } = await supabase
-      .from("reviews")
-      .select("source, rating, title, review_text")
-      .eq("source", "trustpilot")
-      .order("scraped_at", { ascending: false })
-      .limit(10);
-
     const { data: googleData } = await supabase
       .from("reviews")
       .select("source, rating, title, review_text")
@@ -169,10 +162,9 @@ async function getReviewsSummary(): Promise<string> {
       .order("scraped_at", { ascending: false })
       .limit(10);
 
-    const trustpilot = trustpilotData || [];
     const google = googleData || [];
 
-    if (trustpilot.length === 0 && google.length === 0) return "No reviews available yet.";
+    if (google.length === 0) return "No reviews available yet.";
 
     const summarize = (reviews: any[], label: string) => {
       if (reviews.length === 0) return `${label}: No reviews yet.`;
@@ -187,10 +179,7 @@ async function getReviewsSummary(): Promise<string> {
       return `${label}: ${reviews.length} reviews, avg ${avg}/5\n${snippets}`;
     };
 
-    return [
-      summarize(trustpilot, "Trustpilot"),
-      summarize(google, "Google Business"),
-    ].join("\n\n");
+    return summarize(google, "Google Business");
   } catch {
     return "Reviews unavailable.";
   }

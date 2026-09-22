@@ -35,7 +35,6 @@ export default function ReviewsPage() {
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sourceFilter, setSourceFilter] = useState<string>("all");
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
@@ -45,8 +44,7 @@ export default function ReviewsPage() {
   async function loadReviews() {
     setLoading(true);
     try {
-      const src = sourceFilter !== "all" ? `?source=${sourceFilter}` : "";
-      const res = await fetch(`/api/studio/reviews${src}`);
+      const res = await fetch("/api/studio/reviews?source=google");
       const json = await res.json();
       if (json.error) throw new Error(json.error);
       setReviews(json.reviews || []);
@@ -61,7 +59,7 @@ export default function ReviewsPage() {
   useEffect(() => {
     if (!user || status !== "approved") return;
     loadReviews();
-  }, [user, status, sourceFilter]);
+  }, [user, status]);
 
   if (authLoading) {
     return (
@@ -82,28 +80,7 @@ export default function ReviewsPage() {
         {/* Header */}
         <div className="mb-6">
           <h2 className="text-2xl font-extrabold text-gray-900">Reviews</h2>
-          <p className="text-sm text-gray-400 mt-0.5">Trustpilot &amp; Google reviews for Racquets Club Community</p>
-        </div>
-
-        {/* Source filter tabs */}
-        <div className="flex items-center gap-1 mb-6">
-          {[
-            { key: "all", label: "All Sources" },
-            { key: "trustpilot", label: "Trustpilot" },
-            { key: "google", label: "Google" },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setSourceFilter(tab.key)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                sourceFilter === tab.key
-                  ? "bg-gray-900 text-white neu-pressed"
-                  : "bg-[#f5f6f8] text-gray-500 neu-btn"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+          <p className="text-sm text-gray-400 mt-0.5">Google reviews for Racquets Club Community</p>
         </div>
 
         {error && (
@@ -176,7 +153,7 @@ export default function ReviewsPage() {
               <div className="text-center py-20">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center text-2xl neu-pressed">{"⭐"}</div>
                 <h3 className="text-lg font-bold text-gray-900 mb-1">No reviews yet</h3>
-                <p className="text-sm text-gray-400">Reviews are fetched automatically during the weekly scrape.</p>
+                <p className="text-sm text-gray-400">Reviews are fetched automatically during the nightly sync.</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -197,12 +174,8 @@ export default function ReviewsPage() {
                         <span className="text-[11px] text-gray-400">
                           {review.review_date ? new Date(review.review_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}
                         </span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase neu-flat ${
-                          review.source === "google"
-                            ? "text-blue-700"
-                            : "text-emerald-700"
-                        }`}>
-                          {review.source === "google" ? "Google" : "Trustpilot"}
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase neu-flat text-blue-700">
+                          Google
                         </span>
                       </div>
                     </div>
