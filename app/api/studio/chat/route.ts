@@ -9,6 +9,9 @@ import { runReelPromptAgent } from "@/app/api/studio/agents/reel-prompt/route";
 import { runPlannerAgent } from "@/app/api/studio/agents/planner/route";
 import { runAnalystAgent } from "@/app/api/studio/agents/analyst/route";
 import { runDmManagerAgent } from "@/app/api/studio/agents/dm-manager/route";
+import { runPostAnalysisAgent } from "@/app/api/studio/agents/post-analysis/route";
+
+const INSTAGRAM_POST_URL_RE = /https?:\/\/(?:www\.)?instagram\.com\/(?:p|reel)\/[A-Za-z0-9_-]+\/?/i;
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -66,6 +69,27 @@ export async function POST(request: Request) {
   const message = (body.message ?? "").trim();
   if (!message) return NextResponse.json({ error: "message is required" }, { status: 400 });
   const history = Array.isArray(body.history) ? body.history.slice(-12) : [];
+
+  // A real post/reel link is a stronger, cheaper signal than asking the LLM
+  // router to notice and echo it back correctly in JSON -- handled directly
+  // here rather than relying on the router for URL extraction.
+  const postUrlMatch = message.match(INSTAGRAM_POST_URL_RE);
+  if (postUrlMatch) {
+    try {
+      const outcome = await runPostAnalysisAgent(postUrlMatch[0]);
+      if ("error" in outcome) {
+        return NextResponse.json({ type: "chat", text: `Couldn't pull that up: ${outcome.error}` });
+      }
+      return NextResponse.json({
+        type: "report",
+        agent: outcome.agent,
+        html: outcome.result,
+        reportId: outcome.reportId,
+      });
+    } catch (e: any) {
+      return NextResponse.json({ error: e.message }, { status: 500 });
+    }
+  }
 
   let intent = "chat";
   let quality: "social" | "cinematic" = "social";

@@ -22,6 +22,7 @@ const AGENT_LABELS: Record<string, string> = {
   planner: "Planner",
   analyst: "Analyst",
   "dm-manager": "DM Manager",
+  "post-analysis": "Post Deep-Dive",
 };
 
 function sanitizeReportHtml(raw: string): string {
@@ -46,7 +47,7 @@ export default function StudioChatPage() {
       role: "assistant",
       kind: "chat",
       content:
-        "Hey! I'm your content brainstorming partner for @racquetsclubcommunity. Ask me for ideas, hooks, a content calendar, a stats read, DM templates, or just think out loud with me - English, Hindi, Hinglish, whatever works.",
+        "Hey! I'm your content brainstorming partner for @racquetsclubcommunity. Ask me for ideas, hooks, a content calendar, a stats read, DM templates, or paste an Instagram post/reel link and I'll dig into its comments - or just think out loud with me. English, Hindi, Hinglish, whatever works.",
     },
   ]);
   const [input, setInput] = useState("");
