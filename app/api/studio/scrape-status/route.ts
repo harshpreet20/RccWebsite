@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { ApifyClient } from "apify-client";
 import { createAdminClient } from "@/lib/studio/supabase-server";
-import { pollAndCollectReviews } from "@/lib/studio/reviews";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -30,16 +29,9 @@ async function collectLatestRun() {
   }
 
   if (runData.status === "SUCCEEDED" || runData.status === "FAILED") {
-    // Also poll for pending review results (webhook fallback)
-    let reviewResults = null;
-    try {
-      reviewResults = await pollAndCollectReviews();
-    } catch { /* non-critical */ }
-
     return NextResponse.json({
       status: runData.status,
       finishedAt: runData.finished_at,
-      reviews: reviewResults,
     });
   }
 

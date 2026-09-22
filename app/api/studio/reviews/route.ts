@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { scrapeTrustpilot, scrapeGoogleReviews, getStoredReviews } from "@/lib/studio/reviews";
+import { getStoredReviews } from "@/lib/studio/reviews";
 import { createAdminClient } from "@/lib/studio/supabase-server";
 
 export const dynamic = "force-dynamic";
@@ -25,28 +25,6 @@ export async function GET(request: Request) {
     return NextResponse.json({
       reviews,
       summary: { total: reviews.length, avgRating, distribution },
-    });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
-  }
-}
-
-export async function POST(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const source = searchParams.get("source");
-    if (source && source !== "trustpilot" && source !== "google") {
-      return NextResponse.json({ error: "Invalid source. Use 'trustpilot' or 'google'." }, { status: 400 });
-    }
-
-    const result = source === "google"
-      ? await scrapeGoogleReviews()
-      : await scrapeTrustpilot();
-
-    return NextResponse.json({
-      success: true,
-      source,
-      ...result.summary,
     });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
