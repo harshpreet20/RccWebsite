@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ApifyClient } from "apify-client";
 import { createAdminClient } from "@/lib/studio/supabase-server";
+import type { Scope } from "@/app/api/studio/cron/scrape/route";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -12,16 +13,25 @@ const COMPETITORS = (process.env.COMPETITOR_HANDLES || DEFAULT_COMPETITORS)
   .filter(Boolean);
 const ALL_HANDLES = [MY_HANDLE, ...COMPETITORS];
 
-export async function POST() {
-  return collectLatestRun();
+function parseScope(value: string | null): Scope {
+  return value === "mine" || value === "competitors" ? value : "all";
 }
 
-async function collectLatestRun() {
+function runRowId(scope: Scope) {
+  return `latest_${scope}`;
+}
+
+export async function POST(request: Request) {
+  const scope = parseScope(new URL(request.url).searchParams.get("scope"));
+  return collectLatestRun(scope);
+}
+
+async function collectLatestRun(scope: Scope) {
   const supabase = createAdminClient();
   const { data: runData } = await supabase
     .from("scrape_runs")
     .select("*")
-    .eq("id", "latest")
+    .eq("id", runRowId(scope))
     .single();
 
   if (!runData) {
@@ -46,7 +56,7 @@ async function collectLatestRun() {
 
     if (!run) {
       await supabase.from("scrape_runs").upsert(
-        { id: "latest", status: "FAILED", finished_at: new Date().toISOString() },
+        { id: runRowId(scope), status: "FAILED", finished_at: new Date().toISOString() },
         { onConflict: "id" }
       );
       return NextResponse.json({ status: "FAILED", message: "Run not found" });
@@ -55,8 +65,14 @@ async function collectLatestRun() {
     if (run.status === "SUCCEEDED") {
       const { items } = await client.dataset(runData.dataset_id).listItems();
 
+      // Only the handles this specific run actually scraped -- stored on
+      // the run row by cron/scrape's startScrape(), not the module-level
+      // full handle list, since "mine" and "competitors" runs each only
+      // cover part of it.
+      const runHandles: string[] = runData.handles || ALL_HANDLES;
+
       const grouped: Record<string, any[]> = {};
-      for (const handle of ALL_HANDLES) {
+      for (const handle of runHandles) {
         grouped[handle] = [];
       }
 
@@ -67,7 +83,7 @@ async function collectLatestRun() {
           (item as any).profileName ||
           "unknown";
         const normalizedOwner = owner.toLowerCase().replace(/^@/, "");
-        const matchedHandle = ALL_HANDLES.find(
+        const matchedHandle = runHandles.find(
           (h) => h.toLowerCase() === normalizedOwner
         );
 
@@ -95,12 +111,32 @@ async function collectLatestRun() {
         }
       }
 
+      // Merge into the most recent existing row rather than inserting a
+      // partial one, so a "mine"-only or "competitors"-only run doesn't
+      // wipe out the other side's most recent data -- getMyStats/
+      // getCompetitorStats only ever read the single latest `scrapes` row.
+      const { data: previous } = await supabase
+        .from("scrapes")
+        .select("data")
+        .order("scraped_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const mergedProfiles = {
+        ...(previous?.data?.profiles || {}),
+        ...grouped,
+      };
+      const totalPosts = Object.values(mergedProfiles).reduce(
+        (sum: number, posts) => sum + (Array.isArray(posts) ? posts.length : 0),
+        0
+      );
+
       const output = {
         scrapedAt: new Date().toISOString(),
         myHandle: MY_HANDLE,
         competitors: COMPETITORS,
-        profiles: grouped,
-        totalPosts: items.length,
+        profiles: mergedProfiles,
+        totalPosts,
       };
 
       await supabase.from("scrapes").insert({
@@ -110,7 +146,7 @@ async function collectLatestRun() {
       });
 
       await supabase.from("scrape_runs").upsert(
-        { id: "latest", status: "SUCCEEDED", finished_at: new Date().toISOString() },
+        { id: runRowId(scope), status: "SUCCEEDED", finished_at: new Date().toISOString() },
         { onConflict: "id" }
       );
 
@@ -120,14 +156,16 @@ async function collectLatestRun() {
 
       return NextResponse.json({
         status: "SUCCEEDED",
-        totalPosts: items.length,
+        scope,
+        newPosts: items.length,
+        totalPosts,
         scrapedAt: output.scrapedAt,
       });
     }
 
     if (run.status === "FAILED" || run.status === "ABORTED" || run.status === "TIMED-OUT") {
       await supabase.from("scrape_runs").upsert(
-        { id: "latest", status: "FAILED", finished_at: new Date().toISOString() },
+        { id: runRowId(scope), status: "FAILED", finished_at: new Date().toISOString() },
         { onConflict: "id" }
       );
       return NextResponse.json({
@@ -145,6 +183,7 @@ async function collectLatestRun() {
   }
 }
 
-export async function GET() {
-  return collectLatestRun();
+export async function GET(request: Request) {
+  const scope = parseScope(new URL(request.url).searchParams.get("scope"));
+  return collectLatestRun(scope);
 }

@@ -12,14 +12,35 @@ const COMPETITORS = (process.env.COMPETITOR_HANDLES || DEFAULT_COMPETITORS)
   .filter(Boolean);
 const ALL_HANDLES = [MY_HANDLE, ...COMPETITORS];
 
-async function startScrape() {
+export type Scope = "mine" | "competitors" | "all";
+
+function handlesForScope(scope: Scope): string[] {
+  if (scope === "mine") return [MY_HANDLE];
+  if (scope === "competitors") return COMPETITORS;
+  return ALL_HANDLES;
+}
+
+function parseScope(value: string | null): Scope {
+  return value === "mine" || value === "competitors" ? value : "all";
+}
+
+// One `scrape_runs` row per scope (not a single shared "latest") so my
+// daily run and the competitors' twice-weekly run can be in flight at the
+// same time without one run's webhook overwriting the other's run_id
+// before it's been collected.
+function runRowId(scope: Scope) {
+  return `latest_${scope}`;
+}
+
+async function startScrape(scope: Scope) {
   const apifyToken = process.env.APIFY_API_TOKEN;
   if (!apifyToken) throw new Error("Missing APIFY_API_TOKEN");
 
+  const handles = handlesForScope(scope);
   const client = new ApifyClient({ token: apifyToken });
 
   const input = {
-    directUrls: ALL_HANDLES.map((h) => `https://www.instagram.com/${h}/`),
+    directUrls: handles.map((h) => `https://www.instagram.com/${h}/`),
     resultsType: "posts",
     resultsLimit: 30,
     searchType: "hashtag",
@@ -30,19 +51,19 @@ async function startScrape() {
   const run = await client.actor("apify/instagram-scraper").start(input, {
     webhooks: [{
       eventTypes: ["ACTOR.RUN.SUCCEEDED"],
-      requestUrl: `${baseUrl}/api/studio/scrape-status?collect=true`,
+      requestUrl: `${baseUrl}/api/studio/scrape-status?scope=${scope}`,
     }],
   });
 
   const supabase = createAdminClient();
   await supabase.from("scrape_runs").upsert(
     {
-      id: "latest",
+      id: runRowId(scope),
       run_id: run.id,
       dataset_id: run.defaultDatasetId,
       status: "RUNNING",
       started_at: new Date().toISOString(),
-      handles: ALL_HANDLES,
+      handles,
     },
     { onConflict: "id" }
   );
@@ -51,86 +72,8 @@ async function startScrape() {
     success: true,
     status: "RUNNING",
     runId: run.id,
-    message: `Scraping ${ALL_HANDLES.length} handles — check back in a few minutes. Reviews sync separately on their own nightly GitHub Action.`,
-  };
-}
-
-async function collectResults(runId: string, datasetId: string) {
-  const apifyToken = process.env.APIFY_API_TOKEN;
-  if (!apifyToken) throw new Error("Missing APIFY_API_TOKEN");
-
-  const client = new ApifyClient({ token: apifyToken });
-  const { items } = await client.dataset(datasetId).listItems();
-
-  const grouped: Record<string, any[]> = {};
-  for (const handle of ALL_HANDLES) {
-    grouped[handle] = [];
-  }
-
-  for (const item of items) {
-    const owner =
-      (item as any).ownerUsername ||
-      (item as any).owner?.username ||
-      (item as any).profileName ||
-      "unknown";
-    const normalizedOwner = owner.toLowerCase().replace(/^@/, "");
-
-    const matchedHandle = ALL_HANDLES.find(
-      (h) => h.toLowerCase() === normalizedOwner
-    );
-
-    const post = {
-      id: (item as any).id || (item as any).shortCode,
-      shortCode: (item as any).shortCode,
-      caption: (item as any).caption || "",
-      likes: (item as any).likesCount || (item as any).likes || 0,
-      comments: (item as any).commentsCount || (item as any).comments || 0,
-      views: (item as any).videoViewCount || (item as any).views || 0,
-      timestamp: (item as any).timestamp || (item as any).takenAtTimestamp,
-      type: (item as any).type || "unknown",
-      url:
-        (item as any).url ||
-        `https://www.instagram.com/p/${(item as any).shortCode}/`,
-      hashtags: (item as any).hashtags || [],
-      ownerUsername: normalizedOwner,
-    };
-
-    if (matchedHandle) {
-      grouped[matchedHandle].push(post);
-    } else {
-      if (!grouped["_other"]) grouped["_other"] = [];
-      grouped["_other"].push(post);
-    }
-  }
-
-  const output = {
-    scrapedAt: new Date().toISOString(),
-    myHandle: MY_HANDLE,
-    competitors: COMPETITORS,
-    profiles: grouped,
-    totalPosts: items.length,
-  };
-
-  const supabase = createAdminClient();
-  const { error } = await supabase.from("scrapes").insert({
-    my_handle: MY_HANDLE,
-    competitors: COMPETITORS,
-    data: output,
-  });
-
-  if (error) throw new Error(`Supabase save failed: ${error.message}`);
-
-  await supabase.from("scrape_runs").upsert(
-    { id: "latest", status: "SUCCEEDED", finished_at: new Date().toISOString() },
-    { onConflict: "id" }
-  );
-
-  return {
-    success: true,
-    status: "SUCCEEDED",
-    totalPosts: items.length,
-    handles: ALL_HANDLES,
-    scrapedAt: output.scrapedAt,
+    scope,
+    message: `Scraping ${handles.length} handle(s) (${scope}) — check back in a few minutes. Reviews sync separately on their own nightly GitHub Action.`,
   };
 }
 
@@ -140,17 +83,21 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const scope = parseScope(new URL(request.url).searchParams.get("scope"));
+
   try {
-    const result = await startScrape();
+    const result = await startScrape(scope);
     return NextResponse.json(result);
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }
 
-export async function POST() {
+export async function POST(request: Request) {
+  const scope = parseScope(new URL(request.url).searchParams.get("scope"));
+
   try {
-    const result = await startScrape();
+    const result = await startScrape(scope);
     return NextResponse.json(result);
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });

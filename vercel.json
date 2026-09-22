@@ -5,8 +5,12 @@
   "outputDirectory": ".next",
   "crons": [
     {
-      "path": "/api/studio/cron/scrape",
-      "schedule": "0 6 * * 1"
+      "path": "/api/studio/cron/scrape?scope=mine",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/studio/cron/scrape?scope=competitors",
+      "schedule": "30 6 * * 1,4"
     }
   ]
 }
