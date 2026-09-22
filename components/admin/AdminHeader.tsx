@@ -4,6 +4,7 @@ import { signOut } from '@/app/admin/login/actions';
 const TABS = [
   { label: 'Events', href: '/admin/events' },
   { label: 'Inquiries', href: '/admin/inquiries' },
+  { label: 'Studio', href: '/admin/studio' },
 ];
 
 export default function AdminHeader({
@@ -13,7 +14,7 @@ export default function AdminHeader({
 }: {
   title: string;
   subtitle: string;
-  active: 'Events' | 'Inquiries';
+  active: 'Events' | 'Inquiries' | 'Studio';
 }) {
   return (
     <div className="border-b border-neutral-200 pb-6">

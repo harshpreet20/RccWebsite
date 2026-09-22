@@ -27,7 +27,37 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user && request.nextUrl.pathname !== '/admin/login') {
+  const { pathname } = request.nextUrl;
+
+  // Studio's API routes carry real Anthropic/OpenAI/Apify cost per call, so
+  // they need the same admin gate as the pages -- except the handful that
+  // external callers (Vercel Cron, Apify webhooks) hit with no user session,
+  // which keep their own secret-based checks inside the route itself.
+  const STUDIO_UNAUTHENTICATED_PATHS = [
+    '/api/studio/cron/scrape',
+    '/api/studio/scrape-status',
+    '/api/studio/review-webhook',
+  ];
+
+  if (pathname.startsWith('/api/studio/')) {
+    if (STUDIO_UNAUTHENTICATED_PATHS.some((p) => pathname.startsWith(p))) {
+      return response;
+    }
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const { data: adminRow } = await supabase
+      .from('admin_users')
+      .select('email')
+      .eq('email', user.email)
+      .maybeSingle();
+    if (!adminRow) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    return response;
+  }
+
+  if (!user && pathname !== '/admin/login') {
     const url = request.nextUrl.clone();
     url.pathname = '/admin/login';
     return NextResponse.redirect(url);
@@ -37,5 +67,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/api/studio/:path*'],
 };
