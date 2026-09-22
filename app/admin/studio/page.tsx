@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { stripDangerousHtml } from "@/lib/studio/guardrails";
 
 type ChatMessage =
   | { role: "user"; content: string }
@@ -36,7 +37,7 @@ function sanitizeReportHtml(raw: string): string {
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")}</div>`;
   }
-  return text;
+  return stripDangerousHtml(text);
 }
 
 export default function StudioChatPage() {

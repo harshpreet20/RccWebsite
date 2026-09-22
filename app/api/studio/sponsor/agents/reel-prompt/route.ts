@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { loadDataWithFallback, getMyStats, getCompetitorStats } from "@/lib/studio/data";
 import { runDualAgent } from "@/lib/studio/dual-agent";
+import { wrapUntrusted } from "@/lib/studio/guardrails";
 import { saveReport, createAdminClient } from "@/lib/studio/supabase-server";
 import { getLearnings, buildEnhancedPrompt } from "@/lib/studio/micro-intel";
 import { buildBrainContext, injectBrainContext } from "@/lib/studio/brain";
@@ -203,7 +204,7 @@ ${me.posts
 Generate 4-5 visually distinct AI reel concepts for a sponsor activation between @racquetsclubcommunity and @${sponsorHandle}. For each one, write a complete production prompt with all visual specs and natural sponsor brand integration, ready to paste into AI video tools.`;
 
   try {
-    const result = await runDualAgent(system, context, "reel-prompt");
+    const result = await runDualAgent(system, wrapUntrusted("SCRAPED ACCOUNT DATA", context), "reel-prompt");
     const reportId = await saveReport("sponsor-reel-prompt", result);
     return NextResponse.json({ agent: "sponsor-reel-prompt", result, reportId, learningsUsed: learnings.length });
   } catch (e: any) {

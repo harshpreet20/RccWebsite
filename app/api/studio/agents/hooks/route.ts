@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { loadDataWithFallback, getMyStats, getCompetitorStats } from "@/lib/studio/data";
 import { runDualAgent } from "@/lib/studio/dual-agent";
+import { wrapUntrusted } from "@/lib/studio/guardrails";
 import { saveReport } from "@/lib/studio/supabase-server";
 import { getLearnings, buildEnhancedPrompt } from "@/lib/studio/micro-intel";
 import { buildBrainContext, injectBrainContext } from "@/lib/studio/brain";
@@ -54,7 +55,7 @@ ${topCompetitorPosts.map((p) => `"${p.caption?.slice(0, 150)}" — ${p.likes} li
 
 Write 3 reel scripts with hooks that would work for my badminton community account.`;
 
-  const result = await runDualAgent(system, context, "hooks");
+  const result = await runDualAgent(system, wrapUntrusted("SCRAPED ACCOUNT DATA", context), "hooks");
   const reportId = await saveReport("hooks", result);
   return { agent: "hooks" as const, result, reportId, learningsUsed: learnings.length };
 }

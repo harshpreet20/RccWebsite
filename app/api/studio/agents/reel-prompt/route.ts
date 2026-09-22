@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { loadDataWithFallback, getMyStats, getCompetitorStats } from "@/lib/studio/data";
 import { runDualAgent } from "@/lib/studio/dual-agent";
+import { wrapUntrusted } from "@/lib/studio/guardrails";
 import { saveReport } from "@/lib/studio/supabase-server";
 import { getLearnings, buildEnhancedPrompt } from "@/lib/studio/micro-intel";
 import { buildBrainContext, injectBrainContext } from "@/lib/studio/brain";
@@ -160,7 +161,7 @@ ${me.posts
 
 Generate 4-5 visually distinct AI reel concepts for my badminton community account. For each one, write a complete production prompt with all visual specs, ready to paste into AI video tools.`;
 
-  const result = await runDualAgent(system, context, "reel-prompt");
+  const result = await runDualAgent(system, wrapUntrusted("SCRAPED ACCOUNT DATA", context), "reel-prompt");
   const reportId = await saveReport("reel-prompt", result);
   return { agent: "reel-prompt" as const, result, reportId, learningsUsed: learnings.length };
 }

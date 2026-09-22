@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { loadDataWithFallback, getMyStats } from "@/lib/studio/data";
 import { runDualAgent } from "@/lib/studio/dual-agent";
+import { wrapUntrusted } from "@/lib/studio/guardrails";
 import { saveReport, createAdminClient } from "@/lib/studio/supabase-server";
 import { getLearnings, buildEnhancedPrompt } from "@/lib/studio/micro-intel";
 import { buildBrainContext, injectBrainContext } from "@/lib/studio/brain";
@@ -83,7 +84,7 @@ ${me.posts.slice(0, 5).map((p) => `"${p.caption?.slice(0, 80)}"`).join("\n")}
 Generate 5 DM templates for sponsor outreach and engagement with @${sponsorHandle}. Templates should reference the sponsor's content style and our community strengths.`;
 
   try {
-    const result = await runDualAgent(system, context, "dm-manager");
+    const result = await runDualAgent(system, wrapUntrusted("SCRAPED ACCOUNT DATA", context), "dm-manager");
     const reportId = await saveReport("sponsor-dm-manager", result);
     return NextResponse.json({ agent: "sponsor-dm-manager", result, reportId, learningsUsed: learnings.length });
   } catch (e: any) {

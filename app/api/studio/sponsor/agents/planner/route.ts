@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { loadDataWithFallback, getMyStats } from "@/lib/studio/data";
 import { runDualAgent } from "@/lib/studio/dual-agent";
+import { wrapUntrusted } from "@/lib/studio/guardrails";
 import { saveReport, createAdminClient } from "@/lib/studio/supabase-server";
 import { getLearnings, buildEnhancedPrompt } from "@/lib/studio/micro-intel";
 import { buildBrainContext, injectBrainContext } from "@/lib/studio/brain";
@@ -84,7 +85,7 @@ ${recentPosts.map((p) => `[${p.type}] "${p.caption?.slice(0, 100)}" - ${p.likes}
 Create a 2-day weekend content activation plan for @racquetsclubcommunity x @${sponsorHandle}. Include Friday teaser, Saturday content (2-3 slots), Sunday content (2-3 slots), and Monday recap.`;
 
   try {
-    const result = await runDualAgent(system, context, "planner");
+    const result = await runDualAgent(system, wrapUntrusted("SCRAPED ACCOUNT DATA", context), "planner");
     const reportId = await saveReport("sponsor-planner", result);
     return NextResponse.json({ agent: "sponsor-planner", result, reportId, learningsUsed: learnings.length });
   } catch (e: any) {

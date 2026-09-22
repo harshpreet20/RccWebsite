@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { loadDataWithFallback, getMyStats } from "@/lib/studio/data";
 import { runDualAgent } from "@/lib/studio/dual-agent";
+import { wrapUntrusted } from "@/lib/studio/guardrails";
 import { saveReport } from "@/lib/studio/supabase-server";
 import { getLearnings, buildEnhancedPrompt } from "@/lib/studio/micro-intel";
 import { buildBrainContext, injectBrainContext } from "@/lib/studio/brain";
@@ -53,7 +54,7 @@ ${recentPosts.map((p) => `[${p.type}] "${p.caption?.slice(0, 100)}" — ${p.like
 
 Create a 7-day content calendar starting from tomorrow. Mix formats for maximum reach.`;
 
-  const result = await runDualAgent(system, context, "planner");
+  const result = await runDualAgent(system, wrapUntrusted("SCRAPED ACCOUNT DATA", context), "planner");
   const reportId = await saveReport("planner", result);
   return { agent: "planner" as const, result, reportId, learningsUsed: learnings.length };
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { stripDangerousHtml } from "@/lib/studio/guardrails";
 
 function sanitizeReport(raw: string): string {
   let text = raw.trim();
@@ -13,7 +14,7 @@ function sanitizeReport(raw: string): string {
   if (!text.startsWith("<")) {
     text = `<div style="font-family:-apple-system,sans-serif;font-size:14px;line-height:1.7;color:#374151;white-space:pre-wrap">${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
   }
-  return text;
+  return stripDangerousHtml(text);
 }
 
 interface ConfigOption {

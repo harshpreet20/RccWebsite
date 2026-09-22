@@ -1,5 +1,6 @@
 import { createAdminClient } from "./supabase-server";
 import { askClaude } from "./claude";
+import { GUARDRAILS } from "./guardrails";
 
 export async function getLearnings(agentName: string): Promise<string[]> {
   const supabase = createAdminClient();
@@ -18,13 +19,15 @@ export function buildEnhancedPrompt(
   baseSystem: string,
   learnings: string[]
 ): string {
-  if (learnings.length === 0) return baseSystem;
+  const guarded = `${GUARDRAILS}${baseSystem}`;
+
+  if (learnings.length === 0) return guarded;
 
   const learningBlock = learnings
     .map((l, i) => `${i + 1}. ${l}`)
     .join("\n");
 
-  return `${baseSystem}
+  return `${guarded}
 
 LEARNED PATTERNS (from past performance — follow these):
 ${learningBlock}`;

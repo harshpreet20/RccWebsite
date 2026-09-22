@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { loadDataWithFallback, getMyStats, getCompetitorStats } from "@/lib/studio/data";
 import { runDualAgent } from "@/lib/studio/dual-agent";
+import { wrapUntrusted } from "@/lib/studio/guardrails";
 import { saveReport, createAdminClient } from "@/lib/studio/supabase-server";
 import { getLearnings, buildEnhancedPrompt } from "@/lib/studio/micro-intel";
 import { buildBrainContext, injectBrainContext } from "@/lib/studio/brain";
@@ -82,7 +83,7 @@ ${competitors.map((c) => `@${c.handle}: ${c.postCount} posts, avg ${c.avgLikes} 
 Generate 5 sponsor activation content ideas for @racquetsclubcommunity x @${sponsorHandle}. Each idea should naturally integrate the sponsor brand while keeping the badminton community engaged. Classify each as AI REEL, REAL, or UGC.`;
 
   try {
-    const result = await runDualAgent(system, context, "ideator");
+    const result = await runDualAgent(system, wrapUntrusted("SCRAPED ACCOUNT DATA", context), "ideator");
     const reportId = await saveReport("sponsor-ideator", result);
     return NextResponse.json({ agent: "sponsor-ideator", result, reportId, learningsUsed: learnings.length });
   } catch (e: any) {

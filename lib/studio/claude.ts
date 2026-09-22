@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { stripDangerousHtml } from "@/lib/studio/guardrails";
 
 let client: Anthropic | null = null;
 
@@ -33,5 +34,5 @@ function cleanHtmlOutput(raw: string): string {
     text = text.substring(firstTag, lastTag + 1);
   }
   text = text.replace(/—/g, " - ").replace(/–/g, " - ");
-  return text;
+  return stripDangerousHtml(text);
 }

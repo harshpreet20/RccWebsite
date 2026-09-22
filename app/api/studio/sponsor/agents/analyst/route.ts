@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { loadDataWithFallback, getMyStats, getCompetitorStats } from "@/lib/studio/data";
 import { runDualAgent } from "@/lib/studio/dual-agent";
+import { wrapUntrusted } from "@/lib/studio/guardrails";
 import { saveReport, createAdminClient } from "@/lib/studio/supabase-server";
 import { getLearnings, buildEnhancedPrompt } from "@/lib/studio/micro-intel";
 import { buildBrainContext, injectBrainContext } from "@/lib/studio/brain";
@@ -97,7 +98,7 @@ ${competitors.map((c) => `@${c.handle}: ${c.postCount} posts, avg ${c.avgLikes} 
 Analyze the partnership fit between @racquetsclubcommunity and @${sponsorHandle}. Provide a compatibility score, detailed analysis, and actionable recommendations.`;
 
   try {
-    const result = await runDualAgent(system, context, "analyst");
+    const result = await runDualAgent(system, wrapUntrusted("SCRAPED ACCOUNT DATA", context), "analyst");
     const reportId = await saveReport("sponsor-analyst", result);
     return NextResponse.json({ agent: "sponsor-analyst", result, reportId, learningsUsed: learnings.length });
   } catch (e: any) {

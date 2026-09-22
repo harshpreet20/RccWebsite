@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { loadDataWithFallback, getMyStats, getCompetitorStats } from "@/lib/studio/data";
 import { runDualAgent } from "@/lib/studio/dual-agent";
+import { wrapUntrusted } from "@/lib/studio/guardrails";
 import { saveReport, createAdminClient } from "@/lib/studio/supabase-server";
 import { getLearnings, buildEnhancedPrompt } from "@/lib/studio/micro-intel";
 import { buildBrainContext, injectBrainContext } from "@/lib/studio/brain";
@@ -84,7 +85,7 @@ ${topCompetitorPosts.map((p) => `"${p.caption?.slice(0, 150)}" - ${p.likes} like
 Write 3 reel scripts with hooks for a sponsor activation between @racquetsclubcommunity and @${sponsorHandle}. Make the sponsor integration feel natural and organic.`;
 
   try {
-    const result = await runDualAgent(system, context, "hooks");
+    const result = await runDualAgent(system, wrapUntrusted("SCRAPED ACCOUNT DATA", context), "hooks");
     const reportId = await saveReport("sponsor-hooks", result);
     return NextResponse.json({ agent: "sponsor-hooks", result, reportId, learningsUsed: learnings.length });
   } catch (e: any) {

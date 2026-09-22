@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { loadDataWithFallback, getMyStats } from "@/lib/studio/data";
 import { runDualAgent } from "@/lib/studio/dual-agent";
+import { wrapUntrusted } from "@/lib/studio/guardrails";
 import { saveReport } from "@/lib/studio/supabase-server";
 import { getLearnings, buildEnhancedPrompt } from "@/lib/studio/micro-intel";
 import { buildBrainContext, injectBrainContext } from "@/lib/studio/brain";
@@ -45,7 +46,7 @@ ${me.posts.slice(0, 5).map((p) => `"${p.caption?.slice(0, 80)}"`).join("\n")}
 
 Generate 5 DM templates that match my brand voice.`;
 
-  const result = await runDualAgent(system, context, "dm-manager");
+  const result = await runDualAgent(system, wrapUntrusted("SCRAPED ACCOUNT DATA", context), "dm-manager");
   const reportId = await saveReport("dm-manager", result);
   return { agent: "dm-manager" as const, result, reportId, learningsUsed: learnings.length };
 }
