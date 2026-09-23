@@ -1,6 +1,7 @@
 import { Play, Calendar, MapPin, Check } from 'lucide-react';
 import SectionEyebrow from '@/components/ui/SectionEyebrow';
 import { LinkButton } from '@/components/ui/Button';
+import EventRegisterButton from '@/components/ui/EventRegisterButton';
 import PlaceholderPanel from '@/components/ui/PlaceholderPanel';
 import { createClient } from '@/lib/supabase/server';
 import type { EventRow } from '@/app/admin/events/types';
@@ -42,14 +43,10 @@ export default async function Event() {
 
   // An admin-set register_url (e.g. Hudle, a ticketing link) always wins;
   // otherwise a real published event (has an id, unlike FALLBACK_EVENT)
-  // gets RCC's own registration form, so there's always somewhere to
-  // register once a real event exists.
-  const registerHref =
-    event.register_url && event.register_url !== '#event'
-      ? event.register_url
-      : 'id' in event
-        ? `/events/register?event=${event.id}`
-        : '#event';
+  // opens RCC's own registration form in a popup, so there's always
+  // somewhere to register once a real event exists.
+  const externalUrl = event.register_url && event.register_url !== '#event' ? event.register_url : null;
+  const eventId = 'id' in event ? event.id : null;
 
   return (
     <section id="event" className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
@@ -91,9 +88,7 @@ export default async function Event() {
             </ul>
           )}
           <div className="mt-2 flex flex-wrap items-center gap-4">
-            <LinkButton href={registerHref} variant="primary">
-              Register Now
-            </LinkButton>
+            <EventRegisterButton eventId={eventId} eventTitle={event.title} externalUrl={externalUrl} />
             <LinkButton href="#event" variant="text">
               View All Events
             </LinkButton>

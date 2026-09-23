@@ -1,5 +1,5 @@
+import { ArrowRight } from 'lucide-react';
 import SectionEyebrow from '@/components/ui/SectionEyebrow';
-import { LinkButton } from '@/components/ui/Button';
 import Image from 'next/image';
 
 const HUDLE_VENUE_URL = 'https://hudle.in/venues/the-sports-store-badminton-arena/862035';
@@ -53,15 +53,10 @@ export default function Partners() {
           </span>
           <div className="flex flex-col gap-4">
             <span className="font-display text-4xl uppercase tracking-wide text-fg">Hudle</span>
-            <LinkButton
-              href={HUDLE_VENUE_URL}
-              variant="text"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-fit"
-            >
+            <span className="inline-flex w-fit items-center gap-1 font-body text-sm font-semibold uppercase tracking-wide text-teal transition-all group-hover:gap-2">
               Book On Hudle
-            </LinkButton>
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </span>
           </div>
         </a>
       </div>

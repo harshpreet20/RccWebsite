@@ -1,9 +1,7 @@
 'use client';
 
-import { useActionState, useRef } from 'react';
+import { useActionState } from 'react';
 import { submitInquiry, type InquiryFormState } from '@/app/actions/inquiries';
-import { useAltFitAutofill } from '@/lib/useAltFitAutofill';
-import AltFitAutofillButton from '@/components/ui/AltFitAutofillButton';
 
 const INTEREST_OPTIONS = [
   { value: 'general', label: 'General Enquiry' },
@@ -20,15 +18,6 @@ export default function QueryForm() {
     undefined,
   );
 
-  const nameRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const phoneRef = useRef<HTMLInputElement>(null);
-  const { status: autofillStatus, connectAltFit } = useAltFitAutofill({
-    name: nameRef,
-    email: emailRef,
-    phone: phoneRef,
-  });
-
   if (state?.success) {
     return (
       <div className="rounded-2xl border border-teal/30 bg-panel p-8 text-center">
@@ -42,16 +31,13 @@ export default function QueryForm() {
 
   return (
     <form action={formAction} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <AltFitAutofillButton status={autofillStatus} onClick={connectAltFit} />
       <input
-        ref={nameRef}
         name="name"
         placeholder="Your Name"
         required
         className={`${inputClass} sm:col-span-1`}
       />
       <input
-        ref={emailRef}
         name="email"
         type="email"
         placeholder="Email Address"
@@ -59,7 +45,6 @@ export default function QueryForm() {
         className={`${inputClass} sm:col-span-1`}
       />
       <input
-        ref={phoneRef}
         name="phone"
         type="tel"
         placeholder="Phone Number (optional)"
