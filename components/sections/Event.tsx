@@ -40,6 +40,17 @@ export default async function Event() {
     timeZone: 'UTC',
   });
 
+  // An admin-set register_url (e.g. Hudle, a ticketing link) always wins;
+  // otherwise a real published event (has an id, unlike FALLBACK_EVENT)
+  // gets RCC's own registration form, so there's always somewhere to
+  // register once a real event exists.
+  const registerHref =
+    event.register_url && event.register_url !== '#event'
+      ? event.register_url
+      : 'id' in event
+        ? `/events/register?event=${event.id}`
+        : '#event';
+
   return (
     <section id="event" className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
       <div className="relative overflow-hidden rounded-2xl border border-border-white">
@@ -80,7 +91,7 @@ export default async function Event() {
             </ul>
           )}
           <div className="mt-2 flex flex-wrap items-center gap-4">
-            <LinkButton href={event.register_url ?? '#event'} variant="primary">
+            <LinkButton href={registerHref} variant="primary">
               Register Now
             </LinkButton>
             <LinkButton href="#event" variant="text">

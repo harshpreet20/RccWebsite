@@ -87,6 +87,12 @@ export default async function EventsPage() {
               </div>
               <div className="flex items-center gap-4">
                 <Link
+                  href={`/admin/events/${event.id}/registrations`}
+                  className="text-sm font-medium text-neutral-600 hover:text-neutral-900"
+                >
+                  Registrations
+                </Link>
+                <Link
                   href={`/admin/events/${event.id}`}
                   className="text-sm font-medium text-blue-600 hover:text-blue-700"
                 >
