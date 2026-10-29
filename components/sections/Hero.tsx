@@ -4,7 +4,7 @@ import IconStat from '@/components/ui/IconStat';
 import StarField from '@/components/ui/StarField';
 
 const STATS = [
-  { icon: Users, value: '450+', label: 'Active Members' },
+  { icon: Users, value: '522+', label: 'Active Members' },
   { icon: Building2, value: '2+', label: 'Courts Across Delhi' },
   { icon: Calendar, value: 'Daily', label: 'Games & Sessions' },
 ];
